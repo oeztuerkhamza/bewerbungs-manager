@@ -1,0 +1,17 @@
+{
+  "stelle": "Junior GenAI Entwickler",
+  "stelle_detail": "C# | .NET Core | TypeScript | React | OpenAI API | Docker",
+  "betreff": "Bewerbung als Junior GenAI Entwickler:in – Hamza Öztürk",
+  "datum": "10.03.2026",
+  "firma": "Schlätzer Technologies GmbH",
+  "ansprechpartner": "Herrn Thorben Schlätzer",
+  "firma_strasse": "",
+  "firma_plz_ort": "50937 Köln",
+  "anrede": "Sehr geehrter Herr Schlätzer,",
+  "anlagen": "Lebenslauf, Arbeitszeugnisse",
+  "absatz_1": "Ihre Stellenausschreibung als Junior GenAI Entwickler:in hat mein Interesse geweckt, da sie perfekt zu meiner Passion für <b>Künstliche Intelligenz</b> und modernen Backend-Technologien passt. Als Full-Stack-Entwickler mit fundierter Erfahrung in <b>C#/.NET</b> und <b>TypeScript</b> bringe ich bereits praktische KI-Kenntnisse durch den Einsatz der <b>OpenAI API</b> und <b>Prompt Engineering</b> mit. Meine \"Pack an\"-Mentalität habe ich bei der Dicom GmbH unter Beweis gestellt, wo ich eigenverantwortlich <b>SonarQube-Violations von 2.100 auf 30 reduzierte</b> und CI/CD-Pipelines aufbaute.",
+  "absatz_2": "In meiner aktuellen Position als Fachinformatiker bei der Dicom GmbH entwickle ich täglich <b>RESTful APIs mit C#/.NET Core</b> und arbeite mit modernen Datenbanktechnologien wie <b>SQL Server und SQLite</b>. Besonders stolz bin ich auf die Implementierung von <b>KI-gestützten Lösungen</b> in unserem Enterprise-ERP-System DI-ONE, wo ich OpenAI Assistants v2 zur Code-Generierung und Fehleranalyse einsetze. Durch meine Architektur-Migration auf <b>Clean Architecture</b> konnte ich die Deployment-Zeit um 40% verkürzen und die Code-Qualität nachhaltig verbessern.",
+  "absatz_3": "Meine praktische GenAI-Erfahrung zeigt sich in mehreren eigenständigen Projekten: Bei <b>Bikehaus Freiburg</b> entwickelte ich eine vollständige Warenwirtschaftslösung mit C#/.NET-API und Angular, die produktiv im Einsatz ist. Für die <b>Kulturplattform Freiburg e.V.</b> erstelle ich derzeit eine React-basierte Vereinswebsite mit .NET-Backend und KI-gestützten Features. Diese Projekte demonstrieren meine Fähigkeit, <b>eigenverantwortlich komplette Software-Lösungen</b> von der Konzeption bis zum Deployment zu entwickeln.",
+  "absatz_4": "Ihre Anforderungen an moderne Backend-Frameworks erfülle ich durch meine umfassende Erfahrung mit <b>ASP.NET Core</b>, das als stark vergleichbare Plattform zu den von Ihnen genannten Node.js-Frameworks fungiert. Meine <b>TypeScript-Kenntnisse</b> aus der Frontend-Entwicklung mit Angular und React ermöglichen mir einen nahtlosen Übergang zu TypeScript-Backend-Entwicklung. Durch <b>Docker, CI/CD-Pipelines</b> und die Arbeit mit verschiedenen Datenbanken (SQL Server, SQLite, PostgreSQL-Erfahrung) bringe ich das erforderliche DevOps-Verständnis mit.",
+  "absatz_5": "Die Möglichkeit, in einem dynamischen Team an GenAI-Lösungen für verschiedene Unternehmen zu arbeiten und dabei <b>Verantwortung für Tech Stack und Architektur-Entscheidungen</b> zu übernehmen, motiviert mich sehr. Gerne möchte ich meine KI-Begeisterung und pragmatische Herangehensweise in Ihr Team einbringen und freue mich auf ein persönliches Gespräch, um zu erläutern, wie ich zur Entwicklung der Software-Lösungen von morgen beitragen kann."
+}

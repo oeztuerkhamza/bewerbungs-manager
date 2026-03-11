@@ -1,0 +1,17 @@
+{
+  "stelle": "Junior-Webentwickler",
+  "stelle_detail": "C#/.NET | Angular | Full-Stack Development",
+  "betreff": "Bewerbung als Junior-Webentwickler (m/w/d) – Full-Stack Entwickler mit .NET und Angular Expertise",
+  "datum": "10.03.2026",
+  "firma": "kesselhaus",
+  "ansprechpartner": "Frau Isabell Coan",
+  "firma_strasse": "Beim Alten Ausbesserungswerk 4",
+  "firma_plz_ort": "77654 Offenburg",
+  "anrede": "Sehr geehrte Frau Coan,",
+  "anlagen": "Lebenslauf, Arbeitszeugnisse, Zertifikate",
+  "absatz_1": "mit großem Interesse habe ich Ihre Stellenausschreibung als Junior-Webentwickler (m/w/d) entdeckt und bin überzeugt, dass meine Qualifikationen als <b>Full-Stack-Entwickler mit C#/.NET und Angular</b> perfekt zu Ihren Anforderungen passen. Als Fachinformatiker für Anwendungsentwicklung mit fundierter Praxiserfahrung in der modernen Webentwicklung bringe ich sowohl <b>Backend- als auch Frontend-Expertise</b> mit. Die Möglichkeit des hybriden Arbeitens und die innovative Arbeitsumgebung bei kesselhaus motivieren mich besonders, Teil Ihres Entwicklerteams zu werden.",
+  "absatz_2": "In meiner aktuellen Position bei der Dicom GmbH in Freiburg habe ich bereits beeindruckende Erfolge als Full-Stack-Entwickler erzielt. Durch <b>systematische Code-Optimierung</b> konnte ich SonarQube-Violations innerhalb von nur 3 Wochen von 2.100 auf 30 reduzieren und damit die Codequalität drastisch verbessern. Zusätzlich habe ich <b>CI/CD-Pipelines mit GitHub Actions</b> implementiert, wodurch sich die Deployment-Zeit um 40% verkürzt hat. Die Migration einer Legacy-ERP-Anwendung auf Clean Architecture zeigt meine Fähigkeit, auch komplexe technische Herausforderungen strukturiert anzugehen.",
+  "absatz_3": "Meine praktischen Fähigkeiten demonstriere ich durch mehrere erfolgreiche Projekte: Das <b>Live-Produkt Bikehaus Freiburg</b> entwickelte ich als vollständige digitale Warenwirtschaft mit C#/.NET-API, Angular 17 und Electron. Für die Kulturplattform Freiburg e.V. realisierte ich ehrenamtlich eine zweisprachige Vereinswebsite mit .NET 10 Clean Architecture und React 19. Diese Projekte zeigen meine Kompetenz in der <b>eigenständigen Umsetzung von Web-Anwendungen</b> vom Konzept bis zur produktiven Bereitstellung.",
+  "absatz_4": "Technisch bringe ich eine <b>moderne und vielseitige Expertise</b> mit: Im Backend arbeite ich mit C#, .NET Core, ASP.NET Core, Entity Framework Core und SQL Server, während ich im Frontend sowohl Angular (17/19) als auch React 19 mit TypeScript beherrsche. Meine DevOps-Kenntnisse umfassen Docker, GitHub Actions, Azure Pipelines und SonarQube für kontinuierliche Integration und Qualitätssicherung. Zusätzlich setze ich <b>KI-Tools und Prompt Engineering</b> gezielt für Code-Generierung und Fehleranalyse ein, was meine Produktivität und Code-Qualität weiter steigert.",
+  "absatz_5": "Die Position als Junior-Webentwickler bei kesselhaus bietet mir die ideale Gelegenheit, meine <b>Full-Stack-Expertise in einem innovativen Umfeld</b> weiterzuentwickeln und gleichzeitig wertvolle Beiträge zu Ihren Projekten zu leisten. Ich freue mich darauf, in einem persönlichen Gespräch zu erläutern, wie ich Ihr Entwicklerteam mit meiner Erfahrung und Leidenschaft für moderne Webtechnologien unterstützen kann. Über eine Einladung zu einem Vorstellungsgespräch würde ich mich sehr freuen."
+}

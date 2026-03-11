@@ -1,0 +1,17 @@
+{
+  "stelle": "Fullstack Entwickler",
+  "stelle_detail": "C# | .NET | Angular",
+  "betreff": "Bewerbung als Fullstack Entwickler – C# / .NET / Angular",
+  "datum": "10.03.2026",
+  "firma": "Musterfirma GmbH",
+  "ansprechpartner": "Frau / Herrn Mustermann",
+  "firma_strasse": "Musterstraße 1",
+  "firma_plz_ort": "79098 Freiburg im Breisgau",
+  "anrede": "Sehr geehrte Damen und Herren,",
+  "anlagen": "Lebenslauf, Arbeitszeugnisse, Zertifikate",
+  "absatz_1": "mit großem Interesse habe ich Ihre Stellenausschreibung als Fullstack Entwickler gelesen. Als ausgebildeter <b>Fachinformatiker für Anwendungsentwicklung</b> mit fundierter Praxis in <b>C#/.NET</b> und <b>Angular</b> bringe ich genau die Kombination aus technischer Tiefe und Eigeninitiative mit, die Ihr Team weiterbringt.",
+  "absatz_2": "In meiner bisherigen Position bei der Dicom GmbH war ich maßgeblich an der <b>Neuentwicklung eines Enterprise-ERP-Systems</b> beteiligt: Ich habe über 40 API-Controller in .NET 9 mit Clean Architecture umgesetzt, das Angular-19-Frontend mit NgRx und MSAL-SSO aufgebaut und eine CI/CD-Pipeline eingeführt, die die <b>Deployment-Zeit um 40 %</b> verkürzt hat. Besonders stolz bin ich darauf, die SonarQube-Violations innerhalb von <b>drei Wochen von 2.100 auf 30</b> gesenkt zu haben – ein Ergebnis, das meine Leidenschaft für sauberen, wartbaren Code zeigt.",
+  "absatz_3": "Neben dem Berufsalltag betreibe ich eigene Open-Source-Projekte: <b>Bikehaus Freiburg</b> – ein produktiv eingesetztes Warenwirtschaftssystem mit .NET-API, Angular-Client, Electron-Desktop-App und Chrome Extension – sowie die <b>Kulturplattform Freiburg e.V.</b>, eine zweisprachige Vereinswebsite mit React 19 und .NET 10. Diese Projekte belegen, dass ich End-to-End-Verantwortung übernehme: von der Architektur über die Implementierung bis zum Deployment auf eigenen Servern.",
+  "absatz_4": "Technologisch fühle ich mich im gesamten Stack zu Hause – von Docker-Containern und GitHub Actions über RESTful APIs bis hin zu modernen Frontend-Frameworks. Darüber hinaus setze ich <b>KI-Tools und Prompt Engineering</b> gezielt ein, um Entwicklungsprozesse zu beschleunigen und Code-Qualität zu steigern.",
+  "absatz_5": "Ich bin überzeugt, dass mein Profil – gepaart mit meiner Motivation, mich stetig weiterzuentwickeln – einen echten Mehrwert für Ihr Unternehmen darstellt. Über die Einladung zu einem persönlichen Gespräch freue ich mich sehr."
+}
