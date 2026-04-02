@@ -84,13 +84,26 @@ ARBEITS_ZEUGNIS_PDF = os.path.join(SCRIPT_DIR, 'Zeugnis', 'bewerbung_software_en
 BERUFSCHULE_ZEUGNIS_PDF = os.path.join(SCRIPT_DIR, 'Zeugnis', 'bewerbung_software_entwickler_herr_öztürk_berufschule_zeugnis.pdf')
 DATA_ANALYST_ZERT_PDF = os.path.join(SCRIPT_DIR, 'Zeugnis', 'bewerbung_software_entwickler_herr_öztürk_data_analyst _zertifikate.pdf')
 IHK_ZEUGNIS_PDF = os.path.join(SCRIPT_DIR, 'Zeugnis', 'bewerbung_software_entwickler_herr_öztürk_IHK_zeugnis.pdf')
-NAVY  = '#1B3764'
-WHITE = '#FFFFFF'
-BG    = '#F5F6F8'
-BG2   = '#EBEDF2'
-FG    = '#1F1F1F'
-GRAY  = '#777777'
-ACCENT = '#2A4F8A'
+# ─── PREMIUM COLOR PALETTE ───────────────────────────────────────────────────
+NAVY       = '#0D1B2A'
+NAVY_MID   = '#1B2838'
+NAVY_LIGHT = '#274060'
+WHITE      = '#FFFFFF'
+BG         = '#F0F2F5'
+BG2        = '#E8ECF1'
+BG_CARD    = '#FFFFFF'
+FG         = '#1E293B'
+FG_LIGHT   = '#475569'
+GRAY       = '#94A3B8'
+ACCENT     = '#C9A84C'      # premium gold
+ACCENT_HVR = '#B8963F'
+ACCENT2    = '#2563EB'       # action blue
+ACCENT2_HVR= '#1D4ED8'
+SUCCESS    = '#059669'
+CARD_BD    = '#E2E8F0'
+DIVIDER    = '#CBD5E1'
+FONT       = 'Segoe UI'
+FONT_MONO  = 'Cascadia Code'
 
 
 # ─── HELPER ──────────────────────────────────────────────────────────────────
@@ -110,15 +123,15 @@ def safe_filename(text):
 class BewerbungsApp(tk.Tk):
     def __init__(self):
         super().__init__()
-        self.title('Bewerbungs-Manager')
+        self.title('Bewerbungs-Manager  ·  Premium Suite')
         self.configure(bg=BG)
-        self.minsize(960, 780)
+        self.minsize(1080, 860)
         self.resizable(True, True)
 
         # Centre on screen
         self.update_idletasks()
         sw, sh = self.winfo_screenwidth(), self.winfo_screenheight()
-        w, h = 1020, 830
+        w, h = 1140, 900
         self.geometry(f'{w}x{h}+{(sw-w)//2}+{(sh-h)//2}')
 
         self._build_ui()
@@ -128,46 +141,145 @@ class BewerbungsApp(tk.Tk):
     def _build_ui(self):
         style = ttk.Style(self)
         style.theme_use('clam')
+
+        # ── Premium Button Styles ──
+        style.configure('Gold.TButton',
+                        background=ACCENT, foreground=NAVY,
+                        font=(FONT, 10, 'bold'), padding=(16, 8),
+                        borderwidth=0)
+        style.map('Gold.TButton',
+                  background=[('active', ACCENT_HVR), ('pressed', ACCENT_HVR)],
+                  foreground=[('active', WHITE)])
+
         style.configure('Navy.TButton',
                         background=NAVY, foreground=WHITE,
-                        font=('Calibri', 10, 'bold'), padding=(14, 6))
+                        font=(FONT, 10, 'bold'), padding=(16, 8),
+                        borderwidth=0)
         style.map('Navy.TButton',
-                  background=[('active', ACCENT), ('pressed', ACCENT)])
+                  background=[('active', NAVY_LIGHT), ('pressed', NAVY_LIGHT)])
+
         style.configure('Accent.TButton',
-                        background=ACCENT, foreground=WHITE,
-                        font=('Calibri', 10), padding=(10, 5))
+                        background=ACCENT2, foreground=WHITE,
+                        font=(FONT, 10), padding=(12, 7),
+                        borderwidth=0)
         style.map('Accent.TButton',
-                  background=[('active', NAVY), ('pressed', NAVY)])
+                  background=[('active', ACCENT2_HVR), ('pressed', ACCENT2_HVR)])
+
+        style.configure('Ghost.TButton',
+                        background=BG, foreground=FG,
+                        font=(FONT, 10), padding=(12, 7),
+                        borderwidth=1, relief='solid')
+        style.map('Ghost.TButton',
+                  background=[('active', CARD_BD), ('pressed', CARD_BD)])
+
+        # ── Label Styles ──
         style.configure('TLabel', background=BG, foreground=FG,
-                        font=('Calibri', 10))
+                        font=(FONT, 10))
         style.configure('Header.TLabel', background=NAVY, foreground=WHITE,
-                        font=('Calibri', 14, 'bold'), padding=(12, 8))
+                        font=(FONT, 15, 'bold'), padding=(14, 10))
         style.configure('Section.TLabel', background=BG, foreground=NAVY,
-                        font=('Calibri', 11, 'bold'))
+                        font=(FONT, 11, 'bold'))
+        style.configure('SectionCard.TLabel', background=WHITE, foreground=NAVY,
+                        font=(FONT, 11, 'bold'))
+        style.configure('CardLabel.TLabel', background=WHITE, foreground=FG,
+                        font=(FONT, 10))
+        style.configure('Subtle.TLabel', background=BG, foreground=GRAY,
+                        font=(FONT, 9))
+
+        # ── Frame Styles ──
         style.configure('TFrame', background=BG)
-        style.configure('Card.TFrame', background=WHITE, relief='flat')
-        style.configure('TNotebook', background=BG)
-        style.configure('TNotebook.Tab', font=('Calibri', 10, 'bold'),
-                        padding=(16, 6))
-        style.configure('TEntry', font=('Calibri', 10))
+        style.configure('Card.TFrame', background=WHITE)
+        style.configure('NavyFrame.TFrame', background=NAVY)
 
-        # ── HEADER ──
-        hdr = tk.Frame(self, bg=NAVY, height=48)
+        # ── Notebook (Premium Tabs) ──
+        style.configure('TNotebook', background=BG, borderwidth=0)
+        style.configure('TNotebook.Tab',
+                        font=(FONT, 10, 'bold'),
+                        padding=(20, 10),
+                        background=BG2,
+                        foreground=FG_LIGHT)
+        style.map('TNotebook.Tab',
+                  background=[('selected', WHITE)],
+                  foreground=[('selected', NAVY)],
+                  expand=[('selected', [0, 0, 0, 2])])
+
+        # ── Entry Style ──
+        style.configure('TEntry', font=(FONT, 10), padding=6)
+
+        # ── Separator ──
+        style.configure('Gold.TSeparator', background=ACCENT)
+
+        # ═══ HEADER (Gradient Canvas) ═══
+        hdr_h = 64
+        hdr = tk.Canvas(self, height=hdr_h, bg=NAVY, highlightthickness=0)
         hdr.pack(fill='x')
-        hdr.pack_propagate(False)
-        tk.Label(hdr, text='  BEWERBUNGS-MANAGER', bg=NAVY, fg=WHITE,
-                 font=('Calibri', 14, 'bold'), anchor='w').pack(
-                     side='left', padx=8, fill='both', expand=True)
+        # Draw subtle gradient stripe at bottom
+        for i in range(6):
+            alpha_color = self._blend(NAVY, ACCENT, i / 5)
+            hdr.create_rectangle(0, hdr_h - 6 + i, 2000, hdr_h - 5 + i,
+                                 fill=alpha_color, outline='')
+        # Logo / Title
+        hdr.create_text(24, hdr_h // 2 - 2, anchor='w',
+                        text='◆  BEWERBUNGS-MANAGER',
+                        fill=WHITE, font=(FONT, 16, 'bold'))
+        hdr.create_text(320, hdr_h // 2 - 2, anchor='w',
+                        text='Premium Suite',
+                        fill=ACCENT, font=(FONT, 11))
 
-        # ── NOTEBOOK ──
+        # ── Gold accent line ──
+        tk.Frame(self, bg=ACCENT, height=3).pack(fill='x')
+
+        # ═══ STATUS BAR ═══  (pack bottom elements FIRST so notebook doesn't eat all space)
+        status_frame = tk.Frame(self, bg=NAVY, height=28)
+        status_frame.pack(fill='x', side='bottom')
+        status_frame.pack_propagate(False)
+        self._status_var = tk.StringVar(value='◆  Bereit.')
+        tk.Label(status_frame, textvariable=self._status_var,
+                 bg=NAVY, fg=ACCENT,
+                 font=(FONT, 9), anchor='w', padx=12).pack(
+                     side='left', fill='both', expand=True)
+        tk.Label(status_frame, text='v2.0  Premium',
+                 bg=NAVY, fg=GRAY,
+                 font=(FONT, 8), anchor='e', padx=12).pack(side='right')
+
+        # ═══ BOTTOM ACTION BAR ═══
+        bar = tk.Frame(self, bg=NAVY_MID, height=66)
+        bar.pack(fill='x', side='bottom', pady=(6, 0))
+        bar.pack_propagate(False)
+
+        inner = tk.Frame(bar, bg=NAVY_MID)
+        inner.pack(expand=True)
+
+        ttk.Button(inner, text='📄  Lebenslauf',
+                   style='Gold.TButton',
+                   command=self._gen_lebenslauf).pack(
+                       side='left', padx=5, pady=12)
+        ttk.Button(inner, text='✉  Anschreiben',
+                   style='Gold.TButton',
+                   command=self._gen_anschreiben).pack(
+                       side='left', padx=5, pady=12)
+        ttk.Button(inner, text='📑  Beide erstellen',
+                   style='Gold.TButton',
+                   command=self._gen_both).pack(
+                       side='left', padx=5, pady=12)
+        ttk.Button(inner, text='📦  Bewerbungs-PDF',
+                   style='Navy.TButton',
+                   command=self._gen_bewerbung_pdf).pack(
+                       side='left', padx=5, pady=12)
+        ttk.Button(inner, text='📂  Ordner öffnen',
+                   style='Ghost.TButton',
+                   command=self._open_folder).pack(
+                       side='left', padx=5, pady=12)
+
+        # ═══ NOTEBOOK ═══
         nb = ttk.Notebook(self)
-        nb.pack(fill='both', expand=True, padx=10, pady=(8, 0))
+        nb.pack(fill='both', expand=True, padx=16, pady=(12, 0))
 
-        self._tab_ki        = self._make_tab(nb, '🤖 KI-Assistent')
-        self._tab_stelle    = self._make_tab(nb, 'Stelle & Firma')
-        self._tab_anschr    = self._make_tab(nb, 'Anschreiben-Text')
-        self._tab_email     = self._make_tab(nb, '✉ E-Mail')
-        self._tab_profile   = self._make_tab(nb, 'Profile')
+        self._tab_ki        = self._make_tab(nb, '🤖  KI-Assistent')
+        self._tab_stelle    = self._make_tab(nb, '📋  Stelle & Firma')
+        self._tab_anschr    = self._make_tab(nb, '✍  Anschreiben')
+        self._tab_email     = self._make_tab(nb, '📧  E-Mail')
+        self._tab_profile   = self._make_tab(nb, '👤  Profile')
 
         self._build_ki_tab(self._tab_ki)
         self._build_stelle_tab(self._tab_stelle)
@@ -176,52 +288,58 @@ class BewerbungsApp(tk.Tk):
         self._build_profile_tab(self._tab_profile)
         self._nb = nb
 
-        # ── BOTTOM BUTTONS ──
-        bar = tk.Frame(self, bg=BG2, height=56)
-        bar.pack(fill='x', side='bottom', pady=(4, 0))
-        bar.pack_propagate(False)
-
-        inner = tk.Frame(bar, bg=BG2)
-        inner.pack(expand=True)
-
-        ttk.Button(inner, text='📄  Lebenslauf erstellen',
-                   style='Navy.TButton',
-                   command=self._gen_lebenslauf).pack(
-                       side='left', padx=6, pady=10)
-        ttk.Button(inner, text='✉  Anschreiben erstellen',
-                   style='Navy.TButton',
-                   command=self._gen_anschreiben).pack(
-                       side='left', padx=6, pady=10)
-        ttk.Button(inner, text='📑  Beide erstellen',
-                   style='Navy.TButton',
-                   command=self._gen_both).pack(
-                       side='left', padx=6, pady=10)
-        ttk.Button(inner, text='📦  Bewerbungs-PDF (mit Kapak)',
-                   style='Navy.TButton',
-                   command=self._gen_bewerbung_pdf).pack(
-                       side='left', padx=6, pady=10)
-        ttk.Button(inner, text='📂  Ordner öffnen',
-                   style='Accent.TButton',
-                   command=self._open_folder).pack(
-                       side='left', padx=6, pady=10)
-
-        # ── STATUS BAR ──
-        self._status_var = tk.StringVar(value='Bereit.')
-        tk.Label(self, textvariable=self._status_var, bg=NAVY, fg=WHITE,
-                 font=('Calibri', 9), anchor='w', padx=8).pack(
-                     fill='x', side='bottom')
+    @staticmethod
+    def _blend(c1, c2, t):
+        """Linearly blend two hex colours; t in [0, 1]."""
+        r1, g1, b1 = int(c1[1:3], 16), int(c1[3:5], 16), int(c1[5:7], 16)
+        r2, g2, b2 = int(c2[1:3], 16), int(c2[3:5], 16), int(c2[5:7], 16)
+        r = int(r1 + (r2 - r1) * t)
+        g = int(g1 + (g2 - g1) * t)
+        b = int(b1 + (b2 - b1) * t)
+        return f'#{r:02x}{g:02x}{b:02x}'
 
     def _make_tab(self, nb, title):
         frame = ttk.Frame(nb, style='TFrame')
         nb.add(frame, text=f'  {title}  ')
         return frame
 
+    # ── CARD CONTAINER HELPER ────────────────────────────────────────────
+    def _make_card(self, parent, title=None, padx=16, pady=8):
+        """Create a white card container with optional title."""
+        outer = tk.Frame(parent, bg=BG)
+        outer.pack(fill='x', padx=padx, pady=pady)
+        # Card with border
+        card = tk.Frame(outer, bg=WHITE, highlightbackground=CARD_BD,
+                        highlightthickness=1, padx=16, pady=12)
+        card.pack(fill='x')
+        if title:
+            tk.Label(card, text=title, bg=WHITE, fg=NAVY,
+                     font=(FONT, 11, 'bold'), anchor='w').pack(
+                         anchor='w', pady=(0, 8))
+            tk.Frame(card, bg=DIVIDER, height=1).pack(fill='x', pady=(0, 8))
+        return card
+
+    def _make_card_grid(self, parent, title=None, padx=16, pady=8):
+        """Create a white card container using grid layout internally."""
+        outer = tk.Frame(parent, bg=BG)
+        # Card with border
+        card = tk.Frame(outer, bg=WHITE, highlightbackground=CARD_BD,
+                        highlightthickness=1, padx=16, pady=12)
+        card.pack(fill='x')
+        if title:
+            tk.Label(card, text=title, bg=WHITE, fg=NAVY,
+                     font=(FONT, 11, 'bold'), anchor='w').grid(
+                         row=0, column=0, columnspan=3, sticky='w', pady=(0, 4))
+            tk.Frame(card, bg=DIVIDER, height=1).grid(
+                row=1, column=0, columnspan=3, sticky='ew', pady=(0, 8))
+        return outer, card
+
     # ── TAB 0: KI-ASSISTENT ─────────────────────────────────────────────
     def _build_ki_tab(self, parent):
         canvas = tk.Canvas(parent, bg=BG, highlightthickness=0)
         scrollbar = ttk.Scrollbar(parent, orient='vertical',
                                   command=canvas.yview)
-        scroll_frame = ttk.Frame(canvas, style='TFrame')
+        scroll_frame = tk.Frame(canvas, bg=BG)
         scroll_frame.bind('<Configure>',
                           lambda e: canvas.configure(
                               scrollregion=canvas.bbox('all')))
@@ -230,107 +348,116 @@ class BewerbungsApp(tk.Tk):
         canvas.pack(side='left', fill='both', expand=True)
         scrollbar.pack(side='right', fill='y')
 
-        c = scroll_frame
-        row = 0
+        # ── Description card ──
+        desc_card = self._make_card(scroll_frame, padx=16, pady=(12, 4))
+        tk.Label(desc_card, text=(
+            'Stellenanzeige einfügen (URL oder Text) \u2192 '
+            'Claude analysiert die Anforderungen und erstellt '
+            'maßgeschneiderte Bewerbungsunterlagen auf Basis '
+            'deines Lebenslaufs.'),
+            bg=WHITE, fg=FG_LIGHT, font=(FONT, 10),
+            wraplength=850, justify='left', anchor='w').pack(anchor='w')
 
-        # Description
-        desc = ttk.Label(
-            c, style='TLabel', wraplength=800,
-            text='Stellenanzeige einfügen (URL oder Text) \u2192 '
-                 'Claude analysiert die Anforderungen und erstellt '
-                 'maßgeschneiderte Bewerbungsunterlagen auf Basis '
-                 'deines Lebenslaufs.')
-        desc.grid(row=row, column=0, columnspan=3, sticky='w',
-                  padx=12, pady=(12, 8))
-        row += 1
+        # ── API Key Card ──
+        api_outer, api_card = self._make_card_grid(scroll_frame, '🔑  CLAUDE API KEY', padx=16, pady=4)
+        api_outer.pack(fill='x', padx=16, pady=4)
 
-        # API Key
-        row = self._ki_section(c, 'CLAUDE API KEY', row)
-        ttk.Label(c, text='API Key').grid(
-            row=row, column=0, sticky='e', padx=(12, 6), pady=3)
+        row = 2
+        tk.Label(api_card, text='API Key', bg=WHITE, fg=FG,
+                 font=(FONT, 10)).grid(
+            row=row, column=0, sticky='e', padx=(0, 8), pady=4)
         self._api_key_var = tk.StringVar(value=self._load_api_key())
-        key_entry = ttk.Entry(c, textvariable=self._api_key_var,
-                              width=60, font=('Calibri', 10), show='•')
-        key_entry.grid(row=row, column=1, sticky='w', padx=(0, 6), pady=3)
-        ttk.Button(c, text='Speichern', style='Accent.TButton',
+        key_entry = ttk.Entry(api_card, textvariable=self._api_key_var,
+                              width=60, font=(FONT, 10), show='•')
+        key_entry.grid(row=row, column=1, sticky='w', padx=(0, 8), pady=4)
+        ttk.Button(api_card, text='Speichern', style='Accent.TButton',
                    command=self._save_api_key).grid(
-                       row=row, column=2, sticky='w', padx=4, pady=3)
+                       row=row, column=2, sticky='w', padx=4, pady=4)
         row += 1
 
-        # Visibility toggle
         self._show_key = tk.BooleanVar(value=False)
         def _toggle_key():
             key_entry.configure(show='' if self._show_key.get() else '•')
-        tk.Checkbutton(c, text='Key anzeigen', variable=self._show_key,
-                       command=_toggle_key, bg=BG, fg=FG,
-                       font=('Calibri', 9), activebackground=BG).grid(
+        tk.Checkbutton(api_card, text='Key anzeigen', variable=self._show_key,
+                       command=_toggle_key, bg=WHITE, fg=FG,
+                       font=(FONT, 9), activebackground=WHITE,
+                       selectcolor=WHITE).grid(
                            row=row, column=1, sticky='w', padx=0, pady=0)
-        row += 1
 
-        # Job URL
-        row = self._ki_section(c, 'STELLENANZEIGE', row)
-        ttk.Label(c, text='URL').grid(
-            row=row, column=0, sticky='e', padx=(12, 6), pady=3)
+        # ── Stellenanzeige Card ──
+        job_outer, job_card = self._make_card_grid(scroll_frame, '📋  STELLENANZEIGE', padx=16, pady=4)
+        job_outer.pack(fill='x', padx=16, pady=4)
+
+        row = 2
+        tk.Label(job_card, text='URL', bg=WHITE, fg=FG,
+                 font=(FONT, 10)).grid(
+            row=row, column=0, sticky='e', padx=(0, 8), pady=4)
         self._job_url_var = tk.StringVar()
-        ttk.Entry(c, textvariable=self._job_url_var, width=70,
-                  font=('Calibri', 10)).grid(
+        ttk.Entry(job_card, textvariable=self._job_url_var, width=70,
+                  font=(FONT, 10)).grid(
                       row=row, column=1, columnspan=2, sticky='w',
-                      padx=(0, 12), pady=3)
+                      padx=(0, 12), pady=4)
         row += 1
 
-        # OR: paste job text
-        ttk.Label(c, text='Oder Text einfügen:',
-                  style='Section.TLabel').grid(
+        tk.Label(job_card, text='oder Stellentext direkt einfügen:',
+                 bg=WHITE, fg=FG_LIGHT, font=(FONT, 10)).grid(
                       row=row, column=0, columnspan=3, sticky='w',
-                      padx=12, pady=(8, 2))
+                      padx=0, pady=(8, 2))
         row += 1
         self._job_text_widget = tk.Text(
-            c, height=10, width=95, font=('Calibri', 10),
-            wrap='word', bg=WHITE, fg=FG, relief='flat',
-            borderwidth=1, padx=6, pady=4)
+            job_card, height=10, width=95, font=(FONT, 10),
+            wrap='word', bg='#F8FAFC', fg=FG, relief='solid',
+            borderwidth=1, highlightbackground=CARD_BD,
+            highlightthickness=0, padx=8, pady=6)
         self._job_text_widget.grid(
             row=row, column=0, columnspan=3, sticky='we',
-            padx=12, pady=(0, 6))
-        row += 1
+            padx=0, pady=(0, 6))
 
-        # Extra instructions
-        row = self._ki_section(c, 'ZUSÄTZLICHE HINWEISE (OPTIONAL)', row)
+        # ── Extra Instructions Card ──
+        extra_outer, extra_card = self._make_card_grid(scroll_frame, '💡  ZUSÄTZLICHE HINWEISE', padx=16, pady=4)
+        extra_outer.pack(fill='x', padx=16, pady=4)
+
+        row = 2
         self._extra_instr_widget = tk.Text(
-            c, height=3, width=95, font=('Calibri', 10),
-            wrap='word', bg=WHITE, fg=FG, relief='flat',
-            borderwidth=1, padx=6, pady=4)
+            extra_card, height=3, width=95, font=(FONT, 10),
+            wrap='word', bg='#F8FAFC', fg=FG, relief='solid',
+            borderwidth=1, highlightbackground=CARD_BD,
+            highlightthickness=0, padx=8, pady=6)
         self._extra_instr_widget.insert('1.0',
             'z.B.: Betone Docker-Erfahrung stärker, '
             'erwähne Remote-Bereitschaft...')
         self._extra_instr_widget.grid(
             row=row, column=0, columnspan=3, sticky='we',
-            padx=12, pady=(0, 6))
-        row += 1
+            padx=0, pady=(0, 6))
 
-        # Generate button
-        btn_frame = ttk.Frame(c, style='TFrame')
-        btn_frame.grid(row=row, column=0, columnspan=3, pady=(8, 4))
-        ttk.Button(btn_frame,
+        # ── Generate Buttons Card ──
+        btn_card = self._make_card(scroll_frame, padx=16, pady=4)
+        btn_inner = tk.Frame(btn_card, bg=WHITE)
+        btn_inner.pack()
+        ttk.Button(btn_inner,
                    text='🤖  KI-Bewerbung generieren',
-                   style='Navy.TButton',
+                   style='Gold.TButton',
                    command=self._ki_generate).pack(side='left', padx=6)
-        ttk.Button(btn_frame,
+        ttk.Button(btn_inner,
                    text='🤖 + 📄  Generieren & PDFs erstellen',
                    style='Navy.TButton',
                    command=self._ki_generate_and_pdf).pack(side='left', padx=6)
-        row += 1
 
-        # Log output
-        row = self._ki_section(c, 'LOG', row)
+        # ── Log Card ──
+        log_outer, log_card = self._make_card_grid(scroll_frame, '📊  LOG', padx=16, pady=(4, 12))
+        log_outer.pack(fill='x', padx=16, pady=(4, 12))
+
         self._ki_log = tk.Text(
-            c, height=8, width=95, font=('Consolas', 9),
-            wrap='word', bg='#1E1E1E', fg='#D4D4D4', relief='flat',
-            borderwidth=1, padx=6, pady=4, state='disabled')
-        self._ki_log.grid(row=row, column=0, columnspan=3, sticky='we',
-                          padx=12, pady=(0, 12))
+            log_card, height=8, width=95, font=(FONT_MONO, 9),
+            wrap='word', bg='#0F172A', fg='#E2E8F0', relief='flat',
+            borderwidth=0, padx=10, pady=8, state='disabled',
+            insertbackground='#E2E8F0')
+        self._ki_log.grid(row=2, column=0, columnspan=3, sticky='we',
+                          padx=0, pady=(0, 4))
 
     def _ki_section(self, parent, title, row):
-        lbl = ttk.Label(parent, text=title, style='Section.TLabel')
+        lbl = tk.Label(parent, text=title, bg=WHITE, fg=NAVY,
+                       font=(FONT, 11, 'bold'))
         lbl.grid(row=row, column=0, columnspan=3, sticky='w',
                  padx=12, pady=(14, 4))
         return row + 1
@@ -470,7 +597,7 @@ class BewerbungsApp(tk.Tk):
         canvas = tk.Canvas(parent, bg=BG, highlightthickness=0)
         scrollbar = ttk.Scrollbar(parent, orient='vertical',
                                   command=canvas.yview)
-        scroll_frame = ttk.Frame(canvas, style='TFrame')
+        scroll_frame = tk.Frame(canvas, bg=BG)
         scroll_frame.bind('<Configure>',
                           lambda e: canvas.configure(
                               scrollregion=canvas.bbox('all')))
@@ -484,32 +611,39 @@ class BewerbungsApp(tk.Tk):
             canvas.yview_scroll(int(-1 * (e.delta / 120)), 'units')
         canvas.bind_all('<MouseWheel>', _on_mousewheel)
 
-        c = scroll_frame
         self.vars = {}
-        row = 0
 
-        row = self._section(c, 'STELLE', row)
-        row = self._field(c, 'stelle', 'Stellenbezeichnung',
+        # ── Stelle Card ──
+        stelle_outer, stelle_card = self._make_card_grid(scroll_frame, '📋  STELLE', padx=16, pady=(12, 4))
+        stelle_outer.pack(fill='x', padx=16, pady=(12, 4))
+        row = 2
+        row = self._field_card(stelle_card, 'stelle', 'Stellenbezeichnung',
                           'Fullstack Entwickler', row)
-        row = self._field(c, 'bewerbung_email', 'Bewerbungs-E-Mail',
+        row = self._field_card(stelle_card, 'bewerbung_email', 'Bewerbungs-E-Mail',
                   'jobs@example.com', row)
-        row = self._field(c, 'betreff', 'Betreff-Zeile',
+        row = self._field_card(stelle_card, 'betreff', 'Betreff-Zeile',
                           'Bewerbung als Fullstack Entwickler – C# / .NET / Angular',
                           row, width=70)
-        row = self._field(c, 'datum', 'Datum', today_de(), row)
+        row = self._field_card(stelle_card, 'datum', 'Datum', today_de(), row)
 
-        row = self._section(c, 'FIRMA', row)
-        row = self._field(c, 'firma', 'Firmenname', 'Musterfirma GmbH', row)
-        row = self._field(c, 'ansprechpartner', 'Ansprechpartner',
+        # ── Firma Card ──
+        firma_outer, firma_card = self._make_card_grid(scroll_frame, '🏢  FIRMA', padx=16, pady=4)
+        firma_outer.pack(fill='x', padx=16, pady=4)
+        row = 2
+        row = self._field_card(firma_card, 'firma', 'Firmenname', 'Musterfirma GmbH', row)
+        row = self._field_card(firma_card, 'ansprechpartner', 'Ansprechpartner',
                           'Frau / Herrn Mustermann', row)
-        row = self._field(c, 'firma_strasse', 'Straße', 'Musterstraße 1', row)
-        row = self._field(c, 'firma_plz_ort', 'PLZ + Ort',
+        row = self._field_card(firma_card, 'firma_strasse', 'Straße', 'Musterstraße 1', row)
+        row = self._field_card(firma_card, 'firma_plz_ort', 'PLZ + Ort',
                           '79098 Freiburg im Breisgau', row)
 
-        row = self._section(c, 'ANREDE & ANLAGEN', row)
-        row = self._field(c, 'anrede', 'Anrede',
+        # ── Anrede & Anlagen Card ──
+        anrede_outer, anrede_card = self._make_card_grid(scroll_frame, '✍  ANREDE & ANLAGEN', padx=16, pady=(4, 12))
+        anrede_outer.pack(fill='x', padx=16, pady=(4, 12))
+        row = 2
+        row = self._field_card(anrede_card, 'anrede', 'Anrede',
                           'Sehr geehrte Damen und Herren,', row, width=50)
-        row = self._field(c, 'anlagen', 'Anlagen',
+        row = self._field_card(anrede_card, 'anlagen', 'Anlagen',
                           'Anschreiben, Lebenslauf, Arbeitszeugnis,  Zeugnisse, Zertifikate',
                           row, width=60)
 
@@ -518,7 +652,7 @@ class BewerbungsApp(tk.Tk):
         canvas = tk.Canvas(parent, bg=BG, highlightthickness=0)
         scrollbar = ttk.Scrollbar(parent, orient='vertical',
                                   command=canvas.yview)
-        scroll_frame = ttk.Frame(canvas, style='TFrame')
+        scroll_frame = tk.Frame(canvas, bg=BG)
         scroll_frame.bind('<Configure>',
                           lambda e: canvas.configure(
                               scrollregion=canvas.bbox('all')))
@@ -527,49 +661,52 @@ class BewerbungsApp(tk.Tk):
         canvas.pack(side='left', fill='both', expand=True)
         scrollbar.pack(side='right', fill='y')
 
-        c = scroll_frame
-        row = 0
-        note = ttk.Label(c, text='HTML-Tags wie <b>fett</b> sind erlaubt.',
-                         style='TLabel', foreground=GRAY)
-        note.grid(row=row, column=0, columnspan=2, sticky='w',
-                  padx=12, pady=(10, 4))
-        row += 1
+        # Info card
+        info_card = self._make_card(scroll_frame, padx=16, pady=(12, 4))
+        tk.Label(info_card, text='HTML-Tags wie <b>fett</b> sind erlaubt.',
+                 bg=WHITE, fg=GRAY, font=(FONT, 9)).pack(anchor='w')
 
         defaults = gen_a.DEFAULT_CONFIG
         for i in range(1, 6):
             key = f'absatz_{i}'
-            row = self._textarea(c, key, f'Absatz {i}',
+            outer, card = self._make_card_grid(scroll_frame, None, padx=16, pady=4)
+            outer.pack(fill='x', padx=16, pady=4)
+            row = 0
+            row = self._textarea_card(card, key, f'Absatz {i}',
                                  defaults.get(key, ''), row)
 
     # ── TAB 3: E-MAIL ───────────────────────────────────────────────────────
     def _build_email_tab(self, parent):
-        c = ttk.Frame(parent, style='TFrame')
-        c.pack(fill='both', expand=True, padx=12, pady=12)
+        c = tk.Frame(parent, bg=BG)
+        c.pack(fill='both', expand=True, padx=0, pady=0)
 
-        ttk.Label(c, text='BEWERBUNGS-E-MAIL',
-                  style='Section.TLabel').pack(anchor='w', pady=(0, 8))
+        # ── Email compose card ──
+        compose_card = self._make_card(c, '📧  BEWERBUNGS-E-MAIL', padx=16, pady=(12, 4))
 
-        ttk.Label(c, text='KI generiert diesen Text automatisch. '
-                  'Du kannst ihn bearbeiten und dann kopieren.',
-                  style='TLabel', foreground=GRAY).pack(
+        tk.Label(compose_card,
+                 text='KI generiert diesen Text automatisch. '
+                 'Du kannst ihn bearbeiten und dann kopieren.',
+                 bg=WHITE, fg=GRAY, font=(FONT, 9)).pack(
                       anchor='w', pady=(0, 10))
 
         # Betreff
-        bf = ttk.Frame(c, style='TFrame')
-        bf.pack(fill='x', pady=(0, 6))
-        ttk.Label(bf, text='Betreff:', style='Section.TLabel').pack(
+        bf = tk.Frame(compose_card, bg=WHITE)
+        bf.pack(fill='x', pady=(0, 8))
+        tk.Label(bf, text='Betreff:', bg=WHITE, fg=NAVY,
+                 font=(FONT, 10, 'bold')).pack(
             side='left', padx=(0, 8))
         self._email_betreff_var = tk.StringVar(
             value='Bewerbung als Fullstack Entwickler')
         ttk.Entry(bf, textvariable=self._email_betreff_var,
-                  width=70, font=('Calibri', 10)).pack(
+                  width=70, font=(FONT, 10)).pack(
                       side='left', fill='x', expand=True)
 
         # Email body
         self._email_text_widget = tk.Text(
-            c, height=18, font=('Calibri', 10), wrap='word',
-            bg=WHITE, fg=FG, relief='flat', borderwidth=1,
-            padx=8, pady=8)
+            compose_card, height=14, font=(FONT, 10), wrap='word',
+            bg='#F8FAFC', fg=FG, relief='solid', borderwidth=1,
+            highlightbackground=CARD_BD, highlightthickness=0,
+            padx=10, pady=8)
         self._email_text_widget.insert('1.0',
             'Sehr geehrte Damen und Herren,\n\n'
             'anbei übersende ich Ihnen meine Bewerbungsunterlagen '
@@ -580,120 +717,130 @@ class BewerbungsApp(tk.Tk):
             'Hamza Öztürk\n'
             '+49 155 66859378\n'
             'oeztuerk.hamza@web.de')
-        self._email_text_widget.pack(fill='both', expand=True, pady=(0, 8))
+        self._email_text_widget.pack(fill='both', expand=True, pady=(0, 10))
 
         # Buttons
-        btn_frame = ttk.Frame(c, style='TFrame')
+        btn_frame = tk.Frame(compose_card, bg=WHITE)
         btn_frame.pack(fill='x')
         ttk.Button(btn_frame, text='📋  Betreff kopieren',
-                   style='Accent.TButton',
+                   style='Ghost.TButton',
                    command=self._copy_email_betreff).pack(
                        side='left', padx=4)
         ttk.Button(btn_frame, text='📋  E-Mail-Text kopieren',
-                   style='Navy.TButton',
+                   style='Accent.TButton',
                    command=self._copy_email_text).pack(
                        side='left', padx=4)
         ttk.Button(btn_frame, text='📋  Alles kopieren',
-                   style='Navy.TButton',
+                   style='Gold.TButton',
                    command=self._copy_email_all).pack(
                        side='left', padx=4)
 
-        # IMAP sync section
-        ttk.Separator(c, orient='horizontal').pack(fill='x', pady=(12, 10))
-        ttk.Label(c, text='POSTEINGANG SYNCHRONISIEREN (IMAP)',
-                  style='Section.TLabel').pack(anchor='w', pady=(0, 4))
-        ttk.Label(
-            c,
+        # IMAP sync card
+        imap_card = self._make_card(c, '📨  POSTEINGANG SYNCHRONISIEREN (IMAP)', padx=16, pady=(8, 4))
+
+        tk.Label(imap_card,
             text='Liest Bewerbungsantworten aus dem Posteingang und '
                  'aktualisiert Bewerbungen.csv automatisch.',
-            style='TLabel', foreground=GRAY).pack(anchor='w', pady=(0, 8))
+            bg=WHITE, fg=GRAY, font=(FONT, 9)).pack(
+                      anchor='w', pady=(0, 10))
 
         imap_cfg = self._load_imap_settings()
 
-        row1 = ttk.Frame(c, style='TFrame')
+        row1 = tk.Frame(imap_card, bg=WHITE)
         row1.pack(fill='x', pady=(0, 6))
-        ttk.Label(row1, text='E-Mail:', style='Section.TLabel').pack(
+        tk.Label(row1, text='E-Mail:', bg=WHITE, fg=NAVY,
+                 font=(FONT, 10, 'bold')).pack(
             side='left', padx=(0, 8))
         self._imap_email_var = tk.StringVar(value=imap_cfg.get('email', ''))
         ttk.Entry(row1, textvariable=self._imap_email_var,
-                  width=40, font=('Calibri', 10)).pack(side='left', padx=(0, 12))
+                  width=40, font=(FONT, 10)).pack(side='left', padx=(0, 12))
 
-        ttk.Label(row1, text='IMAP-Server:', style='Section.TLabel').pack(
+        tk.Label(row1, text='IMAP-Server:', bg=WHITE, fg=NAVY,
+                 font=(FONT, 10, 'bold')).pack(
             side='left', padx=(0, 8))
         self._imap_server_var = tk.StringVar(value=imap_cfg.get('server', 'imap.web.de'))
         ttk.Entry(row1, textvariable=self._imap_server_var,
-                  width=24, font=('Calibri', 10)).pack(side='left')
+                  width=24, font=(FONT, 10)).pack(side='left')
 
-        row2 = ttk.Frame(c, style='TFrame')
+        row2 = tk.Frame(imap_card, bg=WHITE)
         row2.pack(fill='x', pady=(0, 8))
-        ttk.Label(row2, text='App-Passwort:', style='Section.TLabel').pack(
+        tk.Label(row2, text='App-Passwort:', bg=WHITE, fg=NAVY,
+                 font=(FONT, 10, 'bold')).pack(
             side='left', padx=(0, 8))
         self._imap_password_var = tk.StringVar(value=imap_cfg.get('password', ''))
         ttk.Entry(row2, textvariable=self._imap_password_var, show='•',
-                  width=30, font=('Calibri', 10)).pack(side='left', padx=(0, 12))
+                  width=30, font=(FONT, 10)).pack(side='left', padx=(0, 12))
 
-        ttk.Label(row2, text='Port:', style='Section.TLabel').pack(
+        tk.Label(row2, text='Port:', bg=WHITE, fg=NAVY,
+                 font=(FONT, 10, 'bold')).pack(
             side='left', padx=(0, 8))
         self._imap_port_var = tk.StringVar(value=str(imap_cfg.get('port', 993)))
         ttk.Entry(row2, textvariable=self._imap_port_var,
-                  width=8, font=('Calibri', 10)).pack(side='left', padx=(0, 12))
+                  width=8, font=(FONT, 10)).pack(side='left', padx=(0, 12))
 
         self._imap_only_unseen_var = tk.BooleanVar(value=True)
         tk.Checkbutton(
             row2,
-            text='Sadece okunmayan (UNSEEN) mailleri tara',
+            text='Nur ungelesene (UNSEEN) E-Mails durchsuchen',
             variable=self._imap_only_unseen_var,
-            bg=BG,
+            bg=WHITE,
             fg=FG,
-            font=('Calibri', 9),
-            activebackground=BG).pack(side='left')
+            font=(FONT, 9),
+            activebackground=WHITE,
+            selectcolor=WHITE).pack(side='left')
 
-        row3 = ttk.Frame(c, style='TFrame')
-        row3.pack(fill='x')
-        ttk.Button(row3, text='IMAP ayarlarını kaydet',
-                   style='Accent.TButton',
+        row3 = tk.Frame(imap_card, bg=WHITE)
+        row3.pack(fill='x', pady=(0, 4))
+        ttk.Button(row3, text='IMAP-Einstellungen speichern',
+                   style='Ghost.TButton',
                    command=self._save_imap_settings).pack(side='left', padx=(0, 6))
-        ttk.Button(row3, text='Mailleri çek + CSV güncelle',
-                   style='Navy.TButton',
+        ttk.Button(row3, text='E-Mails abrufen + CSV aktualisieren',
+                   style='Accent.TButton',
                    command=self._sync_mail_statuses).pack(side='left', padx=(0, 6))
-        ttk.Button(row3, text='Tüm mailleri çek + CSV güncelle',
+        ttk.Button(row3, text='Alle E-Mails abrufen + CSV aktualisieren',
                    style='Navy.TButton',
                    command=self._sync_all_mail_statuses).pack(side='left')
 
-        row3b = ttk.Frame(c, style='TFrame')
+        row3b = tk.Frame(imap_card, bg=WHITE)
         row3b.pack(fill='x', pady=(6, 0))
-        ttk.Button(row3b, text='Tüm mailleri PDF indir',
+        ttk.Button(row3b, text='Alle E-Mails als PDF herunterladen',
                style='Navy.TButton',
                command=self._download_all_mail_pdfs).pack(side='left')
 
+        # SMTP card
+        smtp_card = self._make_card(c, '📤  E-MAIL SENDEN (SMTP)', padx=16, pady=(4, 12))
+
         smtp_cfg = self._load_smtp_settings()
-        row4 = ttk.Frame(c, style='TFrame')
-        row4.pack(fill='x', pady=(10, 6))
-        ttk.Label(row4, text='SMTP-Server:', style='Section.TLabel').pack(
+        row4 = tk.Frame(smtp_card, bg=WHITE)
+        row4.pack(fill='x', pady=(0, 6))
+        tk.Label(row4, text='SMTP-Server:', bg=WHITE, fg=NAVY,
+                 font=(FONT, 10, 'bold')).pack(
             side='left', padx=(0, 8))
         self._smtp_server_var = tk.StringVar(value=smtp_cfg.get('server', 'smtp.web.de'))
         ttk.Entry(row4, textvariable=self._smtp_server_var,
-                  width=24, font=('Calibri', 10)).pack(side='left', padx=(0, 12))
+                  width=24, font=(FONT, 10)).pack(side='left', padx=(0, 12))
 
-        ttk.Label(row4, text='SMTP-Port:', style='Section.TLabel').pack(
+        tk.Label(row4, text='SMTP-Port:', bg=WHITE, fg=NAVY,
+                 font=(FONT, 10, 'bold')).pack(
             side='left', padx=(0, 8))
         self._smtp_port_var = tk.StringVar(value=str(smtp_cfg.get('port', 587)))
         ttk.Entry(row4, textvariable=self._smtp_port_var,
-                  width=8, font=('Calibri', 10)).pack(side='left', padx=(0, 12))
+                  width=8, font=(FONT, 10)).pack(side='left', padx=(0, 12))
 
-        ttk.Button(row4, text='SMTP ayarlarını kaydet',
-                   style='Accent.TButton',
+        ttk.Button(row4, text='SMTP-Einstellungen speichern',
+                   style='Ghost.TButton',
                    command=self._save_smtp_settings).pack(side='left')
 
-        row5 = ttk.Frame(c, style='TFrame')
+        row5 = tk.Frame(smtp_card, bg=WHITE)
         row5.pack(fill='x', pady=(0, 2))
-        ttk.Label(row5, text='Gönderim Adresi:', style='Section.TLabel').pack(
+        tk.Label(row5, text='Empfänger-Adresse:', bg=WHITE, fg=NAVY,
+                 font=(FONT, 10, 'bold')).pack(
             side='left', padx=(0, 8))
         self._mail_to_var = self.vars.get('bewerbung_email', tk.StringVar(value=''))
         ttk.Entry(row5, textvariable=self._mail_to_var,
-                  width=50, font=('Calibri', 10)).pack(side='left', padx=(0, 12))
-        ttk.Button(row5, text='Başvuruyu E-Posta ile Gönder',
-                   style='Navy.TButton',
+                  width=50, font=(FONT, 10)).pack(side='left', padx=(0, 12))
+        ttk.Button(row5, text='Bewerbung per E-Mail senden',
+                   style='Gold.TButton',
                    command=self._send_application_email).pack(side='left')
 
     def _copy_email_betreff(self):
@@ -793,13 +940,13 @@ class BewerbungsApp(tk.Tk):
 
         if (any(w in text for w in sent_words) and
                 ('gesendet' in text or 'sent' in text)):
-            return 'Başvuruldu'
+            return 'Beworben'
         if any(w in text for w in invite_words):
-            return 'Mülakat Daveti'
+            return 'Einladung zum Vorstellungsgespräch'
         if any(w in text for w in reject_words):
-            return 'Olumsuz (Red)'
+            return 'Absage'
         if any(w in text for w in ack_words):
-            return 'Alındı Teyidi (İşlemde)'
+            return 'Eingangsbestätigung (In Bearbeitung)'
         return None
 
     @staticmethod
@@ -884,7 +1031,7 @@ class BewerbungsApp(tk.Tk):
 
     @staticmethod
     def _applications_header():
-        return ['Şirket / Kurum', 'Pozisyon / Konu', 'Durum / Sonuç', 'Tarih']
+        return ['Firma / Unternehmen', 'Position / Stelle', 'Status / Ergebnis', 'Datum']
 
     def _read_applications_rows(self):
         rows = []
@@ -944,7 +1091,7 @@ class BewerbungsApp(tk.Tk):
         }
         with open(IMAP_SETTINGS_FILE, 'w', encoding='utf-8') as f:
             json.dump(settings, f, ensure_ascii=False, indent=2)
-        self._status('✓  IMAP ayarları kaydedildi.')
+        self._status('✓  IMAP-Einstellungen gespeichert.')
 
     @staticmethod
     def _load_smtp_settings():
@@ -957,7 +1104,7 @@ class BewerbungsApp(tk.Tk):
         try:
             port = int((self._smtp_port_var.get() or '587').strip() or '587')
         except ValueError:
-            messagebox.showwarning('Hatalı port', 'SMTP port sayısal olmalı (örn. 587).')
+            messagebox.showwarning('Ungültiger Port', 'SMTP-Port muss eine Zahl sein (z.B. 587).')
             return
 
         settings = {
@@ -966,7 +1113,7 @@ class BewerbungsApp(tk.Tk):
         }
         with open(SMTP_SETTINGS_FILE, 'w', encoding='utf-8') as f:
             json.dump(settings, f, ensure_ascii=False, indent=2)
-        self._status('✓  SMTP ayarları kaydedildi.')
+        self._status('✓  SMTP-Einstellungen gespeichert.')
 
     @staticmethod
     def _attach_file_to_message(msg, path):
@@ -988,18 +1135,18 @@ class BewerbungsApp(tk.Tk):
         smtp_port_text = self._smtp_port_var.get().strip() or '587'
 
         if not sender or not password:
-            messagebox.showwarning('Eksik bilgi',
-                                   'Lütfen gönderen e-posta ve app şifresini doldur.')
+            messagebox.showwarning('Fehlende Angaben',
+                                   'Bitte Absender-E-Mail und App-Passwort eingeben.')
             return
         if not recipient:
-            messagebox.showwarning('Eksik bilgi',
-                                   'Lütfen başvuru e-posta adresini gir.')
+            messagebox.showwarning('Fehlende Angaben',
+                                   'Bitte Bewerbungs-E-Mail-Adresse eingeben.')
             return
 
         try:
             smtp_port = int(smtp_port_text)
         except ValueError:
-            messagebox.showwarning('Hatalı port', 'SMTP port sayısal olmalı (örn. 587).')
+            messagebox.showwarning('Ungültiger Port', 'SMTP-Port muss eine Zahl sein (z.B. 587).')
             return
 
         # Persist credentials/settings so user is not asked again next time.
@@ -1009,7 +1156,7 @@ class BewerbungsApp(tk.Tk):
         subject = self._email_betreff_var.get().strip() or 'Bewerbung'
         body = self._email_text_widget.get('1.0', 'end-1c').strip()
         if not body:
-            messagebox.showwarning('Eksik metin', 'E-Mail metni boş olamaz.')
+            messagebox.showwarning('Fehlender Text', 'E-Mail-Text darf nicht leer sein.')
             return
 
         cfg = self._get_config()
@@ -1019,18 +1166,18 @@ class BewerbungsApp(tk.Tk):
             if not os.path.isfile(bewerbung_pdf):
                 self._build_application_pdf(bewerbung_pdf, cfg)
         except Exception as exc:
-            messagebox.showerror('PDF hatası', f'PDF üretilemedi: {exc}')
+            messagebox.showerror('PDF-Fehler', f'PDF konnte nicht erstellt werden: {exc}')
             return
 
         required_files = [bewerbung_pdf]
         missing = [p for p in required_files if not os.path.isfile(p)]
         if missing:
             messagebox.showerror(
-                'Eksik dosya',
-                'Aşağıdaki dosyalar bulunamadı:\n\n' + '\n'.join(missing))
+                'Fehlende Datei(en)',
+                'Folgende Dateien wurden nicht gefunden:\n\n' + '\n'.join(missing))
             return
 
-        self._status('Başvuru e-postası gönderiliyor...')
+        self._status('Bewerbungs-E-Mail wird gesendet...')
 
         def _worker():
             try:
@@ -1049,13 +1196,13 @@ class BewerbungsApp(tk.Tk):
                     smtp.send_message(msg)
 
                 self._log_application(cfg)
-                self.after(0, lambda: self._status('✓  Başvuru e-postası gönderildi.'))
+                self.after(0, lambda: self._status('✓  Bewerbungs-E-Mail gesendet.'))
                 self.after(0, lambda: messagebox.showinfo(
-                    'Gönderim başarılı',
-                    f'Başvuru e-postası gönderildi:\n{recipient}'))
+                    'Erfolgreich gesendet',
+                    f'Bewerbungs-E-Mail gesendet an:\n{recipient}'))
             except Exception as exc:
-                self.after(0, lambda: self._status(f'E-posta hatası: {exc}'))
-                self.after(0, lambda: messagebox.showerror('E-posta gönderim hatası', str(exc)))
+                self.after(0, lambda: self._status(f'E-Mail-Fehler: {exc}'))
+                self.after(0, lambda: messagebox.showerror('E-Mail-Sendefehler', str(exc)))
 
         threading.Thread(target=_worker, daemon=True).start()
 
@@ -1072,20 +1219,20 @@ class BewerbungsApp(tk.Tk):
         port_text = self._imap_port_var.get().strip() or '993'
 
         if not email_addr or not password:
-            messagebox.showwarning('Eksik bilgi',
-                                   'Lütfen e-posta adresi ve app şifresini gir.')
+            messagebox.showwarning('Fehlende Angaben',
+                                   'Bitte E-Mail-Adresse und App-Passwort eingeben.')
             return
 
         try:
             port = int(port_text)
         except ValueError:
-            messagebox.showwarning('Hatalı port', 'Port sayısal olmalı (örn. 993).')
+            messagebox.showwarning('Ungültiger Port', 'Port muss eine Zahl sein (z.B. 993).')
             return
 
         # Persist credentials/settings so user is not asked again next time.
         self._save_imap_settings()
 
-        self._status('Tüm mailler PDF olarak indiriliyor...')
+        self._status('Alle E-Mails werden als PDF heruntergeladen...')
 
         def _worker():
             try:
@@ -1096,13 +1243,13 @@ class BewerbungsApp(tk.Tk):
                     port,
                 )
                 self.after(0, lambda: self._status(
-                    f'✓  PDF indirimi tamamlandı. Kaydedilen: {saved}, Taranan: {scanned}, Atlanan: {skipped}'))
+                    f'✓  PDF-Download abgeschlossen. Gespeichert: {saved}, Durchsucht: {scanned}, Übersprungen: {skipped}'))
                 self.after(0, lambda: messagebox.showinfo(
-                    'PDF indirimi tamamlandı',
-                    f'Kaydedilen mail: {saved}\nTaranan mail: {scanned}\nAtlanan/tekrar: {skipped}\n\nKlasör: {MAIL_PDF_DIR}'))
+                    'PDF-Download abgeschlossen',
+                    f'Gespeicherte E-Mails: {saved}\nDurchsuchte E-Mails: {scanned}\nÜbersprungen/Duplikate: {skipped}\n\nOrdner: {MAIL_PDF_DIR}'))
             except Exception as exc:
-                self.after(0, lambda: messagebox.showerror('IMAP hatası', str(exc)))
-                self.after(0, lambda: self._status(f'IMAP hatası: {exc}'))
+                self.after(0, lambda: messagebox.showerror('IMAP-Fehler', str(exc)))
+                self.after(0, lambda: self._status(f'IMAP-Fehler: {exc}'))
 
         threading.Thread(target=_worker, daemon=True).start()
 
@@ -1113,20 +1260,20 @@ class BewerbungsApp(tk.Tk):
         port_text = self._imap_port_var.get().strip() or '993'
 
         if not email_addr or not password:
-            messagebox.showwarning('Eksik bilgi',
-                                   'Lütfen e-posta adresi ve app şifresini gir.')
+            messagebox.showwarning('Fehlende Angaben',
+                                   'Bitte E-Mail-Adresse und App-Passwort eingeben.')
             return
 
         try:
             port = int(port_text)
         except ValueError:
-            messagebox.showwarning('Hatalı port', 'Port sayısal olmalı (örn. 993).')
+            messagebox.showwarning('Ungültiger Port', 'Port muss eine Zahl sein (z.B. 993).')
             return
 
         # Persist credentials/settings so user is not asked again next time.
         self._save_imap_settings()
 
-        status_msg = 'Tüm mailler senkronize ediliyor...' if scan_all else 'IMAP senkronu çalışıyor...'
+        status_msg = 'Alle E-Mails werden synchronisiert...' if scan_all else 'IMAP-Synchronisierung läuft...'
         self._status(status_msg)
 
         def _worker():
@@ -1140,13 +1287,13 @@ class BewerbungsApp(tk.Tk):
                     scan_all,
                 )
                 self.after(0, lambda: self._status(
-                    f'✓  Mail senkronu tamamlandı. Taranan: {scanned}, Güncellenen: {changed}, Yeni: {added}'))
+                    f'✓  E-Mail-Sync abgeschlossen. Durchsucht: {scanned}, Aktualisiert: {changed}, Neu: {added}'))
                 self.after(0, lambda: messagebox.showinfo(
-                    'IMAP senkronu tamamlandı',
-                    f'Taranan mail: {scanned}\nGüncellenen kayıt: {changed}\nYeni kayıt: {added}'))
+                    'IMAP-Synchronisierung abgeschlossen',
+                    f'Durchsuchte E-Mails: {scanned}\nAktualisierte Einträge: {changed}\nNeue Einträge: {added}'))
             except Exception as exc:
-                self.after(0, lambda: messagebox.showerror('IMAP hatası', str(exc)))
-                self.after(0, lambda: self._status(f'IMAP hatası: {exc}'))
+                self.after(0, lambda: messagebox.showerror('IMAP-Fehler', str(exc)))
+                self.after(0, lambda: self._status(f'IMAP-Fehler: {exc}'))
 
         threading.Thread(target=_worker, daemon=True).start()
 
@@ -1172,7 +1319,7 @@ class BewerbungsApp(tk.Tk):
 
             status, data = conn.search(None, criteria)
             if status != 'OK':
-                raise RuntimeError('IMAP arama başarısız oldu.')
+                raise RuntimeError('IMAP-Suche fehlgeschlagen.')
 
             msg_ids = data[0].split()
             if not scan_all:
@@ -1401,69 +1548,104 @@ class BewerbungsApp(tk.Tk):
 
     # ── TAB 4: PROFILE ──────────────────────────────────────────────────────
     def _build_profile_tab(self, parent):
-        c = ttk.Frame(parent, style='TFrame')
-        c.pack(fill='both', expand=True, padx=12, pady=12)
+        c = tk.Frame(parent, bg=BG)
+        c.pack(fill='both', expand=True, padx=0, pady=0)
 
-        ttk.Label(c, text='Gespeicherte Bewerbungs-Profile',
-                  style='Section.TLabel').pack(anchor='w', pady=(0, 8))
+        profile_card = self._make_card(c, '👤  Gespeicherte Bewerbungs-Profile', padx=16, pady=12)
 
-        list_frame = ttk.Frame(c)
+        list_frame = tk.Frame(profile_card, bg=WHITE)
         list_frame.pack(fill='both', expand=True)
 
         self._profile_list = tk.Listbox(
-            list_frame, font=('Calibri', 10), selectmode='single',
-            bg=WHITE, fg=FG, selectbackground=NAVY, selectforeground=WHITE,
-            relief='flat', borderwidth=1)
+            list_frame, font=(FONT, 10), selectmode='single',
+            bg='#F8FAFC', fg=FG, selectbackground=ACCENT,
+            selectforeground=NAVY, relief='solid', borderwidth=1,
+            highlightbackground=CARD_BD, highlightthickness=0,
+            activestyle='none')
         self._profile_list.pack(side='left', fill='both', expand=True)
         sb = ttk.Scrollbar(list_frame, orient='vertical',
                            command=self._profile_list.yview)
         sb.pack(side='right', fill='y')
         self._profile_list.configure(yscrollcommand=sb.set)
 
-        btn_frame = ttk.Frame(c)
-        btn_frame.pack(fill='x', pady=(8, 0))
-        ttk.Button(btn_frame, text='Profil speichern',
-                   style='Navy.TButton',
+        btn_frame = tk.Frame(profile_card, bg=WHITE)
+        btn_frame.pack(fill='x', pady=(10, 0))
+        ttk.Button(btn_frame, text='💾  Profil speichern',
+                   style='Gold.TButton',
                    command=self._save_profile).pack(side='left', padx=4)
-        ttk.Button(btn_frame, text='Profil laden',
+        ttk.Button(btn_frame, text='📂  Profil laden',
                    style='Accent.TButton',
                    command=self._load_profile).pack(side='left', padx=4)
-        ttk.Button(btn_frame, text='Profil löschen',
-                   style='Accent.TButton',
+        ttk.Button(btn_frame, text='🗑  Profil löschen',
+                   style='Ghost.TButton',
                    command=self._delete_profile).pack(side='left', padx=4)
 
         self._refresh_profiles()
 
     # ── UI HELPERS ───────────────────────────────────────────────────────────
     def _section(self, parent, title, row):
-        lbl = ttk.Label(parent, text=title, style='Section.TLabel')
+        lbl = tk.Label(parent, text=title, bg=BG, fg=NAVY,
+                       font=(FONT, 11, 'bold'))
         lbl.grid(row=row, column=0, columnspan=2, sticky='w',
                  padx=12, pady=(14, 4))
         return row + 1
 
     def _field(self, parent, key, label, default, row, width=40):
-        ttk.Label(parent, text=label).grid(
+        tk.Label(parent, text=label, bg=BG, fg=FG,
+                 font=(FONT, 10)).grid(
             row=row, column=0, sticky='e', padx=(12, 6), pady=3)
         var = tk.StringVar(value=default)
         self.vars[key] = var
         e = ttk.Entry(parent, textvariable=var, width=width,
-                      font=('Calibri', 10))
+                      font=(FONT, 10))
         e.grid(row=row, column=1, sticky='w', padx=(0, 12), pady=3)
         return row + 1
 
+    def _field_card(self, parent, key, label, default, row, width=40):
+        """Field helper for card (white bg) containers."""
+        tk.Label(parent, text=label, bg=WHITE, fg=FG,
+                 font=(FONT, 10)).grid(
+            row=row, column=0, sticky='e', padx=(0, 8), pady=4)
+        var = tk.StringVar(value=default)
+        self.vars[key] = var
+        e = ttk.Entry(parent, textvariable=var, width=width,
+                      font=(FONT, 10))
+        e.grid(row=row, column=1, sticky='w', padx=(0, 12), pady=4)
+        return row + 1
+
     def _textarea(self, parent, key, label, default, row, height=5):
-        ttk.Label(parent, text=label, style='Section.TLabel').grid(
+        tk.Label(parent, text=label, bg=BG, fg=NAVY,
+                 font=(FONT, 11, 'bold')).grid(
             row=row, column=0, columnspan=2, sticky='w',
             padx=12, pady=(10, 2))
         row += 1
         txt = tk.Text(parent, height=height, width=90,
-                      font=('Calibri', 10), wrap='word',
-                      bg=WHITE, fg=FG, relief='flat', borderwidth=1,
-                      padx=6, pady=4)
+                      font=(FONT, 10), wrap='word',
+                      bg='#F8FAFC', fg=FG, relief='solid', borderwidth=1,
+                      highlightbackground=CARD_BD, highlightthickness=0,
+                      padx=8, pady=6)
         txt.insert('1.0', default)
         txt.grid(row=row, column=0, columnspan=2, sticky='we',
                  padx=12, pady=(0, 6))
-        self.vars[key] = txt   # store widget reference for Text widgets
+        self.vars[key] = txt
+        return row + 1
+
+    def _textarea_card(self, parent, key, label, default, row, height=5):
+        """Textarea helper for card (white bg) containers."""
+        tk.Label(parent, text=label, bg=WHITE, fg=NAVY,
+                 font=(FONT, 11, 'bold')).grid(
+            row=row, column=0, columnspan=2, sticky='w',
+            padx=0, pady=(4, 2))
+        row += 1
+        txt = tk.Text(parent, height=height, width=90,
+                      font=(FONT, 10), wrap='word',
+                      bg='#F8FAFC', fg=FG, relief='solid', borderwidth=1,
+                      highlightbackground=CARD_BD, highlightthickness=0,
+                      padx=8, pady=6)
+        txt.insert('1.0', default)
+        txt.grid(row=row, column=0, columnspan=2, sticky='we',
+                 padx=0, pady=(0, 6))
+        self.vars[key] = txt
         return row + 1
 
     # ── CONFIG GATHERING ─────────────────────────────────────────────────────
@@ -1569,14 +1751,14 @@ class BewerbungsApp(tk.Tk):
             subprocess.check_call([sys.executable, '-m', 'pip', 'install', 'PyPDF2'])
         except Exception as exc:
             raise RuntimeError(
-                'PyPDF2 kurulumu basarisiz. Lutfen terminalden deneyin: '
+                'PyPDF2-Installation fehlgeschlagen. Bitte im Terminal ausführen: '
                 'pip install PyPDF2'
             ) from exc
 
         try:
             from PyPDF2 import PdfReader as _PdfReader, PdfWriter as _PdfWriter, Transformation as _Transformation, PageObject as _PageObject
         except Exception as exc:
-            raise RuntimeError('PyPDF2 yuklendi ama import edilemedi.') from exc
+            raise RuntimeError('PyPDF2 installiert, aber Import fehlgeschlagen.') from exc
 
         return _PdfReader, _PdfWriter, _Transformation, _PageObject
 
@@ -1603,7 +1785,7 @@ class BewerbungsApp(tk.Tk):
 
         missing = [p for p in parts if not os.path.isfile(p)]
         if missing:
-            raise FileNotFoundError('Eksik dosya(lar):\n' + '\n'.join(missing))
+            raise FileNotFoundError('Fehlende Datei(en):\n' + '\n'.join(missing))
 
         writer = PdfWriter()
         a4_width = 595.276
@@ -1645,7 +1827,7 @@ class BewerbungsApp(tk.Tk):
             with open(output_path, "wb") as f:
                 writer.write(f)
         except Exception as exc:
-            raise RuntimeError(f'PDF birlestirme hatasi: {exc}') from exc
+            raise RuntimeError(f'PDF-Zusammenführungsfehler: {exc}') from exc
 
     def _log_application(self, cfg):
         """Write or update application status in Bewerbungen table files."""
@@ -1666,13 +1848,13 @@ class BewerbungsApp(tk.Tk):
                 rows[i] = row
 
             if row[0].strip().lower() == firma.lower() and row[1].strip().lower() == stelle.lower():
-                row[2] = 'Başvuruldu'
+                row[2] = 'Beworben'
                 row[3] = datum
                 updated = True
                 break
 
         if not updated:
-            rows.append([firma, stelle, 'Başvuruldu', datum])
+            rows.append([firma, stelle, 'Beworben', datum])
 
         self._write_applications_rows(rows)
 
@@ -1727,7 +1909,7 @@ class BewerbungsApp(tk.Tk):
 
     # ── MISC ─────────────────────────────────────────────────────────────────
     def _status(self, msg):
-        self._status_var.set(msg)
+        self._status_var.set(f'◆  {msg}')
         self.update_idletasks()
 
     @staticmethod

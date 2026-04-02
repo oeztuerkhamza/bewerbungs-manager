@@ -63,12 +63,14 @@ def register_fonts():
 # ─── PARAGRAPH STYLES ────────────────────────────────────────────────────────
 def make_styles():
     def ps(name, font='CV-R', size=10, color=DARK, leading=None,
-           spaceBefore=0, spaceAfter=0, align=TA_LEFT, leftIndent=0):
+           spaceBefore=0, spaceAfter=0, align=TA_LEFT, leftIndent=0,
+           firstLineIndent=0):
         return ParagraphStyle(
             name, fontName=font, fontSize=size, textColor=color,
             leading=leading or round(size * 1.4, 1),
             spaceBefore=spaceBefore, spaceAfter=spaceAfter,
             alignment=align, leftIndent=leftIndent,
+            firstLineIndent=firstLineIndent,
         )
     return {
         'name':      ps('name',      'CV-B', 22, NAVY, leading=26),
@@ -77,15 +79,15 @@ def make_styles():
         'empf':      ps('empf',      'CV-R', 10, DARK, leading=14),
         'datum':     ps('datum',     'CV-R', 10, DARK, leading=14, align=TA_RIGHT),
         'betreff':   ps('betreff',   'CV-B', 11, NAVY, leading=15,
-                        spaceBefore=6, spaceAfter=6),
+                        spaceBefore=4, spaceAfter=4),
         'anrede':    ps('anrede',    'CV-R', 10, DARK, leading=15,
-                        spaceAfter=4),
-        'body':      ps('body',      'CV-R', 10, DARK, leading=15.5,
+                        spaceAfter=2),
+        'body':      ps('body',      'CV-R', 10, DARK, leading=15,
                         spaceAfter=6, align=TA_JUSTIFY),
         'bullet':    ps('bullet',    'CV-R', 10, DARK, leading=15,
-                        spaceAfter=2, leftIndent=12),
+                        spaceAfter=2, leftIndent=14, firstLineIndent=-14),
         'gruss':     ps('gruss',     'CV-R', 10, DARK, leading=15,
-                        spaceBefore=4),
+                        spaceBefore=2),
         'footer':    ps('footer',    'CV-R',  9, LGRAY, leading=12,
                         spaceBefore=2),
     }
@@ -234,7 +236,10 @@ def _build_aufgaben_blend_paragraph(cfg):
 
     task_txt = '; '.join(tasks[:3])
     return (
-               ''
+        f'Bei {firma} möchte ich meine Stärken in <b>C#/.NET</b>, '
+        '<b>Angular</b>, Clean Architecture und CI/CD gezielt einsetzen, '
+        'um in anspruchsvollen Produktbereichen sichtbaren Mehrwert '
+        'zu schaffen.'
     )
 
 # ─── PAGE DECORATION ────────────────────────────────────────────────────────
@@ -305,26 +310,10 @@ DEFAULT_CONFIG = {
 def build(story, sty, W, cfg=None):
     cfg = {**DEFAULT_CONFIG, **(cfg or {})}
     du = cfg.get('du_kultur', False)
-    SEP = '&nbsp;&nbsp;&nbsp;&nbsp;'
+    SEP = '&nbsp;&nbsp;·&nbsp;&nbsp;'
 
     # ── 1  ABSENDER-HEADER ───────────────────────────────────────────────────
-    name_para = Paragraph('Hamza Öztürk', sty['name'])
-
-
-    header_row = Table(
-        [[name_para]],
-        hAlign='LEFT',
-    )
-    header_row.setStyle(TableStyle([
-        ('VALIGN', (0, 0), (-1, -1), 'MIDDLE'),
-        ('LEFTPADDING', (0, 0), (-1, -1), 0),
-        ('RIGHTPADDING', (0, 0), (0, 0), 8),
-        ('RIGHTPADDING', (1, 0), (1, 0), 0),
-        ('TOPPADDING', (0, 0), (-1, -1), 0),
-        ('BOTTOMPADDING', (0, 0), (-1, -1), 0),
-    ]))
-    story.append(header_row)
-
+    story.append(Paragraph('Hamza Öztürk', sty['name']))
     story.append(Spacer(1, 2))
     story.append(Paragraph(
         f'Nürnberg, Bayern{SEP}+49 170 000 0000', sty['contact']))
@@ -334,9 +323,9 @@ def build(story, sty, W, cfg=None):
         f'{lnk("https://linkedin.com/in/hamzaoeztuerk", "linkedin.com/in/hamzaoeztuerk")}',
         sty['contact']))
 
-    story.append(Spacer(1, 0.18 * cm))
+    story.append(Spacer(1, 0.2 * cm))
     story.append(AccentBar(W, thickness=1))
-    story.append(Spacer(1, 0.18 * cm))
+    story.append(Spacer(1, 0.25 * cm))
 
     # ── 2  EMPFÄNGER + DATUM ─────────────────────────────────────────────────
     ap = (cfg.get('ansprechpartner') or '').strip()
@@ -360,7 +349,7 @@ def build(story, sty, W, cfg=None):
 
     info_table = Table(
         [[empf_para, datum_para]],
-        colWidths=[W * 0.6, W * 0.4],
+        colWidths=[W * 0.62, W * 0.38],
     )
     info_table.setStyle(TableStyle([
         ('VALIGN', (0, 0), (-1, -1), 'TOP'),
@@ -371,12 +360,12 @@ def build(story, sty, W, cfg=None):
     ]))
     story.append(info_table)
 
-    story.append(Spacer(1, 0.5 * cm))
+    story.append(Spacer(1, 0.45 * cm))
 
     # ── 3  BETREFF ───────────────────────────────────────────────────────────
     story.append(Paragraph(cfg['betreff'], sty['betreff']))
 
-    story.append(Spacer(1, 0.3 * cm))
+    story.append(Spacer(1, 0.25 * cm))
 
     # ── 4  ANREDE ────────────────────────────────────────────────────────────
     anrede = cfg.get('anrede', '')
@@ -414,9 +403,9 @@ def build(story, sty, W, cfg=None):
 
     # ── 6  GRUSSFORMEL ───────────────────────────────────────────────────────
     gruss = 'Herzliche Grüße' if du else 'Mit freundlichen Grüßen'
-    story.append(Spacer(1, 0.1 * cm))
+    story.append(Spacer(1, 0.15 * cm))
     story.append(Paragraph(gruss, sty['gruss']))
-    story.append(Spacer(1, 0.3 * cm))
+    story.append(Spacer(1, 0.25 * cm))
     story.append(Paragraph('Hamza Öztürk', sty['gruss']))
 
     # ── 7  FOOTER (Anlagen / Gehalt / Eintritt / Arbeitsmodell) ──────────────
