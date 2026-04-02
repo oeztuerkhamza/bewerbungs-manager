@@ -28,8 +28,8 @@ SIGNATUR_PATH = r"C:\Users\hamza\Desktop\Lebenslauf\sıgnatur.png"
 # ─── LAYOUT ──────────────────────────────────────────────────────────────────
 L_MARGIN  = 2.5 * cm
 R_MARGIN  = 2.0 * cm
-T_MARGIN  = 1.6 * cm
-B_MARGIN  = 1.6 * cm
+T_MARGIN  = 1.4 * cm
+B_MARGIN  = 1.2 * cm
 SIDEBAR_W = 4 * mm           # left decorative stripe width
 
 # ─── COLOURS ─────────────────────────────────────────────────────────────────
@@ -73,23 +73,23 @@ def make_styles():
             firstLineIndent=firstLineIndent,
         )
     return {
-        'name':      ps('name',      'CV-B', 22, NAVY, leading=26),
-        'role':      ps('role',      'CV-R', 11, GRAY, leading=15, spaceAfter=2),
-        'contact':   ps('contact',   'CV-R',  9, DARK, leading=13),
-        'empf':      ps('empf',      'CV-R', 10, DARK, leading=14),
-        'datum':     ps('datum',     'CV-R', 10, DARK, leading=14, align=TA_RIGHT),
-        'betreff':   ps('betreff',   'CV-B', 11, NAVY, leading=15,
-                        spaceBefore=4, spaceAfter=4),
-        'anrede':    ps('anrede',    'CV-R', 10, DARK, leading=15,
-                        spaceAfter=2),
-        'body':      ps('body',      'CV-R', 10, DARK, leading=15,
-                        spaceAfter=6, align=TA_JUSTIFY),
-        'bullet':    ps('bullet',    'CV-R', 10, DARK, leading=15,
-                        spaceAfter=2, leftIndent=14, firstLineIndent=-14),
-        'gruss':     ps('gruss',     'CV-R', 10, DARK, leading=15,
-                        spaceBefore=2),
-        'footer':    ps('footer',    'CV-R',  9, LGRAY, leading=12,
-                        spaceBefore=2),
+        'name':      ps('name',      'CV-B', 18, NAVY, leading=22),
+        'role':      ps('role',      'CV-R', 10, GRAY, leading=13, spaceAfter=1),
+        'contact':   ps('contact',   'CV-R',  8.5, DARK, leading=12),
+        'empf':      ps('empf',      'CV-R',  9.5, DARK, leading=13, leftIndent=6),
+        'datum':     ps('datum',     'CV-R',  9.5, DARK, leading=13, align=TA_RIGHT),
+        'betreff':   ps('betreff',   'CV-B', 10.5, NAVY, leading=14,
+                        spaceBefore=2, spaceAfter=2),
+        'anrede':    ps('anrede',    'CV-R',  9.5, DARK, leading=13,
+                        spaceAfter=1),
+        'body':      ps('body',      'CV-R',  9.5, DARK, leading=13,
+                        spaceAfter=3, align=TA_JUSTIFY),
+        'bullet':    ps('bullet',    'CV-R',  9.5, DARK, leading=13,
+                        spaceAfter=1, leftIndent=14, firstLineIndent=-14),
+        'gruss':     ps('gruss',     'CV-R',  9.5, DARK, leading=13,
+                        spaceBefore=1),
+        'footer':    ps('footer',    'CV-R',  8.5, LGRAY, leading=11,
+                        spaceBefore=1),
     }
 
 
@@ -302,7 +302,7 @@ DEFAULT_CONFIG = {
     'gehalt':           '',
     'eintritt':         '',
     'arbeitsmodell':    '',
-    'anlagen': 'Lebenslauf · Zeugnisse · Zertifikate',
+    'anlagen': '',
 }
 
 
@@ -316,16 +316,12 @@ def build(story, sty, W, cfg=None):
     story.append(Paragraph('Hamza Öztürk', sty['name']))
     story.append(Spacer(1, 2))
     story.append(Paragraph(
-        f'Nürnberg, Bayern{SEP}+49 170 000 0000', sty['contact']))
-    story.append(Paragraph(
-        f'{lnk("mailto:hamza@email.de", "hamza@email.de")}{SEP}'
-        f'{lnk("https://hamzaoeztuerk.de", "hamzaoeztuerk.de")}{SEP}'
-        f'{lnk("https://linkedin.com/in/hamzaoeztuerk", "linkedin.com/in/hamzaoeztuerk")}',
+        'Bissierstr. 16, 79114 Freiburg',
         sty['contact']))
 
-    story.append(Spacer(1, 0.2 * cm))
+    story.append(Spacer(1, 0.15 * cm))
     story.append(AccentBar(W, thickness=1))
-    story.append(Spacer(1, 0.25 * cm))
+    story.append(Spacer(1, 0.15 * cm))
 
     # ── 2  EMPFÄNGER + DATUM ─────────────────────────────────────────────────
     ap = (cfg.get('ansprechpartner') or '').strip()
@@ -360,12 +356,12 @@ def build(story, sty, W, cfg=None):
     ]))
     story.append(info_table)
 
-    story.append(Spacer(1, 0.45 * cm))
+    story.append(Spacer(1, 0.3 * cm))
 
     # ── 3  BETREFF ───────────────────────────────────────────────────────────
     story.append(Paragraph(cfg['betreff'], sty['betreff']))
 
-    story.append(Spacer(1, 0.25 * cm))
+    story.append(Spacer(1, 0.15 * cm))
 
     # ── 4  ANREDE ────────────────────────────────────────────────────────────
     anrede = cfg.get('anrede', '')
@@ -393,7 +389,7 @@ def build(story, sty, W, cfg=None):
     if isinstance(highlights, list) and highlights:
         for item in highlights:
             story.append(Paragraph(f'•&nbsp;&nbsp;{item}', sty['bullet']))
-        story.append(Spacer(1, 4))
+        story.append(Spacer(1, 2))
 
     # Remaining paragraphs
     for key in ('absatz_3', 'absatz_4', 'absatz_5'):
@@ -403,22 +399,29 @@ def build(story, sty, W, cfg=None):
 
     # ── 6  GRUSSFORMEL ───────────────────────────────────────────────────────
     gruss = 'Herzliche Grüße' if du else 'Mit freundlichen Grüßen'
-    story.append(Spacer(1, 0.15 * cm))
+    story.append(Spacer(1, 0.1 * cm))
     story.append(Paragraph(gruss, sty['gruss']))
-    story.append(Spacer(1, 0.25 * cm))
+
+    # Signature image
+    if os.path.exists(SIGNATUR_PATH):
+        sig = Image(SIGNATUR_PATH, width=3.5 * cm, height=1.2 * cm)
+        sig.hAlign = 'LEFT'
+        story.append(Spacer(1, 0.1 * cm))
+        story.append(sig)
+        story.append(Spacer(1, 0.05 * cm))
+    else:
+        story.append(Spacer(1, 0.15 * cm))
+
     story.append(Paragraph('Hamza Öztürk', sty['gruss']))
 
-    # ── 7  FOOTER (Anlagen / Gehalt / Eintritt / Arbeitsmodell) ──────────────
-    anlagen = cfg.get('anlagen', '')
+    # ── 7  FOOTER (Gehalt / Eintritt / Arbeitsmodell) ──────────────────────
     gehalt = cfg.get('gehalt', '')
     eintritt = cfg.get('eintritt', '')
     arbeitsmodell = cfg.get('arbeitsmodell', '')
-    has_footer = any([anlagen, gehalt, eintritt, arbeitsmodell])
+    has_footer = any([gehalt, eintritt, arbeitsmodell])
 
     if has_footer:
-        story.append(Spacer(1, 0.35 * cm))
-        if anlagen:
-            story.append(Paragraph(f'Anlagen: {anlagen}', sty['footer']))
+        story.append(Spacer(1, 0.2 * cm))
         if gehalt:
             story.append(Paragraph(f'Gehalt: {gehalt}', sty['footer']))
         if eintritt:
