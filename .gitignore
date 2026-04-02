@@ -1,11 +1,28 @@
-# ── Secrets & lokale Konfiguration ──────────────────────────────────────────
-.claude_api_key
-.env
-
-# ── GitHub-Profile hat ein eigenes separates Repository ─────────────────────
-GitHub-Profile/
-
-# ── Python Cache ─────────────────────────────────────────────────────────────
+# Python
 __pycache__/
 *.py[cod]
 *.pyo
+.venv/
+
+# API keys and secrets
+.claude_api_key
+.imap_settings.json
+.smtp_settings.json
+
+# IDE
+.vscode/
+
+# Generated PDFs
+*.pdf
+
+# Images
+*.jpeg
+*.jpg
+*.png
+
+# Excel
+*.xlsx
+
+# Bewerbungen output
+bewerbungen/
+mail_pdfs/

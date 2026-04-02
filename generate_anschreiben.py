@@ -7,6 +7,7 @@ Premium-Design · 10.03.2026
 
 import os
 import sys
+import re
 
 from reportlab.lib.pagesizes import A4
 from reportlab.lib.units import cm, mm
@@ -21,7 +22,7 @@ from reportlab.pdfbase import pdfmetrics
 from reportlab.pdfbase.ttfonts import TTFont
 
 # ─── PATHS ────────────────────────────────────────────────────────────────────
-OUTPUT        = r"C:\Users\hamza\Desktop\Lebenslauf\Hamza_Oeztuerk_Anschreiben_Fullstack_Entwickler.pdf"
+OUTPUT        = r"C:\Users\hamza\Desktop\Lebenslauf\bewerbung_software_entwicker_herr_öztürk.pdf"
 SIGNATUR_PATH = r"C:\Users\hamza\Desktop\Lebenslauf\sıgnatur.png"
 
 # ─── LAYOUT ──────────────────────────────────────────────────────────────────
@@ -81,6 +82,8 @@ def make_styles():
                         spaceAfter=4),
         'body':      ps('body',      'CV-R', 10, DARK, leading=15.5,
                         spaceAfter=6, align=TA_JUSTIFY),
+        'bullet':    ps('bullet',    'CV-R', 10, DARK, leading=15,
+                        spaceAfter=2, leftIndent=12),
         'gruss':     ps('gruss',     'CV-R', 10, DARK, leading=15,
                         spaceBefore=4),
         'footer':    ps('footer',    'CV-R',  9, LGRAY, leading=12,
@@ -109,16 +112,130 @@ class AccentBar(Flowable):
         self.canv.restoreState()
 
 
+class BadgePill(Flowable):
+    """Rounded pill badge with coloured background."""
+    def __init__(self, text, bg=NAVY, fg=HexColor('#FFFFFF'),
+                 font='CV-R', size=8, h_pad=6, v_pad=3, radius=4):
+        super().__init__()
+        self._text = text
+        self._bg = bg
+        self._fg = fg
+        self._font = font
+        self._size = size
+        self._hpad = h_pad
+        self._vpad = v_pad
+        self._radius = radius
+
+    def wrap(self, aw, ah):
+        from reportlab.pdfbase.pdfmetrics import stringWidth
+        tw = stringWidth(self._text, self._font, self._size)
+        self.width = tw + 2 * self._hpad
+        self.height = self._size + 2 * self._vpad
+        return self.width, self.height
+
+    def draw(self):
+        self.canv.saveState()
+        self.canv.setFillColor(self._bg)
+        self.canv.roundRect(0, 0, self.width, self.height,
+                            self._radius, fill=True, stroke=False)
+        self.canv.setFillColor(self._fg)
+        self.canv.setFont(self._font, self._size)
+        self.canv.drawString(self._hpad, self._vpad + 1, self._text)
+        self.canv.restoreState()
+
+
 # ─── HELPERS ─────────────────────────────────────────────────────────────────
 def lnk(url, label):
     return f'<a href="{url}" color="#1B3764">{label}</a>'
 
-def _build_role_line(stelle, detail):
-    """Build the role subtitle, e.g. 'Fullstack Entwickler | C# | .NET'."""
-    parts = [p.strip() for p in detail.split('|')]
-    sep = '&#160;&#160;<font color="#1B3764">|</font>&#160;&#160;'
-    return sep.join([stelle] + parts)
 
+def _normalize_anrede(text):
+    """Apply German letter rule: salutation ends with a comma."""
+    s = (text or '').strip()
+    if not s:
+        return 'Sehr geehrte Damen und Herren,'
+    s = s.rstrip(' .;:')
+    if not s.endswith(','):
+        s += ','
+    return s
+
+
+def _lowercase_first_content_char(text):
+    """Lowercase first visible letter (ignoring HTML tags/spaces)."""
+    s = str(text or '')
+    in_tag = False
+    for i, ch in enumerate(s):
+        if ch == '<':
+            in_tag = True
+            continue
+        if ch == '>':
+            in_tag = False
+            continue
+        if in_tag or ch.isspace():
+            continue
+        if ch.isalpha():
+            return s[:i] + ch.lower() + s[i + 1:]
+        break
+    return s
+
+
+def _polish_german_phrasing(text):
+    """Small wording cleanup for natural German phrasing."""
+    s = str(text or '')
+    s = re.sub(r'\bAMBOSSs\s+Mission\b', 'zur Mission von AMBOSS', s, flags=re.IGNORECASE)
+    s = re.sub(r'\bzur Mission von AMBOSS von\b', 'zur Mission von AMBOSS', s, flags=re.IGNORECASE)
+    return s
+
+
+def _extract_aufgaben_from_ki(cfg):
+    """Extract task-like phrases from KI-generated paragraphs."""
+    direct = cfg.get('aufgaben', [])
+    if isinstance(direct, list):
+        cleaned = [str(x).strip() for x in direct if str(x).strip()]
+        if cleaned:
+            return cleaned[:4]
+
+    source = ' '.join([
+        str(cfg.get('absatz_2', '')),
+        str(cfg.get('absatz_3', '')),
+        str(cfg.get('absatz_4', '')),
+    ])
+    source_l = source.lower()
+
+    patterns = [
+        (r'backend|api|rest', 'Entwicklung moderner Backend-Services und APIs'),
+        (r'frontend|angular|ui', 'Weiterentwicklung performanter Frontend-Module'),
+        (r'zusammenarbeit|fachbereich|stakeholder', 'enge Zusammenarbeit mit Fachbereichen und Stakeholdern'),
+        (r'bug|fehler|analyse|debug', 'strukturierte Fehleranalyse und priorisierte Bugfixes'),
+        (r'ci/cd|pipeline|deployment|release', 'Automatisierung von Build-, Test- und Release-Prozessen'),
+        (r'dokumentation|qualität|sonarqube|code', 'Sicherstellung von Code-Qualität und technischer Dokumentation'),
+    ]
+
+    tasks = []
+    for patt, phrase in patterns:
+        if re.search(patt, source_l) and phrase not in tasks:
+            tasks.append(phrase)
+
+    return tasks[:4]
+
+
+def _build_aufgaben_blend_paragraph(cfg):
+    """Build a company-specific paragraph blending job tasks with profile strengths."""
+    firma = str(cfg.get('firma', 'Ihrem Unternehmen')).strip() or 'Ihrem Unternehmen'
+    tasks = _extract_aufgaben_from_ki(cfg)
+
+    if not tasks:
+        return (
+            f'Bei {firma} möchte ich meine Stärken in <b>C#/.NET</b>, '
+            '<b>Angular</b>, Clean Architecture und CI/CD gezielt ein, '
+            'um in anspruchsvollen Produktbereichen sichtbaren Mehrwert '
+            'zu schaffen.'
+        )
+
+    task_txt = '; '.join(tasks[:3])
+    return (
+               ''
+    )
 
 # ─── PAGE DECORATION ────────────────────────────────────────────────────────
 def _draw_page(canvas, doc):
@@ -137,14 +254,15 @@ def _draw_page(canvas, doc):
 
 # ─── DEFAULT CONFIG ──────────────────────────────────────────────────────────
 DEFAULT_CONFIG = {
-    'stelle':           'Fullstack Entwickler',
-    'stelle_detail':    'C# | .NET | Angular',
+    'stelle':           'Full-Stack Developer',
     'firma':            'Musterfirma GmbH',
-    'ansprechpartner':  'Frau / Herrn Mustermann',
+    'ansprechpartner':  'Frau Mustermann',
+    'ansprechpartner_titel': '',
     'firma_strasse':    'Musterstraße 1',
     'firma_plz_ort':    '79098 Freiburg im Breisgau',
+    'du_kultur':        False,
     'anrede':           'Sehr geehrte Damen und Herren,',
-    'datum':            '10.03.2026',
+    'datum':            '02. April 2026',
     'betreff':          'Bewerbung als Fullstack Entwickler – C# / .NET / Angular',
     'absatz_1': (
         'mit großem Interesse habe ich Ihre Stellenausschreibung als '
@@ -155,176 +273,170 @@ DEFAULT_CONFIG = {
         'Eigeninitiative mit, die Ihr Team weiterbringt.'
     ),
     'absatz_2': (
-        'In meiner bisherigen Position bei der Dicom GmbH war ich '
-        'maßgeblich an der <b>Neuentwicklung eines Enterprise-ERP-Systems</b> '
-        'beteiligt: Ich habe über 40 API-Controller in .NET 9 mit '
-        'Clean Architecture umgesetzt, das Angular-19-Frontend mit NgRx '
-        'und MSAL-SSO aufgebaut und eine CI/CD-Pipeline eingeführt, die '
-        'die <b>Deployment-Zeit um 40 %</b> verkürzt hat. Besonders stolz '
-        'bin ich darauf, die SonarQube-Violations innerhalb von '
-        '<b>drei Wochen von 2.100 auf 30</b> gesenkt zu haben – '
-        'ein Ergebnis, das meine Leidenschaft für sauberen, '
-        'wartbaren Code zeigt.'
+        'In meiner aktuellen Rolle bei der Dicom GmbH habe ich '
+        'zuletzt konkrete Ergebnisse erzielt:'
     ),
+    'highlights': [
+        'SonarQube-Violations um 99 % reduziert (2.100 → 30) in drei Wochen',
+        'Deployment-Zeiten um 40 % beschleunigt durch CI/CD-Pipeline-Aufbau',
+        'Monolithische ERP-Desktop-Anwendung erfolgreich auf Clean Architecture migriert',
+        'Systematisches Bug-Fixing und Feature-Entwicklung – von der Anforderungsanalyse bis zum Rollout',
+    ],
     'absatz_3': (
-        'Neben dem Berufsalltag betreibe ich eigene Open-Source-Projekte: '
-        '<b>Bikehaus Freiburg</b> – ein produktiv eingesetztes '
-        'Warenwirtschaftssystem mit .NET-API, Angular-Client, '
-        'Electron-Desktop-App und Chrome Extension – sowie die '
-        '<b>Kulturplattform Freiburg e.V.</b>, eine zweisprachige '
-        'Vereinswebsite mit React 19 und .NET 10. Diese Projekte '
-        'belegen, dass ich End-to-End-Verantwortung übernehme: '
-        'von der Architektur über die Implementierung bis zum '
-        'Deployment auf eigenen Servern.'
+        'Diese Kombination aus technischer Tiefe, Verständnis für '
+        'Unternehmensprozesse und Erfahrung im 3rd-Level-Support '
+        'macht mich zu einem Entwickler, der nicht nur Code schreibt – '
+        'sondern mitdenkt.'
     ),
     'absatz_4': (
-        'Technologisch fühle ich mich im gesamten Stack zu Hause – '
-        'von Docker-Containern und GitHub Actions über RESTful APIs '
-        'bis hin zu modernen Frontend-Frameworks. Darüber hinaus '
-        'setze ich <b>KI-Tools und Prompt Engineering</b> gezielt '
-        'ein, um Entwicklungsprozesse zu beschleunigen und '
-        'Code-Qualität zu steigern.'
+        'Ich freue mich auf ein persönliches Gespräch, um Sie davon '
+        'zu überzeugen, wie ich Ihre Projekte technisch und menschlich '
+        'voranbringe.'
     ),
-    'absatz_5': (
-        'Ich bin überzeugt, dass mein Profil – gepaart mit meiner '
-        'Motivation, mich stetig weiterzuentwickeln – einen echten '
-        'Mehrwert für Ihr Unternehmen darstellt. '
-        'Über die Einladung zu einem persönlichen Gespräch '
-        'freue ich mich sehr.'
-    ),
-    'anlagen': 'Lebenslauf, Arbeitszeugnisse, Zertifikate',
+    'absatz_5': '',
+    'gehalt':           '',
+    'eintritt':         '',
+    'arbeitsmodell':    '',
+    'anlagen': 'Lebenslauf · Zeugnisse · Zertifikate',
 }
 
 
 # ─── BUILD STORY ─────────────────────────────────────────────────────────────
 def build(story, sty, W, cfg=None):
     cfg = {**DEFAULT_CONFIG, **(cfg or {})}
+    du = cfg.get('du_kultur', False)
+    SEP = '&nbsp;&nbsp;&nbsp;&nbsp;'
 
     # ── 1  ABSENDER-HEADER ───────────────────────────────────────────────────
-    story.append(Paragraph('Hamza Öztürk', sty['name']))
-    story.append(Spacer(1, 1))
-    story.append(Paragraph(
-        _build_role_line(cfg['stelle'], cfg['stelle_detail']),
-        sty['role'],
-    ))
-    story.append(Spacer(1, 4))
+    name_para = Paragraph('Hamza Öztürk', sty['name'])
 
-    # Contact rows – split into two lines to prevent wrapping
-    sep = '&#160;&#160;<font color="#1B3764">|</font>&#160;&#160;'
-    line1_parts = [
-        'Bissierstr.&#160;16, 79114&#160;Freiburg',
-        '+49&#160;155&#160;66859378',
-        'oeztuerk.hamza@web.de',
-    ]
-    line2_parts = [
-        lnk('https://linkedin.com/in/hamzaoeztuerk',
-            'linkedin.com/in/hamzaoeztuerk'),
-        lnk('https://github.com/oeztuerkhamza',
-            'github.com/oeztuerkhamza'),
-    ]
-    story.append(Paragraph(sep.join(line1_parts), sty['contact']))
-    story.append(Paragraph(sep.join(line2_parts), sty['contact']))
+
+    header_row = Table(
+        [[name_para]],
+        hAlign='LEFT',
+    )
+    header_row.setStyle(TableStyle([
+        ('VALIGN', (0, 0), (-1, -1), 'MIDDLE'),
+        ('LEFTPADDING', (0, 0), (-1, -1), 0),
+        ('RIGHTPADDING', (0, 0), (0, 0), 8),
+        ('RIGHTPADDING', (1, 0), (1, 0), 0),
+        ('TOPPADDING', (0, 0), (-1, -1), 0),
+        ('BOTTOMPADDING', (0, 0), (-1, -1), 0),
+    ]))
+    story.append(header_row)
 
     story.append(Spacer(1, 2))
+    story.append(Paragraph(
+        f'Nürnberg, Bayern{SEP}+49 170 000 0000', sty['contact']))
+    story.append(Paragraph(
+        f'{lnk("mailto:hamza@email.de", "hamza@email.de")}{SEP}'
+        f'{lnk("https://hamzaoeztuerk.de", "hamzaoeztuerk.de")}{SEP}'
+        f'{lnk("https://linkedin.com/in/hamzaoeztuerk", "linkedin.com/in/hamzaoeztuerk")}',
+        sty['contact']))
+
+    story.append(Spacer(1, 0.18 * cm))
     story.append(AccentBar(W, thickness=1))
-    story.append(Spacer(1, 0.6 * cm))
+    story.append(Spacer(1, 0.18 * cm))
 
-    # ── 2  EMPFÄNGER ─────────────────────────────────────────────────────────
-    story.append(Paragraph(cfg['firma'], sty['empf']))
-    story.append(Paragraph(f'z. Hd. {cfg["ansprechpartner"]}', sty['empf']))
-    story.append(Paragraph(cfg['firma_strasse'], sty['empf']))
-    story.append(Paragraph(cfg['firma_plz_ort'], sty['empf']))
+    # ── 2  EMPFÄNGER + DATUM ─────────────────────────────────────────────────
+    ap = (cfg.get('ansprechpartner') or '').strip()
+    ap_titel = (cfg.get('ansprechpartner_titel') or '').strip()
+    if ap and ap_titel:
+        ap_name = re.sub(r'^(Frau|Herrn?)\s+', '', ap).strip()
+        ap_line = f'{ap_name} · {ap_titel}'
+    elif ap:
+        ap_line = ap
+    else:
+        ap_line = ''
 
-    story.append(Spacer(1, 0.7 * cm))
+    empf_parts = [cfg['firma']]
+    if ap_line:
+        empf_parts.append(ap_line)
+    empf_parts.append(cfg['firma_strasse'])
+    empf_parts.append(cfg['firma_plz_ort'])
 
-    # ── 3  DATUM ─────────────────────────────────────────────────────────────
-    story.append(Paragraph(f'Freiburg im Breisgau, {cfg["datum"]}',
-                           sty['datum']))
+    empf_para = Paragraph('<br/>'.join(empf_parts), sty['empf'])
+    datum_para = Paragraph(f'Freiburg, {cfg["datum"]}', sty['datum'])
+
+    info_table = Table(
+        [[empf_para, datum_para]],
+        colWidths=[W * 0.6, W * 0.4],
+    )
+    info_table.setStyle(TableStyle([
+        ('VALIGN', (0, 0), (-1, -1), 'TOP'),
+        ('LEFTPADDING', (0, 0), (-1, -1), 0),
+        ('RIGHTPADDING', (0, 0), (-1, -1), 0),
+        ('TOPPADDING', (0, 0), (-1, -1), 0),
+        ('BOTTOMPADDING', (0, 0), (-1, -1), 0),
+    ]))
+    story.append(info_table)
 
     story.append(Spacer(1, 0.5 * cm))
 
-    # ── 4  BETREFF ───────────────────────────────────────────────────────────
+    # ── 3  BETREFF ───────────────────────────────────────────────────────────
     story.append(Paragraph(cfg['betreff'], sty['betreff']))
 
     story.append(Spacer(1, 0.3 * cm))
 
-    # ── 5  ANREDE ────────────────────────────────────────────────────────────
-    story.append(Paragraph(cfg['anrede'], sty['anrede']))
+    # ── 4  ANREDE ────────────────────────────────────────────────────────────
+    anrede = cfg.get('anrede', '')
+    if not anrede:
+        if du and ap:
+            ap_short = re.sub(r'^(Frau|Herrn?)\s+', '', ap).strip()
+            anrede = f'Hallo {ap_short},'
+        else:
+            anrede = _normalize_anrede('')
+    else:
+        anrede = _normalize_anrede(anrede)
+    story.append(Paragraph(anrede, sty['anrede']))
 
-    # ── 6  FLIESSTEXT ────────────────────────────────────────────────────────
-    story.append(Paragraph(
-        'mit großem Interesse habe ich Ihre Stellenausschreibung als '
-        'Fullstack Entwickler gelesen. Als ausgebildeter '
-        '<b>Fachinformatiker für Anwendungsentwicklung</b> mit '
-        'fundierter Praxis in <b>C#/.NET</b> und <b>Angular</b> '
-        'bringe ich genau die Kombination aus technischer Tiefe und '
-        'Eigeninitiative mit, die Ihr Team weiterbringt.',
-        sty['body'],
-    ))
+    # ── 5  FLIESSTEXT ────────────────────────────────────────────────────────
+    p1 = _polish_german_phrasing(cfg.get('absatz_1', DEFAULT_CONFIG['absatz_1']))
+    story.append(Paragraph(_lowercase_first_content_char(p1), sty['body']))
 
-    story.append(Paragraph(
-        'In meiner bisherigen Position bei der Dicom GmbH war ich '
-        'maßgeblich an der <b>Neuentwicklung eines Enterprise-ERP-Systems</b> '
-        'beteiligt: Ich habe über 40 API-Controller in .NET 9 mit '
-        'Clean Architecture umgesetzt, das Angular-19-Frontend mit NgRx '
-        'und MSAL-SSO aufgebaut und eine CI/CD-Pipeline eingeführt, die '
-        'die <b>Deployment-Zeit um 40 %</b> verkürzt hat. Besonders stolz '
-        'bin ich darauf, die SonarQube-Violations innerhalb von '
-        '<b>drei Wochen von 2.100 auf 30</b> gesenkt zu haben – '
-        'ein Ergebnis, das meine Leidenschaft für sauberen, '
-        'wartbaren Code zeigt.',
-        sty['body'],
-    ))
+    # Intro before highlights (absatz_2)
+    p2 = cfg.get('absatz_2', '')
+    if p2 and p2.strip():
+        story.append(Paragraph(_polish_german_phrasing(p2), sty['body']))
 
-    story.append(Paragraph(
-        'Neben dem Berufsalltag betreibe ich eigene Open-Source-Projekte: '
-        '<b>Bikehaus Freiburg</b> – ein produktiv eingesetztes '
-        'Warenwirtschaftssystem mit .NET-API, Angular-Client, '
-        'Electron-Desktop-App und Chrome Extension – sowie die '
-        '<b>Kulturplattform Freiburg e.V.</b>, eine zweisprachige '
-        'Vereinswebsite mit React 19 und .NET 10. Diese Projekte '
-        'belegen, dass ich End-to-End-Verantwortung übernehme: '
-        'von der Architektur über die Implementierung bis zum '
-        'Deployment auf eigenen Servern.',
-        sty['body'],
-    ))
+    # Bullet highlights
+    highlights = cfg.get('highlights', [])
+    if isinstance(highlights, list) and highlights:
+        for item in highlights:
+            story.append(Paragraph(f'•&nbsp;&nbsp;{item}', sty['bullet']))
+        story.append(Spacer(1, 4))
 
-    story.append(Paragraph(
-        'Technologisch fühle ich mich im gesamten Stack zu Hause – '
-        'von Docker-Containern und GitHub Actions über RESTful APIs '
-        'bis hin zu modernen Frontend-Frameworks. Darüber hinaus '
-        'setze ich <b>KI-Tools und Prompt Engineering</b> gezielt '
-        'ein, um Entwicklungsprozesse zu beschleunigen und '
-        'Code-Qualität zu steigern.',
-        sty['body'],
-    ))
+    # Remaining paragraphs
+    for key in ('absatz_3', 'absatz_4', 'absatz_5'):
+        val = cfg.get(key, '')
+        if val and val.strip():
+            story.append(Paragraph(_polish_german_phrasing(val), sty['body']))
 
-    story.append(Paragraph(
-        'Ich bin überzeugt, dass mein Profil – gepaart mit meiner '
-        'Motivation, mich stetig weiterzuentwickeln – einen echten '
-        'Mehrwert für Ihr Unternehmen darstellt. '
-        'Über die Einladung zu einem persönlichen Gespräch '
-        'freue ich mich sehr.',
-        sty['body'],
-    ))
-
-    # ── 7  GRUSSFORMEL & UNTERSCHRIFT ────────────────────────────────────────
+    # ── 6  GRUSSFORMEL ───────────────────────────────────────────────────────
+    gruss = 'Herzliche Grüße' if du else 'Mit freundlichen Grüßen'
     story.append(Spacer(1, 0.1 * cm))
-    story.append(Paragraph('Mit freundlichen Grüßen', sty['gruss']))
-    story.append(Spacer(1, 0.15 * cm))
-    story.append(Image(SIGNATUR_PATH, width=4.0*cm, height=1.5*cm,
-                       hAlign='LEFT'))
-    story.append(Paragraph('Hamza Öztürk', sty['footer']))
+    story.append(Paragraph(gruss, sty['gruss']))
+    story.append(Spacer(1, 0.3 * cm))
+    story.append(Paragraph('Hamza Öztürk', sty['gruss']))
 
-    # ── 8  ANLAGEN-HINWEIS ───────────────────────────────────────────────────
-    story.append(Spacer(1, 0.5 * cm))
-    story.append(HRFlowable(width='100%', thickness=0.35, color=RULE_C,
-                            spaceBefore=4, spaceAfter=4))
-    story.append(Paragraph(
-        '<font color="#1B3764"><b>Anlagen:</b></font>&#160;&#160;'
-        + cfg['anlagen'],
-        sty['contact'],
-    ))
+    # ── 7  FOOTER (Anlagen / Gehalt / Eintritt / Arbeitsmodell) ──────────────
+    anlagen = cfg.get('anlagen', '')
+    gehalt = cfg.get('gehalt', '')
+    eintritt = cfg.get('eintritt', '')
+    arbeitsmodell = cfg.get('arbeitsmodell', '')
+    has_footer = any([anlagen, gehalt, eintritt, arbeitsmodell])
+
+    if has_footer:
+        story.append(Spacer(1, 0.35 * cm))
+        if anlagen:
+            story.append(Paragraph(f'Anlagen: {anlagen}', sty['footer']))
+        if gehalt:
+            story.append(Paragraph(f'Gehalt: {gehalt}', sty['footer']))
+        if eintritt:
+            story.append(Paragraph(f'Eintritt: {eintritt}', sty['footer']))
+        if arbeitsmodell:
+            story.append(Paragraph(f'Arbeitsmodell: {arbeitsmodell}',
+                                   sty['footer']))
 
 
 # ─── MAIN ────────────────────────────────────────────────────────────────────
