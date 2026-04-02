@@ -8,21 +8,41 @@ __pycache__/
 .claude_api_key
 .imap_settings.json
 .smtp_settings.json
+.env
+.env.*
 
 # IDE
 .vscode/
 
-# Generated PDFs
+# ===== Kişisel Dosyalar =====
+
+# PDF dosyaları (Lebenslauf, Anschreiben, Zeugnisse vs.)
 *.pdf
 
-# Images
+# Fotoğraflar ve imza
 *.jpeg
 *.jpg
 *.png
+*.gif
+*.bmp
 
-# Excel
+# icons/ klasörü hariç (kod tarafından kullanılıyor)
+!icons/
+!icons/*.png
+
+# Excel / CSV (başvuru takip dosyaları)
 *.xlsx
+*.csv
 
-# Bewerbungen output
+# Başvuru çıktıları
 bewerbungen/
 mail_pdfs/
+
+# Zeugnisse (sertifikalar)
+Zeugnis/
+
+# Örnek CV'ler
+örnekler/
+
+# GitHub-Profile (ayrı repo)
+GitHub-Profile/
