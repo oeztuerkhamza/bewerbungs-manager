@@ -1,0 +1,45 @@
+<!DOCTYPE html>
+<html lang="de">
+<head>
+  <meta charset="UTF-8">
+  <title>Bewerbung AutoFill</title>
+  <link rel="stylesheet" href="popup.css">
+</head>
+<body>
+  <div class="container">
+    <header class="header">
+      <div class="header-glow"></div>
+      <div class="header-content">
+        <div class="avatar">HÖ</div>
+        <div class="header-text">
+          <h1>Hamza Öztürk</h1>
+          <p class="subtitle">Bewerbung AutoFill</p>
+        </div>
+      </div>
+    </header>
+    <div class="profile-card">
+      <div class="profile-row"><span class="icon">📧</span><span class="label">E-Mail</span><span class="value">oeztuerk.hamza@web.de</span></div>
+      <div class="profile-row"><span class="icon">📱</span><span class="label">Telefon</span><span class="value">+49 155 66859378</span></div>
+      <div class="profile-row"><span class="icon">📍</span><span class="label">Adresse</span><span class="value">Bissierstr. 16, 79114 Freiburg</span></div>
+      <div class="profile-row"><span class="icon">💼</span><span class="label">Beruf</span><span class="value">Fullstack Entwickler</span></div>
+    </div>
+    <button id="fillBtn" class="fill-button">
+      <span class="btn-icon">⚡</span>
+      <span class="btn-text">Formular ausfüllen</span>
+      <span class="btn-shine"></span>
+    </button>
+    <div id="status" class="status hidden">
+      <div class="status-icon">✅</div>
+      <div class="status-text"></div>
+    </div>
+    <div id="results" class="results hidden">
+      <h3>Ausgefüllte Felder</h3>
+      <ul id="resultList"></ul>
+    </div>
+    <footer class="footer">
+      <span>v1.0</span><span>·</span><span>Deutsch 🇩🇪</span>
+    </footer>
+  </div>
+  <script src="popup.js"></script>
+</body>
+</html>

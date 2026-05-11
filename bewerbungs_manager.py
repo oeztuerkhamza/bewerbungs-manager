@@ -279,12 +279,14 @@ class BewerbungsApp(tk.Tk):
         self._tab_stelle    = self._make_tab(nb, '📋  Stelle & Firma')
         self._tab_anschr    = self._make_tab(nb, '✍  Anschreiben')
         self._tab_email     = self._make_tab(nb, '📧  E-Mail')
+        self._tab_uebersicht = self._make_tab(nb, '📊  Übersicht')
         self._tab_profile   = self._make_tab(nb, '👤  Profile')
 
         self._build_ki_tab(self._tab_ki)
         self._build_stelle_tab(self._tab_stelle)
         self._build_anschreiben_tab(self._tab_anschr)
         self._build_email_tab(self._tab_email)
+        self._build_uebersicht_tab(self._tab_uebersicht)
         self._build_profile_tab(self._tab_profile)
         self._nb = nb
 
@@ -1545,6 +1547,311 @@ class BewerbungsApp(tk.Tk):
                 canvas_obj.drawString(x, y, wrapped)
                 y -= leading
         return y
+
+    # ── TAB: ÜBERSICHT ──────────────────────────────────────────────────────
+    # Status values & colours
+    _DURUM_OPTIONS = [
+        'Başvuruldu',
+        'Gönderildi',
+        'Beworben',
+        'Alındı Teyidi (İşlemde)',
+        'Mülakat Daveti',
+        'Olumsuz (Red)',
+    ]
+    _DURUM_COLORS = {
+        'Başvuruldu':               '#6366F1',   # indigo
+        'Gönderildi':               '#8B5CF6',   # violet
+        'Beworben':                 '#2563EB',   # blue
+        'Alındı Teyidi (İşlemde)':  '#059669',   # green
+        'Mülakat Daveti':           '#0891B2',   # cyan
+        'Olumsuz (Red)':            '#DC2626',   # red
+    }
+
+    def _build_uebersicht_tab(self, parent):
+        container = tk.Frame(parent, bg=BG)
+        container.pack(fill='both', expand=True, padx=0, pady=0)
+
+        # ── Top toolbar ──
+        toolbar = tk.Frame(container, bg=BG)
+        toolbar.pack(fill='x', padx=16, pady=(12, 4))
+
+        tk.Label(toolbar, text='📊  Bewerbungs-Übersicht', bg=BG, fg=NAVY,
+                 font=(FONT, 13, 'bold')).pack(side='left')
+
+        ttk.Button(toolbar, text='🔄  Aktualisieren',
+                   style='Accent.TButton',
+                   command=self._uebersicht_refresh).pack(side='right', padx=4)
+        ttk.Button(toolbar, text='➕  Neue Bewerbung',
+                   style='Gold.TButton',
+                   command=self._uebersicht_add).pack(side='right', padx=4)
+        ttk.Button(toolbar, text='🗑  Löschen',
+                   style='Ghost.TButton',
+                   command=self._uebersicht_delete).pack(side='right', padx=4)
+
+        # ── Filter bar ──
+        filter_bar = tk.Frame(container, bg=BG)
+        filter_bar.pack(fill='x', padx=16, pady=(4, 4))
+
+        tk.Label(filter_bar, text='Filter:', bg=BG, fg=FG,
+                 font=(FONT, 10)).pack(side='left', padx=(0, 6))
+        self._ub_filter_var = tk.StringVar(value='Alle')
+        filter_opts = ['Alle'] + self._DURUM_OPTIONS
+        filter_cb = ttk.Combobox(filter_bar, textvariable=self._ub_filter_var,
+                                 values=filter_opts, state='readonly',
+                                 width=28, font=(FONT, 10))
+        filter_cb.pack(side='left', padx=(0, 12))
+        filter_cb.bind('<<ComboboxSelected>>', lambda e: self._uebersicht_refresh())
+
+        tk.Label(filter_bar, text='Suche:', bg=BG, fg=FG,
+                 font=(FONT, 10)).pack(side='left', padx=(0, 6))
+        self._ub_search_var = tk.StringVar()
+        search_entry = ttk.Entry(filter_bar, textvariable=self._ub_search_var,
+                                 width=30, font=(FONT, 10))
+        search_entry.pack(side='left', padx=(0, 6))
+        search_entry.bind('<KeyRelease>', lambda e: self._uebersicht_refresh())
+
+        # ── Stats bar ──
+        self._ub_stats_var = tk.StringVar(value='')
+        tk.Label(filter_bar, textvariable=self._ub_stats_var, bg=BG, fg=FG_LIGHT,
+                 font=(FONT, 9)).pack(side='right')
+
+        # ── Treeview ──
+        tree_frame = tk.Frame(container, bg=BG)
+        tree_frame.pack(fill='both', expand=True, padx=16, pady=(4, 8))
+
+        cols = ('firma', 'position', 'durum', 'tarih')
+        self._ub_tree = ttk.Treeview(tree_frame, columns=cols,
+                                     show='headings', selectmode='browse')
+        self._ub_tree.heading('firma',    text='Şirket / Firma',    anchor='w')
+        self._ub_tree.heading('position', text='Pozisyon / Stelle', anchor='w')
+        self._ub_tree.heading('durum',    text='Durum / Sonuç',     anchor='w')
+        self._ub_tree.heading('tarih',    text='Tarih',             anchor='center')
+
+        self._ub_tree.column('firma',    width=240, minwidth=120, stretch=True)
+        self._ub_tree.column('position', width=320, minwidth=150, stretch=True)
+        self._ub_tree.column('durum',    width=180, minwidth=100, stretch=False)
+        self._ub_tree.column('tarih',    width=100, minwidth=80,  stretch=False, anchor='center')
+
+        # Style the Treeview
+        style = ttk.Style()
+        style.configure('Treeview',
+                        font=(FONT, 10), rowheight=28,
+                        background=WHITE, fieldbackground=WHITE,
+                        foreground=FG)
+        style.configure('Treeview.Heading',
+                        font=(FONT, 10, 'bold'),
+                        background=NAVY, foreground=WHITE)
+        style.map('Treeview',
+                  background=[('selected', ACCENT)],
+                  foreground=[('selected', NAVY)])
+
+        # Tag colours for each status
+        for durum, color in self._DURUM_COLORS.items():
+            tag = durum.replace(' ', '_').replace('(', '').replace(')', '')
+            self._ub_tree.tag_configure(tag, foreground=color)
+
+        vsb = ttk.Scrollbar(tree_frame, orient='vertical',
+                            command=self._ub_tree.yview)
+        self._ub_tree.configure(yscrollcommand=vsb.set)
+        self._ub_tree.pack(side='left', fill='both', expand=True)
+        vsb.pack(side='right', fill='y')
+
+        # Double-click to edit
+        self._ub_tree.bind('<Double-1>', self._uebersicht_edit)
+
+        # ── Edit form (hidden by default) ──
+        self._ub_edit_frame = tk.Frame(container, bg=WHITE,
+                                       highlightbackground=CARD_BD,
+                                       highlightthickness=1,
+                                       padx=16, pady=12)
+
+        tk.Label(self._ub_edit_frame, text='✏  Bewerbung bearbeiten',
+                 bg=WHITE, fg=NAVY,
+                 font=(FONT, 11, 'bold')).grid(row=0, column=0, columnspan=4,
+                                                sticky='w', pady=(0, 8))
+
+        tk.Label(self._ub_edit_frame, text='Firma:', bg=WHITE, fg=FG,
+                 font=(FONT, 10)).grid(row=1, column=0, sticky='e', padx=(0, 6), pady=4)
+        self._ub_edit_firma = tk.StringVar()
+        ttk.Entry(self._ub_edit_frame, textvariable=self._ub_edit_firma,
+                  width=40, font=(FONT, 10)).grid(row=1, column=1, sticky='w', pady=4)
+
+        tk.Label(self._ub_edit_frame, text='Position:', bg=WHITE, fg=FG,
+                 font=(FONT, 10)).grid(row=1, column=2, sticky='e', padx=(12, 6), pady=4)
+        self._ub_edit_position = tk.StringVar()
+        ttk.Entry(self._ub_edit_frame, textvariable=self._ub_edit_position,
+                  width=40, font=(FONT, 10)).grid(row=1, column=3, sticky='w', pady=4)
+
+        tk.Label(self._ub_edit_frame, text='Durum:', bg=WHITE, fg=FG,
+                 font=(FONT, 10)).grid(row=2, column=0, sticky='e', padx=(0, 6), pady=4)
+        self._ub_edit_durum = tk.StringVar()
+        ttk.Combobox(self._ub_edit_frame, textvariable=self._ub_edit_durum,
+                     values=self._DURUM_OPTIONS, width=28,
+                     font=(FONT, 10)).grid(row=2, column=1, sticky='w', pady=4)
+
+        tk.Label(self._ub_edit_frame, text='Tarih:', bg=WHITE, fg=FG,
+                 font=(FONT, 10)).grid(row=2, column=2, sticky='e', padx=(12, 6), pady=4)
+        self._ub_edit_tarih = tk.StringVar()
+        ttk.Entry(self._ub_edit_frame, textvariable=self._ub_edit_tarih,
+                  width=14, font=(FONT, 10)).grid(row=2, column=3, sticky='w', pady=4)
+
+        btn_row = tk.Frame(self._ub_edit_frame, bg=WHITE)
+        btn_row.grid(row=3, column=0, columnspan=4, sticky='e', pady=(8, 0))
+        ttk.Button(btn_row, text='💾  Kaydet / Speichern',
+                   style='Gold.TButton',
+                   command=self._uebersicht_save_edit).pack(side='left', padx=4)
+        ttk.Button(btn_row, text='✖  İptal',
+                   style='Ghost.TButton',
+                   command=self._uebersicht_cancel_edit).pack(side='left', padx=4)
+
+        self._ub_editing_iid = None
+
+        # Initial load
+        self._uebersicht_refresh()
+
+    # ── Übersicht helpers ────────────────────────────────────────────────────
+    def _uebersicht_refresh(self):
+        """Reload CSV/XLSX data into the treeview."""
+        self._ub_tree.delete(*self._ub_tree.get_children())
+
+        rows = self._read_applications_rows()
+        data_rows = rows[1:] if rows else []    # skip header
+
+        filter_val = self._ub_filter_var.get()
+        search_val = self._ub_search_var.get().strip().lower()
+
+        counts = {}
+        visible = 0
+        for row in data_rows:
+            row = (row + [''] * 4)[:4]
+            firma, position, durum, tarih = row[0], row[1], row[2], row[3]
+            counts[durum] = counts.get(durum, 0) + 1
+
+            # Apply filter
+            if filter_val != 'Alle' and durum != filter_val:
+                continue
+            # Apply search
+            if search_val and search_val not in f'{firma} {position}'.lower():
+                continue
+
+            tag = durum.replace(' ', '_').replace('(', '').replace(')', '')
+            self._ub_tree.insert('', 'end', values=(firma, position, durum, tarih),
+                                 tags=(tag,))
+            visible += 1
+
+        # Update stats
+        total = len(data_rows)
+        parts = []
+        for d in self._DURUM_OPTIONS:
+            c = counts.get(d, 0)
+            if c:
+                parts.append(f'{d}: {c}')
+        stats = f'Toplam: {total}  |  Gösterilen: {visible}'
+        if parts:
+            stats += '  ·  ' + '  |  '.join(parts)
+        self._ub_stats_var.set(stats)
+
+        # Hide edit form
+        self._uebersicht_cancel_edit()
+
+    def _uebersicht_edit(self, event=None):
+        """Open edit form for the selected row."""
+        sel = self._ub_tree.selection()
+        if not sel:
+            return
+        iid = sel[0]
+        vals = self._ub_tree.item(iid, 'values')
+        if not vals:
+            return
+
+        self._ub_editing_iid = iid
+        self._ub_edit_firma.set(vals[0])
+        self._ub_edit_position.set(vals[1])
+        self._ub_edit_durum.set(vals[2])
+        self._ub_edit_tarih.set(vals[3])
+
+        self._ub_edit_frame.pack(fill='x', padx=16, pady=(0, 8))
+
+    def _uebersicht_cancel_edit(self):
+        """Hide the edit form."""
+        self._ub_edit_frame.pack_forget()
+        self._ub_editing_iid = None
+
+    def _uebersicht_add(self):
+        """Add a new empty entry via the edit form."""
+        self._ub_tree.selection_remove(*self._ub_tree.selection())
+        self._ub_editing_iid = '__NEW__'
+        self._ub_edit_firma.set('')
+        self._ub_edit_position.set('')
+        self._ub_edit_durum.set('Başvuruldu')
+        self._ub_edit_tarih.set(today_de())
+        self._ub_edit_frame.pack(fill='x', padx=16, pady=(0, 8))
+
+        # Override save to append instead of update
+        self._ub_editing_iid = '__NEW__'
+
+    def _uebersicht_save_edit(self):
+        """Save changes from the edit form back to CSV/XLSX."""
+        if not self._ub_editing_iid:
+            return
+
+        new_firma = self._ub_edit_firma.get().strip()
+        new_position = self._ub_edit_position.get().strip()
+        new_durum = self._ub_edit_durum.get().strip()
+        new_tarih = self._ub_edit_tarih.get().strip()
+
+        if not new_firma or not new_position:
+            messagebox.showwarning('Uyarı', 'Firma ve Pozisyon boş olamaz.')
+            return
+
+        rows = self._read_applications_rows()
+
+        if self._ub_editing_iid == '__NEW__':
+            rows.append([new_firma, new_position, new_durum, new_tarih])
+            self._write_applications_rows(rows)
+            self._status_var.set(f'◆  Eklendi: {new_firma} – {new_durum}')
+            self._uebersicht_refresh()
+            return
+
+        old_vals = self._ub_tree.item(self._ub_editing_iid, 'values')
+        found = False
+        for i in range(1, len(rows)):
+            row = (rows[i] + [''] * 4)[:4]
+            if row[0] == old_vals[0] and row[1] == old_vals[1] and row[3] == old_vals[3]:
+                rows[i] = [new_firma, new_position, new_durum, new_tarih]
+                found = True
+                break
+
+        if found:
+            self._write_applications_rows(rows)
+            self._status_var.set(f'◆  Güncellendi: {new_firma} – {new_durum}')
+            self._uebersicht_refresh()
+        else:
+            messagebox.showerror('Hata', 'Kayıt bulunamadı.')
+
+    def _uebersicht_delete(self):
+        """Delete the selected row after confirmation."""
+        sel = self._ub_tree.selection()
+        if not sel:
+            messagebox.showinfo('Bilgi', 'Lütfen silinecek satırı seçin.')
+            return
+
+        vals = self._ub_tree.item(sel[0], 'values')
+        if not messagebox.askyesno('Silme Onayı',
+                                   f'{vals[0]} – {vals[1]}\nBu kaydı silmek istiyor musunuz?'):
+            return
+
+        rows = self._read_applications_rows()
+        new_rows = [rows[0]]   # keep header
+        for i in range(1, len(rows)):
+            row = (rows[i] + [''] * 4)[:4]
+            if row[0] == vals[0] and row[1] == vals[1] and row[3] == vals[3]:
+                continue
+            new_rows.append(rows[i])
+
+        self._write_applications_rows(new_rows)
+        self._status_var.set(f'◆  Silindi: {vals[0]}')
+        self._uebersicht_refresh()
 
     # ── TAB 4: PROFILE ──────────────────────────────────────────────────────
     def _build_profile_tab(self, parent):

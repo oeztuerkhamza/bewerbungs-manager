@@ -297,13 +297,17 @@ def build(story, sty, W, cfg=None):
         '<font color="#1B3764"><b>Geb.:</b></font>&#160;'
         ' 1996'
     )
+    c_visa = (
+        '<font color="#1B3764"><b>Visum:</b></font>&#160;'
+        'kein Visum nötig'
+    )
 
     contact_table = Table(
         [
             [Paragraph(c_ort, sty['contact']), Paragraph(c_geb, sty['contact'])],
             [Paragraph(c_email, sty['contact']), Paragraph(c_tel, sty['contact'])],
             [Paragraph(c_linkedin, sty['contact']), Paragraph(c_github, sty['contact'])],
-            [Paragraph(c_website, sty['contact']), Paragraph('', sty['contact'])],
+            [Paragraph(c_website, sty['contact']), Paragraph(c_visa, sty['contact'])],
         ],
         colWidths=[HDR_W * 0.56, HDR_W * 0.44],
     )
@@ -349,14 +353,14 @@ def build(story, sty, W, cfg=None):
         Spacer(1, 1.5),
     ])
     story.append(Paragraph(
-        'Full-Stack-Entwickler mit 2+ Jahren Erfahrung in der Migration '
-        'und Modernisierung von ERP-Systemen: Legacy-Desktop-Anwendung '
-        'vollständig in eine <b>C#/.NET</b>- und <b>Angular</b>-basierte '
-        'Web-Lösung überführt, <b>Azure-Cloud-Infrastruktur</b> aufgebaut '
-        'und CI/CD-Pipelines etabliert, die Deployment-Zeiten um 40 % '
-        'verkürzten. Erfahrung über den gesamten Stack — von Datenbankmodellierung '
-        'über REST-API-Design bis hin zu responsiven Frontends — '
-        'ergänzt durch eigenständig realisierte Live-Projekte.',
+        'Full-Stack-Entwickler mit Fokus auf <b>C#/.NET</b>, <b>Angular</b>, '
+        '<b>Azure</b> und <b>CI/CD</b>. Über 2 Jahre Erfahrung in der '
+        'Modernisierung von ERP-Systemen, inkl. vollständiger Migration einer '
+        'Legacy-Desktop-Anwendung in eine skalierbare Web-Architektur. '
+        'Starke End-to-End-Kompetenz: Datenbankmodellierung, API-Design, '
+        'Frontend-Entwicklung, Cloud-Infrastruktur, Testautomatisierung. '
+        'Nachweisbare Verbesserungen in Performance, Code-Qualität und '
+        'Deployment-Geschwindigkeit.',
         sty['profile'],
     ))
 
@@ -383,37 +387,37 @@ def build(story, sty, W, cfg=None):
     story.append(KeepTogether([
         exp_hdr,
         bul(
-            b('Full-Stack &amp; Architektur:')
-            + ' End-to-End-Verantwortung für <b>C#/.NET 10</b>-APIs und '
-            '<b>Angular</b>-Frontends; Legacy-Desktop-ERP vollständig in eine '
-            'webbasierte Lösung migriert; <b>Clean Architecture</b> umgesetzt.',
+            'Migration eines kompletten ERP-Systems von WinForms zu einer '
+            '<b>C#/.NET 10</b> + <b>Angular</b> Web-Lösung.',
             sty['bullet'],
         ),
         bul(
-            b('Datenbank &amp; Migration:')
-            + ' Datenbankstrukturen mit <b>EF Core</b> und SSMS neu modelliert, '
-            'SQL-Abfragen optimiert und Datenkonsistenz bei Migration sichergestellt.',
+            'Einführung einer <b>Clean Architecture</b> und modularen API-Struktur.',
             sty['bullet'],
         ),
         bul(
-            b('CI/CD &amp; Code-Qualität:')
-            + ' Build-, Test- und Release-Pipelines mit <b>GitHub Actions</b> '
-            'und <b>Azure DevOps</b> aufgesetzt; Deployment-Zeit um <b>40 %</b> '
-            'verkürzt, SonarQube-Violations um <b>99 %</b> reduziert.',
+            'Neuaufbau und Optimierung der Datenbankmodelle (<b>EF Core</b>, '
+            'SQL Server); Verbesserung kritischer SQL-Queries.',
             sty['bullet'],
         ),
         bul(
-            b('Cloud &amp; DevOps:')
-            + ' Gesamte Infrastruktur auf <b>Azure Cloud</b> betrieben; '
-            'Umgebungen (Dev/Staging/Prod) über Azure DevOps Pipelines verwaltet; '
-            'strukturiertes Git-Branching und Code-Review-Workflow etabliert.',
+            'Aufbau von CI/CD-Pipelines (<b>GitHub Actions</b>, <b>Azure DevOps</b>): '
+            'Deployment-Zeit um <b>40 %</b> reduziert, '
+            'SonarQube-Violations um <b>99 %</b> gesenkt.',
             sty['bullet'],
         ),
         bul(
-            b('KI &amp; API:')
-            + ' REST-APIs entworfen und KI-gestützte Entwicklung '
-            '(Prompt Engineering) für kürzere Umsetzungszyklen eingesetzt; '
-            'kritische <b>Bugfixes</b> in produktiven ERP-Modulen nachhaltig gelöst.',
+            'Betrieb der gesamten Infrastruktur in der <b>Azure Cloud</b> '
+            '(Dev/Staging/Prod).',
+            sty['bullet'],
+        ),
+        bul(
+            'Entwicklung und Wartung von REST-APIs, inkl. KI-gestützter Tools '
+            'zur Beschleunigung von Entwicklungszyklen.',
+            sty['bullet'],
+        ),
+        bul(
+            'Lösung mehrerer kritischer Bugs in produktiven ERP-Modulen.',
             sty['bullet'],
         ),
     ]))
@@ -421,34 +425,61 @@ def build(story, sty, W, cfg=None):
     # ── 4  PROJEKTE ──────────────────────────────────────────────────────────
     story.extend(sec('PROJEKTE', sty))
 
-    # — Bikehaus
+    # — Fahrrad-Warenwirtschaftssystem (3× Live)
     story.append(KeepTogether([
         Paragraph(
-            b('Bikehaus Freiburg') + '&#160;&#160;'
-            + lnk('https://bikehausfreiburg.com', 'bikehausfreiburg.com')
-            + '&#160;&#160;<font color="#1B3764">|</font>&#160;&#160;'
-            + lnk('https://github.com/oeztuerkhamza/bikehausfreiburg', 'GitHub'),
+            b('Fahrrad-Warenwirtschaftssystem')
+            + ' <font color="#1B3764">(3× Live)</font>',
             sty['entry_title'],
         ),
         Paragraph(
-            it('Eigenes Produkt / Live im Einsatz'), sty['entry_sub']),
+            lnk('https://bikehausfreiburg.com', 'bikehausfreiburg.com')
+            + ' ' + lnk('https://github.com/oeztuerkhamza/bikehausfreiburg', '(GitHub)')
+            + '&#160;&#160;<font color="#1B3764">|</font>&#160;&#160;'
+            + lnk('https://karaarslan-bike.de', 'karaarslan-bike.de')
+            + ' ' + lnk('https://github.com/oeztuerkhamza/karaarslan-bike', '(GitHub)')
+            + '&#160;&#160;<font color="#1B3764">|</font>&#160;&#160;'
+            + lnk('https://benlirad.de', 'benlirad.de')
+            + ' ' + lnk('https://github.com/oeztuerkhamza/benlirad', '(GitHub)'),
+            sty['entry_sub'],
+        ),
         bul(
-            'Digitale Warenwirtschaft für ein Fahrradgeschäft: '
-            'C#/.NET-API, Angular 19 Admin-Client + Electron Desktop-App, '
-            'Playwright-Scraper und <b>Chrome Extension (MV3)</b>.',
+            '<b>.NET 9</b> API (30+ Endpoints, 35+ Domain-Entities), '
+            '<b>Angular 17/19</b> Admin-SPA + SSR-Homepage, '
+            'SQLite/EF Core 8 — eigenentwickeltes Full-Stack-System '
+            'für Fahrradgeschäfte; 3× produktiv deployed.',
             sty['bullet'],
         ),
         bul(
-            b('Stack:') + ' C#/.NET, SQLite, EF Core, QuestPDF, Angular 19, '
-            'Playwright, Electron, Docker, Nginx.',
+            'Buchung &amp; Vermietung, Kundenverwaltung, Verkauf/Einkauf, '
+            'PDF-Verträge mit QR-Code (QuestPDF), dynamische Preisstaffelung, '
+            'Kleinanzeigen-Scraper (Playwright), Google-Reviews-API, '
+            'digitale Unterschriften.',
             sty['bullet'],
-        )
+        ),
+        bul(
+            '5-Container Docker-Setup: API, Admin-SPA, SSR-Homepage, '
+            'Nginx (Rate Limiting, Brotli/Gzip, HSTS/CSP, Let\'s Encrypt), Certbot; '
+            'JWT-Auth mit rotierbaren Secrets; Background-Services '
+            'für Sync, Backup und E-Mail.',
+            sty['bullet'],
+        ),
+        bul(
+            'GitHub Actions CI/CD: pfadbasierte Change-Detection, '
+            'atomare Deployments (Zero Downtime), Healthcheck-Jobs; '
+            'Mailcow E-Mail-Server (DKIM/SPF/DMARC); '
+            'SEO: Prerendering, IndexNow, stadtbasierte Landing-Pages, '
+            'mehrsprachig (DE/FR/TR).',
+            sty['bullet'],
+        ),
     ]))
 
     # — Kulturplattform
     story.append(KeepTogether([
         Paragraph(
-            b('Kulturplattform Freiburg e.V.') + '&#160;&#160;'
+            b('Kulturplattform Freiburg e.V.')
+            + ' <font color="#1B3764">(Live)</font>'
+            + '&#160;&#160;'
             + lnk('https://kulturplattformfreiburg.org',
                   'kulturplattformfreiburg.org')
             + '&#160;&#160;<font color="#1B3764">|</font>&#160;&#160;'
@@ -456,32 +487,26 @@ def build(story, sty, W, cfg=None):
                   'GitHub'),
             sty['entry_title'],
         ),
-        Paragraph(
-            it('Full-Stack Web-Entwicklung (Ehrenamtlich)'), sty['entry_sub']),
         bul(
-            'Vereinswebsite mit Admin-Panel, Newsletter, '
-            'Bildverarbeitung und DE/TR-Zweisprachigkeit. '
-            '<b>.NET 10</b> Clean Architecture, React 19, '
-            'Docker Compose – live.',
+            '.NET 10, React 19, Docker Compose — Ehrenamtliche '
+            'Full-Stack-Entwicklung: Admin-Panel, Newsletter-System, '
+            'Bildverarbeitung, DE/TR-Zweisprachigkeit.',
             sty['bullet'],
-        )
+        ),
     ]))
 
     # — Bewerbungs-Manager
     story.append(KeepTogether([
         Paragraph(
-            b('Bewerbungs-Manager') + ' – KI-gestützte Bewerbungsautomatisierung',
+            b('Bewerbungs-Manager')
+            + ' – KI-gestützte Bewerbungsautomatisierung',
             sty['entry_title'],
         ),
-        Paragraph(
-            it('Eigenes Tool / Produktiv im Einsatz'),
-            sty['entry_sub'],
-        ),
         bul(
-            'Python-App für PDF-Erstellung, Merge, Profilverwaltung und '
-            'KI-gestützte Stellenanalyse.',
+            'Python, OpenAI API — Tool zur PDF-Erstellung, '
+            'Profilverwaltung und automatisierten Analyse von Stellenanzeigen.',
             sty['bullet'],
-        )
+        ),
     ]))
 
     # ── 5  IT-KENNTNISSE ─────────────────────────────────────────────────────
@@ -560,47 +585,34 @@ def build(story, sty, W, cfg=None):
         if idx < len(edu) - 1:
             story.append(Spacer(1, 0.1))
 
-    # ── 7  SPRACHEN + HOBBYS (single flat 4-column table) ──────────────────
-    # Flat table aligns perfectly with IT-KENNTNISSE (same padding logic).
-    COL_L_LBL = W * 0.13    # language label (narrower for less gap)
-    COL_L_VAL = W * 0.40    # language value
-    COL_H_LBL = W * 0.17    # hobby label
-    COL_H_VAL = W * 0.29    # hobby value
-
-    lang_hobby_data = [
-        [SectionHeading('SPRACHEN', sty['section']), '',
-         SectionHeading('HOBBYS', sty['section']), ''],
-        [Paragraph(b('Türkisch'), sty['skill_lbl']),
-         Paragraph('Muttersprache', sty['skill_val']),
-         Paragraph(b('Sport'), sty['skill_lbl']),
-         Paragraph('Radfahren, Hallenfußball, Schwimmen', sty['skill_val'])],
-        [Paragraph(b('Deutsch'), sty['skill_lbl']),
-         Paragraph('Fließend in Wort und Schrift', sty['skill_val']),
-         '', ''],
-        [Paragraph(b('Englisch'), sty['skill_lbl']),
-         Paragraph('Fließend in Wort und Schrift', sty['skill_val']),
-         '', ''],
+    # ── 7  SPRACHEN ─────────────────────────────────────────────────────────
+    story.extend([
+        Spacer(1, 0.04 * cm),
+        SectionHeading('SPRACHEN', sty['section']),
+        Spacer(1, 1.5),
+    ])
+    lang_rows = [
+        ('Türkisch',  'Muttersprache'),
+        ('Deutsch',   'Fließend in Wort und Schrift'),
+        ('Englisch',  'Fließend in Wort und Schrift'),
     ]
-    lh = Table(lang_hobby_data, colWidths=[COL_L_LBL, COL_L_VAL, COL_H_LBL, COL_H_VAL])
-    lh.setStyle(TableStyle([
+    lang_data = [[Paragraph(b(l), sty['skill_lbl']),
+                  Paragraph(v, sty['skill_val'])] for l, v in lang_rows]
+    lang_tbl = Table(lang_data, colWidths=[W * 0.21, W * 0.78],
+                     rowHeights=[14.6] * len(lang_data))
+    lang_tbl.setStyle(TableStyle([
         ('VALIGN',       (0, 0), (-1, -1), 'TOP'),
-        ('LEFTPADDING',  (0, 0), (-1, 0),  0),    # heading row at 0
-        ('LEFTPADDING',  (0, 1), (0, -1),  2.3),  # col 0 (labels) ~0.2cm left
-        ('LEFTPADDING',  (1, 1), (-1, -1), 8),   # other cols at 8
+        ('LEFTPADDING',  (0, 0), (0, -1),  8),
+        ('LEFTPADDING',  (1, 0), (1, -1),  8),
         ('RIGHTPADDING', (0, 0), (-1, -1), 0),
-        ('TOPPADDING',   (0, 0), (-1, 0),  SEC_GAP),
-        ('BOTTOMPADDING',(0, 0), (-1, 0),  1.5),
-        ('TOPPADDING',   (0, 1), (-1, -1), 1),
-        ('BOTTOMPADDING',(0, 1), (-1, -1), 1),
-        ('BACKGROUND',   (0, 1), (-1, 1), BG_SKILL),
-        ('BACKGROUND',   (0, 2), (-1, 2), BG_SKILL2),
-        ('BACKGROUND',   (0, 3), (-1, 3), BG_SKILL),
-        ('LINEBELOW',    (0, 1), (-1, -2), 0.2, RULE_C),
-        ('LINEBELOW',    (0, -1), (-1, -1), 0.2, RULE_C),
-        ('SPAN',         (0, 0), (1, 0)),
-        ('SPAN',         (2, 0), (3, 0)),
+        ('TOPPADDING',   (0, 0), (-1, -1), 2.2),
+        ('BOTTOMPADDING',(0, 0), (-1, -1), 2.2),
+        ('LINEBELOW',    (0, 0), (-1, -1), 0.25, RULE_C),
+        ('BACKGROUND',   (0, 0), (-1, 0), BG_SKILL),
+        ('BACKGROUND',   (0, 1), (-1, 1), BG_SKILL2),
+        ('BACKGROUND',   (0, 2), (-1, 2), BG_SKILL),
     ]))
-    story.append(lh)
+    story.append(lang_tbl)
 
     # ── 8  UNTERSCHRIFT ─────────────────────────────────────────────────────
     story.append(Spacer(1, 0.35 * cm))
