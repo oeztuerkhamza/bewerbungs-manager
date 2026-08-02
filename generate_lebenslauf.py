@@ -204,6 +204,121 @@ class PhotoFrame(Flowable):
         c.restoreState()
 
 
+def make_round_photo(src_path, focus=0.62, size_px=900):
+    """Erzeugt eine quadratische PNG-Datei, in der nur der Kreis sichtbar ist.
+
+    Der Zuschnitt wird fest ins Bild gebrannt (transparente Ecken), statt ihn
+    nur per Clipping-Pfad im PDF zu setzen. Grund: manche Betrachter und vor
+    allem PDF-Editoren (LibreOffice Draw, Illustrator) ignorieren beim Import
+    den Clipping-Pfad und zeigen dann wieder das volle Rechteck.
+
+    ``focus`` steuert den vertikalen Zuschnitt: 0.5 = mittig, grössere Werte
+    zeigen mehr vom oberen Bildbereich, damit der Kopf nicht angeschnitten wird.
+    Gibt den Pfad zur erzeugten Datei zurück – oder ``None``, wenn Pillow fehlt.
+    """
+    try:
+        from PIL import Image, ImageDraw
+    except ImportError:
+        return None
+    if not os.path.isfile(src_path):
+        return None
+
+    out_path = os.path.join(BASE_DIR, '.foto_rund.png')
+    # Nur neu bauen, wenn Quelle neuer ist als der Cache.
+    if (os.path.isfile(out_path)
+            and os.path.getmtime(out_path) >= os.path.getmtime(src_path)):
+        return out_path
+
+    img = Image.open(src_path).convert('RGB')
+    side = min(img.width, img.height)
+    left = (img.width - side) // 2
+    top = int(round((img.height - side) * (1.0 - focus)))
+    top = max(0, min(top, img.height - side))
+    img = img.crop((left, top, left + side, top + side))
+    img = img.resize((size_px, size_px), Image.LANCZOS)
+
+    # Kreismaske mit 4x Supersampling -> weiche, saubere Kante.
+    ss = 4
+    mask = Image.new('L', (size_px * ss, size_px * ss), 0)
+    ImageDraw.Draw(mask).ellipse((0, 0, size_px * ss - 1, size_px * ss - 1),
+                                 fill=255)
+    mask = mask.resize((size_px, size_px), Image.LANCZOS)
+
+    img.putalpha(mask)
+    img.save(out_path, 'PNG')
+    return out_path
+
+
+class CirclePhotoFrame(Flowable):
+    """Rundes Portrait: Bild kreisförmig beschnitten, dünner Navy-Ring aussen.
+
+    ``focus`` steuert den vertikalen Bildausschnitt: 0.5 = mittig,
+    Werte darüber zeigen mehr vom oberen Bildbereich (bei Portraits sinnvoll,
+    damit der Kopf nicht angeschnitten wird).
+    """
+    def __init__(self, path, diameter, border=1.1, gap=2.2, focus=0.62):
+        super().__init__()
+        self.img_path = path
+        self.d = diameter
+        self.border = border
+        self.gap = gap          # Abstand zwischen Bildkante und Aussenring
+        self.focus = focus
+        pad = border + gap
+        self.width = diameter + 2 * pad
+        self.height = diameter + 2 * pad
+
+    def wrap(self, aw, ah):
+        return self.width, self.height
+
+    def draw(self):
+        c = self.canv
+        d = self.d
+        pad = self.border + self.gap
+        cx = cy = pad + d / 2          # Kreismittelpunkt
+        r = d / 2
+
+        # Bevorzugt das fertig freigestellte Rund-PNG: dann ist der Zuschnitt
+        # Teil des Bildes und geht in keinem Betrachter/Editor verloren.
+        round_png = make_round_photo(self.img_path, focus=self.focus)
+        if round_png:
+            c.saveState()
+            c.drawImage(round_png, cx - r, cy - r, d, d,
+                        preserveAspectRatio=True, mask='auto')
+            c.restoreState()
+        elif os.path.isfile(self.img_path):
+            # Fallback ohne Pillow: Clipping-Pfad im PDF.
+            c.saveState()
+            p = c.beginPath()
+            p.circle(cx, cy, r)
+            c.clipPath(p, stroke=0)
+            try:
+                from reportlab.lib.utils import ImageReader
+                nat_w, nat_h = ImageReader(self.img_path).getSize()
+            except Exception:
+                nat_w, nat_h = d, d
+            if nat_w <= 0 or nat_h <= 0:
+                nat_w, nat_h = d, d
+            scale = max(d / nat_w, d / nat_h)
+            draw_w = nat_w * scale
+            draw_h = nat_h * scale
+            ox = cx - draw_w / 2
+            # Überstand nach oben verschieben, damit das Gesicht sitzt.
+            oy = cy - r - (draw_h - d) * (1.0 - self.focus)
+            c.drawImage(self.img_path, ox, oy, draw_w, draw_h,
+                        preserveAspectRatio=True, mask='auto')
+            c.restoreState()
+
+        # Feiner heller Aussenring + kräftiger Navy-Ring direkt am Bild.
+        c.saveState()
+        c.setStrokeColor(RULE_C)
+        c.setLineWidth(0.4)
+        c.circle(cx, cy, r + self.gap + self.border / 2, stroke=1, fill=0)
+        c.setStrokeColor(NAVY)
+        c.setLineWidth(self.border)
+        c.circle(cx, cy, r + self.border / 2, stroke=1, fill=0)
+        c.restoreState()
+
+
 # ─── HELPERS ─────────────────────────────────────────────────────────────────
 def b(t):   return f'<b>{t}</b>'
 def it(t):  return f'<i>{t}</i>'
@@ -301,8 +416,8 @@ def build(story, sty, W, cfg=None):
     CW_EXP = W - DW_EXP
 
     # ── 1  HEADER ────────────────────────────────────────────────────────────
-    PHOTO_W = 2.5 * cm
-    PHOTO_H = 3.5 * cm
+    PHOTO_D = 3.1 * cm          # Durchmesser des runden Portraits
+    PHOTO_W = PHOTO_D
     HDR_W   = W - PHOTO_W - 1.0 * cm
 
     # Contact info with bold navy label prefixes – each on its own line
@@ -371,7 +486,7 @@ def build(story, sty, W, cfg=None):
         contact_table,
     ]
 
-    photo = PhotoFrame(FOTO_PATH, PHOTO_W, PHOTO_H, border=1.1, zoom=1.0)
+    photo = CirclePhotoFrame(FOTO_PATH, PHOTO_D, border=1.1, gap=2.2, focus=0.62)
     hdr = Table(
         [[left_hdr, photo]],
         colWidths=[HDR_W, PHOTO_W + 1.0 * cm],
