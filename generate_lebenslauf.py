@@ -21,6 +21,8 @@ from reportlab.lib.enums import TA_LEFT, TA_RIGHT, TA_CENTER, TA_JUSTIFY
 from reportlab.pdfbase import pdfmetrics
 from reportlab.pdfbase.ttfonts import TTFont
 
+from pdf_text_utils import esc, esc_rich
+
 # ─── PATHS ────────────────────────────────────────────────────────────────────
 BASE_DIR      = os.path.dirname(os.path.abspath(__file__))
 OUTPUT        = os.path.join(BASE_DIR, "Hamza_Oeztuerk_Lebenslauf_Fullstack_Entwickler.pdf")
@@ -35,12 +37,12 @@ ICON_PHONE    = os.path.join(ICONS_DIR, 'phone.png')
 ICON_WEBSITE  = os.path.join(ICONS_DIR, 'website.png')
 
 # ─── LAYOUT ──────────────────────────────────────────────────────────────────
-L_MARGIN  = 1.6 * cm
-R_MARGIN  = 1.5 * cm
-T_MARGIN  = 1.2 * cm
-B_MARGIN  = 1.2 * cm
+L_MARGIN  = 1.3 * cm
+R_MARGIN  = 1.2 * cm
+T_MARGIN  = 0.7 * cm
+B_MARGIN  = 0.6 * cm
 SIDEBAR_W = 4 * mm
-SEC_GAP   = 0.14 * cm
+SEC_GAP   = 0.07 * cm
 
 # ─── COLOURS ─────────────────────────────────────────────────────────────────
 NAVY      = HexColor('#1B3764')
@@ -62,20 +64,33 @@ _FONT_MAP = {
     'CV-BI': os.path.join(WIN_FONTS, 'calibriz.ttf'),
 }
 
+_FALLBACK_TTF = {
+    'CV-R':  os.path.join(WIN_FONTS, 'arial.ttf'),
+    'CV-B':  os.path.join(WIN_FONTS, 'arialbd.ttf'),
+    'CV-I':  os.path.join(WIN_FONTS, 'ariali.ttf'),
+    'CV-BI': os.path.join(WIN_FONTS, 'arialbi.ttf'),
+}
+# Letzter Ausweg: eingebaute Standard-Schriften, damit nie eine Schrift fehlt.
+_STD_FALLBACK = {
+    'CV-R':  'Helvetica',
+    'CV-B':  'Helvetica-Bold',
+    'CV-I':  'Helvetica-Oblique',
+    'CV-BI': 'Helvetica-BoldOblique',
+}
+
 def register_fonts():
     for name, path in _FONT_MAP.items():
         if os.path.exists(path):
             pdfmetrics.registerFont(TTFont(name, path))
-        else:
-            # fallback to Arial
-            fb = path
-            if 'calibrib' in path: fb = path.replace('calibrib', 'arialbd')
-            elif 'calibriz' in path: fb = path.replace('calibriz', 'arialbi')
-            elif 'calibrii' in path: fb = path.replace('calibrii', 'ariali')
-            else: fb = path.replace('calibri', 'arial')
-            
-            if os.path.exists(fb):
-                pdfmetrics.registerFont(TTFont(name, fb))
+            continue
+        fb = _FALLBACK_TTF.get(name)
+        if fb and os.path.exists(fb):
+            pdfmetrics.registerFont(TTFont(name, fb))
+            continue
+        # Weder Calibri noch Arial vorhanden -> Alias auf Standard-Font,
+        # damit kein "Can't find font"-Fehler beim ersten Paragraph auftritt.
+        pdfmetrics.registerFont(
+            pdfmetrics.Font(name, _STD_FALLBACK[name], 'WinAnsiEncoding'))
 
 
 # ─── PARAGRAPH STYLES ────────────────────────────────────────────────────────
@@ -94,19 +109,19 @@ def make_styles():
         'contact':     ps('contact',     'CV-R', 8.2, DARK, leading=10.6),
         'section':     ps('section',     'CV-B', 10.2, NAVY, leading=12),
         'entry_title': ps('entry_title', 'CV-B', 8.8, DARK, leading=10.8, leftIndent=8),
-        'entry_sub':   ps('entry_sub',   'CV-I', 8.0, GRAY, leading=9.8, spaceAfter=0.3, leftIndent=8),
+        'entry_sub':   ps('entry_sub',   'CV-I', 7.8, GRAY, leading=9.0, spaceAfter=0.1, leftIndent=8),
         'period':      ps('period',      'CV-R', 8.0, LGRAY, leading=10.0, align=TA_RIGHT),
-        'bullet':      ps('bullet',      'CV-R', 8.3, DARK, leading=10.2,
-                          spaceAfter=0.4, leftIndent=14, align=TA_JUSTIFY),
-        'profile':     ps('profile',     'CV-R', 8.5, DARK, leading=10.4,
-                          spaceAfter=0.4, leftIndent=8, align=TA_JUSTIFY),
+        'bullet':      ps('bullet',      'CV-R', 8.1, DARK, leading=8.9,
+                          spaceAfter=0.1, leftIndent=14, align=TA_JUSTIFY),
+        'profile':     ps('profile',     'CV-R', 8.3, DARK, leading=9.8,
+                          spaceAfter=0.2, leftIndent=8, align=TA_JUSTIFY),
         'footer':      ps('footer',      'CV-R', 8, LGRAY, leading=10, spaceBefore=0.5),
         'skill_lbl':   ps('skill_lbl',   'CV-B', 8.3, NAVY, leading=10.2),
         'skill_val':   ps('skill_val',   'CV-R', 8.2, DARK, leading=10.2),
         # Ausbildung-specific (lower indent to keep current alignment)
         'edu_title':   ps('edu_title',   'CV-B', 8.8, DARK, leading=10.8, leftIndent=4),
-        'edu_bullet':  ps('edu_bullet',  'CV-R', 8.3, DARK, leading=10.2,
-                          spaceAfter=0.4, leftIndent=10, align=TA_JUSTIFY),
+        'edu_bullet':  ps('edu_bullet',  'CV-R', 8.1, DARK, leading=9.6,
+                          spaceAfter=0.2, leftIndent=10, align=TA_JUSTIFY),
     }
 
 
@@ -119,7 +134,7 @@ class SectionHeading(Flowable):
 
     def wrap(self, aw, ah):
         pw, ph = self._para.wrap(aw, ah)
-        self.height = ph + 3.5
+        self.height = ph + 2.5
         self.width = aw
         return self.width, self.height
 
@@ -155,19 +170,31 @@ class PhotoFrame(Flowable):
         c = self.canv
         b = self.border
         z = self.zoom
-        # Clip to frame area
-        c.saveState()
-        p = c.beginPath()
-        p.rect(b, b, self.img_w, self.img_h)
-        c.clipPath(p, stroke=0)
-        # Draw image zoomed (centered)
-        zw = self.img_w * z
-        zh = self.img_h * z
-        ox = b - (zw - self.img_w) / 2
-        oy = b - (zh - self.img_h) / 2
-        c.drawImage(self.img_path, ox, oy, zw, zh,
-                    preserveAspectRatio=False)
-        c.restoreState()
+        # Bild fehlt? -> nur den Rahmen zeichnen, nicht abstürzen.
+        if os.path.isfile(self.img_path):
+            # Clip to frame area
+            c.saveState()
+            p = c.beginPath()
+            p.rect(b, b, self.img_w, self.img_h)
+            c.clipPath(p, stroke=0)
+            # "Cover"-Fit: Bild unter Beibehaltung des Seitenverhältnisses so
+            # skalieren, dass es den Rahmen voll ausfüllt; Überstand wird
+            # mittig beschnitten (kein Verzerren, kein leerer Rand).
+            try:
+                from reportlab.lib.utils import ImageReader
+                nat_w, nat_h = ImageReader(self.img_path).getSize()
+            except Exception:
+                nat_w, nat_h = self.img_w, self.img_h
+            if nat_w <= 0 or nat_h <= 0:
+                nat_w, nat_h = self.img_w, self.img_h
+            scale = max(self.img_w / nat_w, self.img_h / nat_h) * z
+            draw_w = nat_w * scale
+            draw_h = nat_h * scale
+            ox = b + (self.img_w - draw_w) / 2
+            oy = b + (self.img_h - draw_h) / 2
+            c.drawImage(self.img_path, ox, oy, draw_w, draw_h,
+                        preserveAspectRatio=True)
+            c.restoreState()
         # Border
         c.saveState()
         c.setStrokeColor(NAVY)
@@ -218,7 +245,7 @@ def entry_row(left, date_str, sty, cw, dw):
 def sec(title, sty):
     """Section heading with accent bar + spacing."""
     return [Spacer(1, SEC_GAP), SectionHeading(title, sty['section']),
-            Spacer(1, 1.5)]
+            Spacer(1, 1.0)]
 
 
 # ─── PAGE DECORATION ────────────────────────────────────────────────────────
@@ -246,9 +273,22 @@ def _draw_page(canvas, doc):
 
 
 # ─── DEFAULT CONFIG ──────────────────────────────────────────────────────────
+DEFAULT_KURZPROFIL = (
+    'Full-Stack-Entwickler mit Fokus auf <b>C#/.NET</b>, <b>Angular</b>, '
+    '<b>Docker/Azure</b> und <b>CI/CD</b>. Über 3 Jahre Erfahrung in der '
+    'Modernisierung von ERP-Systemen inkl. vollständiger Migration einer '
+    'Legacy-Desktop-Anwendung in eine Web-Architektur; aktuell verantwortlich '
+    'für eine selbst entwickelte, produktiv genutzte Warenwirtschafts- und '
+    'Vermietungsplattform. End-to-End von Datenmodellierung und API-Design '
+    'über Frontend und SEO bis zu Cloud-Betrieb und '
+    'Deployment-Automatisierung — mit messbaren Ergebnissen in Performance '
+    'und Code-Qualität.'
+)
+
 DEFAULT_CONFIG = {
     'stelle':        'Fullstack Entwickler',
     'datum':         datetime.now().strftime('%d.%m.%Y'),
+    'kurzprofil':    DEFAULT_KURZPROFIL,
 }
 
 
@@ -324,14 +364,14 @@ def build(story, sty, W, cfg=None):
         Paragraph('Hamza Öztürk', sty['name']),
         Spacer(1, 2),
         Paragraph(
-            cfg['stelle'],
+            esc(cfg['stelle']),
             sty['role'],
         ),
         Spacer(1, 2),
         contact_table,
     ]
 
-    photo = PhotoFrame(FOTO_PATH, PHOTO_W, PHOTO_H, border=1.1, zoom=1.40)
+    photo = PhotoFrame(FOTO_PATH, PHOTO_W, PHOTO_H, border=1.1, zoom=1.0)
     hdr = Table(
         [[left_hdr, photo]],
         colWidths=[HDR_W, PHOTO_W + 1.0 * cm],
@@ -348,56 +388,97 @@ def build(story, sty, W, cfg=None):
 
     # ── 2  KURZPROFIL ────────────────────────────────────────────────────────
     story.extend([
-        Spacer(1, 0.04 * cm),
+        Spacer(1, 0.02 * cm),
         SectionHeading('KURZPROFIL', sty['section']),
-        Spacer(1, 1.5),
+        Spacer(1, 1.0),
     ])
     story.append(Paragraph(
-        'Full-Stack-Entwickler mit Fokus auf <b>C#/.NET</b>, <b>Angular</b>, '
-        '<b>Azure</b> und <b>CI/CD</b>. Über 2 Jahre Erfahrung in der '
-        'Modernisierung von ERP-Systemen, inkl. vollständiger Migration einer '
-        'Legacy-Desktop-Anwendung in eine skalierbare Web-Architektur. '
-        'Starke End-to-End-Kompetenz: Datenbankmodellierung, API-Design, '
-        'Frontend-Entwicklung, Cloud-Infrastruktur, Testautomatisierung. '
-        'Nachweisbare Verbesserungen in Performance, Code-Qualität und '
-        'Deployment-Geschwindigkeit.',
+        esc_rich((cfg.get('kurzprofil') or '').strip() or DEFAULT_KURZPROFIL),
         sty['profile'],
     ))
 
     # ── 3  BERUFSERFAHRUNG ───────────────────────────────────────────────────
     story.extend(sec('BERUFSERFAHRUNG', sty))
 
-    # Title row: company/role left, date right – same line
-    exp_hdr = Table(
-        [[Paragraph(b('Dicom GmbH - Full-Stack Entwickler'), sty['entry_title']),
-          Paragraph('02/2024&nbsp;–&nbsp;02/2026', sty['period'])]],
-        colWidths=[W * 0.79, W * 0.18],
-    )
-    exp_hdr.setStyle(TableStyle([
-        ('VALIGN',       (0, 0), (-1, -1), 'TOP'),
-        ('LEFTPADDING',  (0, 0), (0, -1),  0),
-        ('LEFTPADDING',  (1, 0), (1, -1),  0),
-        ('RIGHTPADDING', (0, 0), (0, -1),  0),
-        ('RIGHTPADDING', (1, 0), (1, -1),  0),
-        ('TOPPADDING',   (0, 0), (-1, -1), 0),
-        ('BOTTOMPADDING',(0, 0), (-1, -1), 0),
-    ]))
+    def exp_header(title, period):
+        """Company/role left, period right – same line."""
+        t = Table(
+            [[Paragraph(b(title), sty['entry_title']),
+              Paragraph(period.replace(' – ', '&nbsp;–&nbsp;'), sty['period'])]],
+            colWidths=[W * 0.79, W * 0.18],
+        )
+        t.setStyle(TableStyle([
+            ('VALIGN',       (0, 0), (-1, -1), 'TOP'),
+            ('LEFTPADDING',  (0, 0), (-1, -1), 0),
+            ('RIGHTPADDING', (0, 0), (-1, -1), 0),
+            ('TOPPADDING',   (0, 0), (-1, -1), 0),
+            ('BOTTOMPADDING',(0, 0), (-1, -1), 0),
+        ]))
+        return t
 
-    # Bullets use full width (no date column reservation)
+    # — Bike Haus Freiburg (aktuell)
     story.append(KeepTogether([
-        exp_hdr,
+        exp_header('Bike Haus Freiburg – Full-Stack Entwickler (Inhouse-Software)',
+                   '03/2026 – heute'),
+        Paragraph(
+            lnk('https://bikehausfreiburg.com', 'bikehausfreiburg.com')
+            + '&#160;&#160;<font color="#1B3764">|</font>&#160;&#160;'
+            + lnk('https://github.com/oeztuerkhamza/bikehausfreiburg', 'GitHub'),
+            sty['entry_sub'],
+        ),
         bul(
-            'Migration eines kompletten ERP-Systems von WinForms zu einer '
-            '<b>C#/.NET 10</b> + <b>Angular</b> Web-Lösung.',
+            'Konzeption, Entwicklung und Betrieb einer eigenen Warenwirtschafts- '
+            'und Vermietungsplattform: <b>.NET 9</b>-API (40 Controller, '
+            '46 Domain-Entities, 130+ EF-Core-Migrationen), <b>Angular 17</b> '
+            'Admin-SPA und SSR-Homepage — im täglichen Geschäftsbetrieb produktiv.',
             sty['bullet'],
         ),
         bul(
-            'Einführung einer <b>Clean Architecture</b> und modularen API-Struktur.',
+            'Vermietung vollständig digitalisiert (Online-Buchung, PDF-Verträge '
+            'mit QR-Code, digitale Unterschrift, Kaution, automatische E-Mails): '
+            '<b>190 Mietverträge, 1.097 Miettage und 16.716 € Mietumsatz</b> '
+            'papierlos abgewickelt (2026).',
+            sty['bullet'],
+        ),
+        bul(
+            'SEO-Ausbau der SSR-Homepage (12 Sprachen mit hreflang, Prerendering, '
+            'IndexNow, stadtbasierte Landing-Pages): in 6 Monaten auf '
+            '<b>222.000 Impressionen und 9.700 Klicks</b> gewachsen '
+            '(CTR 4,4 %, Ø-Position 9,3).',
+            sty['bullet'],
+        ),
+        bul(
+            'KI-Assistenten für Gmail, WhatsApp und Kleinanzeigen (<b>OpenAI API</b>) '
+            'mit mehrsprachigen Antwortentwürfen; Kleinanzeigen-Scraper '
+            '(<b>Playwright</b>), automatisierte Google-Reviews-Kampagne, '
+            'Newsletter- und Backup-Services.',
+            sty['bullet'],
+        ),
+        bul(
+            'Betrieb &amp; DevOps: 6-Container-<b>Docker</b>-Stack auf eigenem VPS, '
+            '<b>GitHub Actions</b> CI/CD mit Change-Detection und '
+            'Zero-Downtime-Deployment, Nginx (Rate Limiting, HSTS/CSP, '
+            'Let\'s Encrypt), Mailcow-Mailserver (DKIM/SPF/DMARC), '
+            'Android-App via Capacitor.',
+            sty['bullet'],
+        ),
+    ]))
+    story.append(Spacer(1, 2))
+
+    # — Dicom GmbH
+    story.append(KeepTogether([
+        exp_header('Dicom GmbH – Full-Stack Entwickler', '02/2024 – 02/2026'),
+        bul(
+            'Migration eines kompletten ERP-Systems von WinForms zu einer '
+            '<b>C#/.NET 10</b> + <b>Angular</b> Web-Lösung; Einführung einer '
+            '<b>Clean Architecture</b> und modularen API-Struktur.',
             sty['bullet'],
         ),
         bul(
             'Neuaufbau und Optimierung der Datenbankmodelle (<b>EF Core</b>, '
-            'SQL Server); Verbesserung kritischer SQL-Queries.',
+            'SQL Server); deutliche Verbesserung von API-Antwortzeiten und '
+            'Seitenladegeschwindigkeit durch gezielte Query- und '
+            'Bundle-Optimierung.',
             sty['bullet'],
         ),
         bul(
@@ -407,17 +488,16 @@ def build(story, sty, W, cfg=None):
             sty['bullet'],
         ),
         bul(
+            'Entwicklung von <b>15+ Angular-Komponenten</b> mit <b>NgRx</b> und '
+            'Reactive Forms; Unit- und Integrationstests mit <b>xUnit</b> und '
+            '<b>Moq</b>, Testabdeckung auf über <b>60 %</b> gesteigert.',
+            sty['bullet'],
+        ),
+        bul(
             'Betrieb der gesamten Infrastruktur in der <b>Azure Cloud</b> '
-            '(Dev/Staging/Prod).',
-            sty['bullet'],
-        ),
-        bul(
-            'Entwicklung und Wartung von REST-APIs, inkl. KI-gestützter Tools '
-            'zur Beschleunigung von Entwicklungszyklen.',
-            sty['bullet'],
-        ),
-        bul(
-            'Lösung mehrerer kritischer Bugs in produktiven ERP-Modulen.',
+            '(Dev/Staging/Prod); REST-APIs inkl. KI-gestützter Tools zur '
+            'Beschleunigung von Entwicklungszyklen; Lösung mehrerer kritischer '
+            'Bugs in produktiven ERP-Modulen.',
             sty['bullet'],
         ),
     ]))
@@ -425,51 +505,22 @@ def build(story, sty, W, cfg=None):
     # ── 4  PROJEKTE ──────────────────────────────────────────────────────────
     story.extend(sec('PROJEKTE', sty))
 
-    # — Fahrrad-Warenwirtschaftssystem (3× Live)
+    # — Ausrollung der Fahrrad-Plattform auf weitere Geschäfte
     story.append(KeepTogether([
         Paragraph(
-            b('Fahrrad-Warenwirtschaftssystem')
-            + ' <font color="#1B3764">(3× Live)</font>',
+            b('Rollout der Fahrrad-Plattform')
+            + ' <font color="#1B3764">(2× weitere Live-Installationen)</font>'
+            + '&#160;&#160;'
+            + lnk('https://karaarslan-bike.de', 'karaarslan-bike.de')
+            + '&#160;&#160;<font color="#1B3764">|</font>&#160;&#160;'
+            + lnk('https://benlirad.de', 'benlirad.de'),
             sty['entry_title'],
         ),
-        Paragraph(
-            lnk('https://bikehausfreiburg.com', 'bikehausfreiburg.com')
-            + ' ' + lnk('https://github.com/oeztuerkhamza/bikehausfreiburg', '(GitHub)')
-            + '&#160;&#160;<font color="#1B3764">|</font>&#160;&#160;'
-            + lnk('https://karaarslan-bike.de', 'karaarslan-bike.de')
-            + ' ' + lnk('https://github.com/oeztuerkhamza/karaarslan-bike', '(GitHub)')
-            + '&#160;&#160;<font color="#1B3764">|</font>&#160;&#160;'
-            + lnk('https://benlirad.de', 'benlirad.de')
-            + ' ' + lnk('https://github.com/oeztuerkhamza/benlirad', '(GitHub)'),
-            sty['entry_sub'],
-        ),
         bul(
-            '<b>.NET 9</b> API (30+ Endpoints, 35+ Domain-Entities), '
-            '<b>Angular 17/19</b> Admin-SPA + SSR-Homepage, '
-            'SQLite/EF Core 8 — eigenentwickeltes Full-Stack-System '
-            'für Fahrradgeschäfte; 3× produktiv deployed.',
-            sty['bullet'],
-        ),
-        bul(
-            'Buchung &amp; Vermietung, Kundenverwaltung, Verkauf/Einkauf, '
-            'PDF-Verträge mit QR-Code (QuestPDF), dynamische Preisstaffelung, '
-            'Kleinanzeigen-Scraper (Playwright), Google-Reviews-API, '
-            'digitale Unterschriften.',
-            sty['bullet'],
-        ),
-        bul(
-            '5-Container Docker-Setup: API, Admin-SPA, SSR-Homepage, '
-            'Nginx (Rate Limiting, Brotli/Gzip, HSTS/CSP, Let\'s Encrypt), Certbot; '
-            'JWT-Auth mit rotierbaren Secrets; Background-Services '
-            'für Sync, Backup und E-Mail.',
-            sty['bullet'],
-        ),
-        bul(
-            'GitHub Actions CI/CD: pfadbasierte Change-Detection, '
-            'atomare Deployments (Zero Downtime), Healthcheck-Jobs; '
-            'Mailcow E-Mail-Server (DKIM/SPF/DMARC); '
-            'SEO: Prerendering, IndexNow, stadtbasierte Landing-Pages, '
-            'mehrsprachig (DE/FR/TR).',
+            'Ausrollung des eigenen Warenwirtschaftssystems als wiederverwendbares '
+            'Produkt für zwei weitere Fahrradgeschäfte: eigenes Branding, '
+            'Standort- und Preislogik, separate Docker-Deployments inkl. '
+            'Mailserver und CI/CD.',
             sty['bullet'],
         ),
     ]))
@@ -495,16 +546,61 @@ def build(story, sty, W, cfg=None):
         ),
     ]))
 
-    # — Bewerbungs-Manager
+    # — Hotel Bergfrieden Löffingen
     story.append(KeepTogether([
         Paragraph(
-            b('Bewerbungs-Manager')
-            + ' – KI-gestützte Bewerbungsautomatisierung',
+            b('Hotel Bergfrieden Löffingen')
+            + ' <font color="#1B3764">(Website + internes Management-System)</font>'
+            + '&#160;&#160;'
+            + lnk('https://reports-pace-beside-dam.trycloudflare.com/',
+                  'Live-Demo')
+            + '&#160;&#160;<font color="#1B3764">|</font>&#160;&#160;'
+            + lnk('https://github.com/oeztuerkhamza/bergfrieden-hotel',
+                  'GitHub')
+            + '&#160;&#160;<font color="#1B3764">|</font>&#160;&#160;'
+            + lnk('https://github.com/oeztuerkhamza/bergfrieden-management',
+                  'Management'),
             sty['entry_title'],
         ),
         bul(
-            'Python, OpenAI API — Tool zur PDF-Erstellung, '
-            'Profilverwaltung und automatisierten Analyse von Stellenanzeigen.',
+            '<b>Angular 21</b> (Standalone Components, Signals) Hotel-Website mit '
+            'Static Site Generation (Prerendering), Tailwind CSS, Schema.org-JSON-LD '
+            'und SEO; Auto-Deploy via GitHub Actions auf GitHub Pages.',
+            sty['bullet'],
+        ),
+        bul(
+            'Internes Management-System mit <b>Next.js</b> (App Router), '
+            '<b>React 19</b>, TypeScript, Prisma/SQLite: Zimmerreservierung, '
+            'Housekeeping-Board und Wartungs-Tracking mit rollenbasierter '
+            'Zugriffskontrolle (JWT-Sessions, bcrypt), dreisprachig (DE/EN/TR).',
+            sty['bullet'],
+        ),
+    ]))
+
+    # — Zerin Gold
+    story.append(KeepTogether([
+        Paragraph(
+            b('Zerin Gold')
+            + ' – Premium-Website für Goldhändler &amp; Juwelier'
+            + ' <font color="#1B3764">(Live)</font>'
+            + '&#160;&#160;'
+            + lnk('https://zerin-gold.de', 'zerin-gold.de')
+            + '&#160;&#160;<font color="#1B3764">|</font>&#160;&#160;'
+            + lnk('https://github.com/oeztuerkhamza/zerin-gold',
+                  'GitHub'),
+            sty['entry_title'],
+        ),
+        bul(
+            '<b>Next.js 16</b> (App Router, Server Components/Actions), '
+            'TypeScript (strict), Tailwind 4 + shadcn/ui + Framer Motion, '
+            '<b>PostgreSQL 16</b>/Prisma 7, Redis; Auth.js v5 (Argon2 + 2FA), '
+            'getestet mit Vitest &amp; Playwright.',
+            sty['bullet'],
+        ),
+        bul(
+            '7-sprachig inkl. RTL (Arabisch), White-Label-Architektur '
+            '(DB-gesteuerte Mandanten-Konfiguration), Live-Goldpreis-Engine mit '
+            'Margen-System und Karat-/Altgold-Rechner; Docker-Deployment.',
             sty['bullet'],
         ),
     ]))
@@ -513,31 +609,32 @@ def build(story, sty, W, cfg=None):
     story.extend(sec('IT-KENNTNISSE', sty))
     skills = [
         ('Backend',
-         'C#, .NET Core, ASP.NET Core, Clean Architecture, EF Core,Web-Scraping, '
+         'C#, .NET Core, ASP.NET Core, Clean Architecture, EF Core, Web-Scraping, '
          'RESTful APIs, xUnit'),
         ('Frontend',
-         'Angular (17/19), TypeScript, React 19, Tailwind CSS, NgRx,HTML,Bulma '
+         'Angular (17/19), TypeScript, React 19, Tailwind CSS, NgRx, HTML, Bulma, '
          'Infragistics'),
         ('Datenbanken',
-         'SQL Server, SQLite, SQL ,PostgreSQL'),
+         'SQL Server, SQLite, PostgreSQL'),
         ('DevOps &amp; Tools',
          'Docker, GitHub Actions, Azure DevOps, Azure Cloud, '
-         'SonarQube, Git, CI/CD, Python '),
+         'SonarQube, Git, CI/CD, Python'),
         ('KI &amp; Analytics',
-         'OpenAI API, Claude, Prompt Engineering, Tableau,Copilot '
+         'OpenAI API, Claude, Prompt Engineering, Tableau, Copilot'
          ),
     ]
     rows = [[Paragraph(b(l), sty['skill_lbl']),
              Paragraph(v, sty['skill_val'])] for l, v in skills]
-    sk = Table(rows, colWidths=[W * 0.21, W * 0.78],
-               rowHeights=[14.6] * len(rows))
+    # Keine feste rowHeights: lange Skill-Werte dürfen umbrechen statt
+    # abgeschnitten zu werden (Tabelle wächst automatisch mit dem Inhalt).
+    sk = Table(rows, colWidths=[W * 0.21, W * 0.78])
     sk.setStyle(TableStyle([
         ('VALIGN',       (0, 0), (-1, -1), 'TOP'),
         ('LEFTPADDING',  (0, 0), (0, -1),  8),
         ('LEFTPADDING',  (1, 0), (1, -1),  8),
         ('RIGHTPADDING', (0, 0), (-1, -1), 0),
-        ('TOPPADDING',   (0, 0), (-1, -1), 2.2),
-        ('BOTTOMPADDING',(0, 0), (-1, -1), 2.2),
+        ('TOPPADDING',   (0, 0), (-1, -1), 1.6),
+        ('BOTTOMPADDING',(0, 0), (-1, -1), 1.6),
         ('LINEBELOW',    (0, 0), (-1, -1), 0.25, RULE_C),
         ('BACKGROUND',   (0, 0), (-1, 0), BG_SKILL),
         ('BACKGROUND',   (0, 1), (-1, 1), BG_SKILL2),
@@ -553,12 +650,7 @@ def build(story, sty, W, cfg=None):
         ('05/2022 – 03/2023',
          'Zertifikat: Data Analytics',
          'Clarusway IT School'),
-        ('10/2019 – 08/2022',
-         'Wirtschaftsingenieurwesen',
-         'Technische Universität Istanbul (ITÜ)'),
-        ('08/2015 – 07/2018',
-         'Wirtschaftsingenieurwesen und Offizierausbildung',
-         'Türkische Luftwaffenakademie, Istanbul'),
+       
     ]
 
     # Fachinformatiker with Abschlussprojekt detail
@@ -575,7 +667,7 @@ def build(story, sty, W, cfg=None):
         ],
         '02/2024 – 02/2026', sty, CW, DW,
     )))
-    story.append(Spacer(1, 0.4))
+    story.append(Spacer(1, 0.1))
 
     for idx, (period, title, inst) in enumerate(edu):
         story.append(KeepTogether(entry_row(
@@ -587,9 +679,9 @@ def build(story, sty, W, cfg=None):
 
     # ── 7  SPRACHEN ─────────────────────────────────────────────────────────
     story.extend([
-        Spacer(1, 0.04 * cm),
+        Spacer(1, 0.02 * cm),
         SectionHeading('SPRACHEN', sty['section']),
-        Spacer(1, 1.5),
+        Spacer(1, 1.0),
     ])
     lang_rows = [
         ('Türkisch',  'Muttersprache'),
@@ -598,15 +690,14 @@ def build(story, sty, W, cfg=None):
     ]
     lang_data = [[Paragraph(b(l), sty['skill_lbl']),
                   Paragraph(v, sty['skill_val'])] for l, v in lang_rows]
-    lang_tbl = Table(lang_data, colWidths=[W * 0.21, W * 0.78],
-                     rowHeights=[14.6] * len(lang_data))
+    lang_tbl = Table(lang_data, colWidths=[W * 0.21, W * 0.78])
     lang_tbl.setStyle(TableStyle([
         ('VALIGN',       (0, 0), (-1, -1), 'TOP'),
         ('LEFTPADDING',  (0, 0), (0, -1),  8),
         ('LEFTPADDING',  (1, 0), (1, -1),  8),
         ('RIGHTPADDING', (0, 0), (-1, -1), 0),
-        ('TOPPADDING',   (0, 0), (-1, -1), 2.2),
-        ('BOTTOMPADDING',(0, 0), (-1, -1), 2.2),
+        ('TOPPADDING',   (0, 0), (-1, -1), 1.6),
+        ('BOTTOMPADDING',(0, 0), (-1, -1), 1.6),
         ('LINEBELOW',    (0, 0), (-1, -1), 0.25, RULE_C),
         ('BACKGROUND',   (0, 0), (-1, 0), BG_SKILL),
         ('BACKGROUND',   (0, 1), (-1, 1), BG_SKILL2),
@@ -615,10 +706,11 @@ def build(story, sty, W, cfg=None):
     story.append(lang_tbl)
 
     # ── 8  UNTERSCHRIFT ─────────────────────────────────────────────────────
-    story.append(Spacer(1, 0.35 * cm))
-    story.append(Image(SIGNATUR_PATH, width=3.6*cm, height=1.3*cm,
-                       hAlign='LEFT'))
-    story.append(Paragraph(f'Freiburg, {cfg["datum"]}', sty['footer']))
+    story.append(Spacer(1, 0.04 * cm))
+    if os.path.isfile(SIGNATUR_PATH):
+        story.append(Image(SIGNATUR_PATH, width=2.8*cm, height=0.95*cm,
+                           hAlign='LEFT'))
+    story.append(Paragraph(f'Freiburg, {esc(cfg["datum"])}', sty['footer']))
     story.append(Paragraph('Hamza Öztürk', sty['footer']))
 
 
