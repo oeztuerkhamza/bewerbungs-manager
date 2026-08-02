@@ -546,37 +546,6 @@ def build(story, sty, W, cfg=None):
         ),
     ]))
 
-    # — Hotel Bergfrieden Löffingen
-    story.append(KeepTogether([
-        Paragraph(
-            b('Hotel Bergfrieden Löffingen')
-            + ' <font color="#1B3764">(Website + internes Management-System)</font>'
-            + '&#160;&#160;'
-            + lnk('https://reports-pace-beside-dam.trycloudflare.com/',
-                  'Live-Demo')
-            + '&#160;&#160;<font color="#1B3764">|</font>&#160;&#160;'
-            + lnk('https://github.com/oeztuerkhamza/bergfrieden-hotel',
-                  'GitHub')
-            + '&#160;&#160;<font color="#1B3764">|</font>&#160;&#160;'
-            + lnk('https://github.com/oeztuerkhamza/bergfrieden-management',
-                  'Management'),
-            sty['entry_title'],
-        ),
-        bul(
-            '<b>Angular 21</b> (Standalone Components, Signals) Hotel-Website mit '
-            'Static Site Generation (Prerendering), Tailwind CSS, Schema.org-JSON-LD '
-            'und SEO; Auto-Deploy via GitHub Actions auf GitHub Pages.',
-            sty['bullet'],
-        ),
-        bul(
-            'Internes Management-System mit <b>Next.js</b> (App Router), '
-            '<b>React 19</b>, TypeScript, Prisma/SQLite: Zimmerreservierung, '
-            'Housekeeping-Board und Wartungs-Tracking mit rollenbasierter '
-            'Zugriffskontrolle (JWT-Sessions, bcrypt), dreisprachig (DE/EN/TR).',
-            sty['bullet'],
-        ),
-    ]))
-
     # — Zerin Gold
     story.append(KeepTogether([
         Paragraph(
