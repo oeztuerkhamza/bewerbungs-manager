@@ -40,7 +40,7 @@ ICON_WEBSITE  = os.path.join(ICONS_DIR, 'website.png')
 L_MARGIN  = 1.3 * cm
 R_MARGIN  = 1.2 * cm
 T_MARGIN  = 0.7 * cm
-B_MARGIN  = 0.6 * cm
+B_MARGIN  = 0.5 * cm
 SIDEBAR_W = 4 * mm
 SEC_GAP   = 0.07 * cm
 
@@ -92,14 +92,24 @@ def register_fonts():
         pdfmetrics.registerFont(
             pdfmetrics.Font(name, _STD_FALLBACK[name], 'WinAnsiEncoding'))
 
+    # Ohne Familie greifen <b>/<i> im Fliesstext ins Leere: ReportLab findet
+    # dann keine fette/kursive Variante und setzt alles normal.
+    pdfmetrics.registerFontFamily(
+        'CV-R', normal='CV-R', bold='CV-B', italic='CV-I', boldItalic='CV-BI')
+    pdfmetrics.registerFontFamily(
+        'CV-B', normal='CV-B', bold='CV-B', italic='CV-BI', boldItalic='CV-BI')
+
 
 # ─── PARAGRAPH STYLES ────────────────────────────────────────────────────────
-def make_styles():
+def make_styles(tighten=0.0):
+    """tighten zieht jeden Zeilenabstand um X pt nach – siehe _passt_auf_eine_seite."""
     def ps(name, font='CV-R', size=10, color=DARK, leading=None,
            spaceBefore=0, spaceAfter=0, align=TA_LEFT, leftIndent=0, **kw):
+        lead = leading or round(size * 1.4, 1)
+        lead = max(size + 0.4, lead - tighten)
         return ParagraphStyle(
             name, fontName=font, fontSize=size, textColor=color,
-            leading=leading or round(size * 1.4, 1),
+            leading=lead,
             spaceBefore=spaceBefore, spaceAfter=spaceAfter,
             alignment=align, leftIndent=leftIndent, **kw,
         )
@@ -111,17 +121,21 @@ def make_styles():
         'entry_title': ps('entry_title', 'CV-B', 8.8, DARK, leading=10.8, leftIndent=8),
         'entry_sub':   ps('entry_sub',   'CV-I', 7.8, GRAY, leading=9.0, spaceAfter=0.1, leftIndent=8),
         'period':      ps('period',      'CV-R', 8.0, LGRAY, leading=10.0, align=TA_RIGHT),
-        'bullet':      ps('bullet',      'CV-R', 8.1, DARK, leading=8.9,
-                          spaceAfter=0.1, leftIndent=14, align=TA_JUSTIFY),
+        'bullet':      ps('bullet',      'CV-R', 8.1, DARK, leading=8.6,
+                          spaceAfter=0.1, leftIndent=15, align=TA_LEFT,
+                          bulletIndent=6, bulletFontName='CV-R',
+                          bulletFontSize=8.1, bulletColor=NAVY),
         'profile':     ps('profile',     'CV-R', 8.3, DARK, leading=9.8,
-                          spaceAfter=0.2, leftIndent=8, align=TA_JUSTIFY),
+                          spaceAfter=0.2, leftIndent=8, align=TA_LEFT),
         'footer':      ps('footer',      'CV-R', 8, LGRAY, leading=10, spaceBefore=0.5),
         'skill_lbl':   ps('skill_lbl',   'CV-B', 8.3, NAVY, leading=10.2),
         'skill_val':   ps('skill_val',   'CV-R', 8.2, DARK, leading=10.2),
         # Ausbildung-specific (lower indent to keep current alignment)
-        'edu_title':   ps('edu_title',   'CV-B', 8.8, DARK, leading=10.8, leftIndent=4),
-        'edu_bullet':  ps('edu_bullet',  'CV-R', 8.1, DARK, leading=9.6,
-                          spaceAfter=0.2, leftIndent=10, align=TA_JUSTIFY),
+        'edu_title':   ps('edu_title',   'CV-R', 8.8, DARK, leading=10.8, leftIndent=4),
+        'edu_bullet':  ps('edu_bullet',  'CV-R', 8.1, DARK, leading=9.3,
+                          spaceAfter=0.2, leftIndent=11, align=TA_LEFT,
+                          bulletIndent=3, bulletFontName='CV-R',
+                          bulletFontSize=8.1, bulletColor=NAVY),
     }
 
 
@@ -334,9 +348,9 @@ def icon_prefix(icon_path, fallback_label):
     return f'<font color="#1B3764"><b>{fallback_label}</b></font>'
 
 def bul(text, sty):
-    """Bullet with clean navy dot."""
-    return Paragraph(
-        f'<font color="#1B3764">\u2022</font>&#160;&#160;{text}', sty)
+    """Aufzählung mit echtem Hängeeinzug: Folgezeilen stehen unter dem
+    Text, nicht unter dem Punkt."""
+    return Paragraph(text, sty, bulletText=chr(0x2022))
 
 # Two-column entry table style
 _ENTRY_TS = TableStyle([
@@ -380,17 +394,13 @@ def _draw_page(canvas, doc):
     canvas.setStrokeColor(NAVY)
     canvas.setLineWidth(0.5)
     canvas.line(L_MARGIN, y_hdr, w - R_MARGIN, y_hdr)
-    # Footer line
-    canvas.setStrokeColor(RULE_C)
-    canvas.setLineWidth(0.35)
-    canvas.line(L_MARGIN, B_MARGIN - 6 * mm, w - R_MARGIN, B_MARGIN - 6 * mm)
     canvas.restoreState()
 
 
 # ─── DEFAULT CONFIG ──────────────────────────────────────────────────────────
 DEFAULT_KURZPROFIL = (
     'Full-Stack-Entwickler mit Fokus auf <b>C#/.NET</b>, <b>Angular</b>, '
-    '<b>Docker/Azure</b> und <b>CI/CD</b>. Über 3 Jahre Erfahrung in der '
+    '<b>Docker/Azure</b> und <b>CI/CD</b>. Über 2,5 Jahre Erfahrung in der '
     'Modernisierung von ERP-Systemen inkl. vollständiger Migration einer '
     'Legacy-Desktop-Anwendung in eine Web-Architektur; aktuell verantwortlich '
     'für eine selbst entwickelte, produktiv genutzte Warenwirtschafts- und '
@@ -407,6 +417,86 @@ DEFAULT_CONFIG = {
 }
 
 
+# ─── BILDUNGSWEG ────────────────────────────────────────────────
+# Marker fuer noch unbestaetigte Angaben. Solange einer davon im Lebenslauf
+# steht, warnt der Build – so geht nichts Unfertiges an einen Arbeitgeber raus.
+TODO = '‹?›'
+
+# Chronologisch absteigend. 'inst' und 'detail' sind optional.
+BILDUNGSWEG = [
+    {
+        'period': '02/2024 – 02/2026',
+        'title':  'Fachinformatiker für Anwendungsentwicklung (IHK) – '
+                  'verkürzte duale Ausbildung',
+        'inst':   'Walther-Rathenau-Gewerbeschule, Freiburg · '
+                  'Ausbildungsbetrieb: Dicom GmbH',
+        'detail': b('Abschlussprojekt DI-Flux:')
+                  + ' Enterprise-Web-Zeiterfassung mit Angular, JWT-Auth, '
+                    'C#/.NET und SQL Server.',
+    },
+    {
+        'period': '02/2023 – 12/2023',
+        'title':  'Deutsch-Sprachausbildung – Abschluss C1',
+        'inst':   'Deutsches Kolleg, Stuttgart',
+    },
+    {
+        'period': '05/2022 – 03/2023',
+        'title':  'Zertifikat: Data Analytics &amp; Visualization (260 Std.)',
+        'inst':   'Clarusway IT School',
+    },
+    {
+        'period': '10/2019 – 08/2022',
+        'title':  'Wirtschaftsingenieurwesen',
+        'inst':   'Technische Universität Istanbul (İTÜ)',
+    },
+    {
+        'period': '08/2015 – 07/2019',
+        'title':  'Militärwissenschaften',
+        'inst':   'Türkische Luftwaffenakademie, Istanbul',
+    },
+    {
+        'period': '2010 – 2015',
+        'title':  'Schulabschluss (Lise-Diplom)',
+        'inst':   'Işıklar Militärgymnasium der Luftwaffe, Bursa (Türkei)',
+    },
+]
+
+# Widersprueche und fehlende Angaben, die NICHT im PDF stehen, aber vor dem
+# Versand geklaert werden muessen. Werden beim Build ausgegeben.
+# Bewusst NICHT im Lebenslauf: IHK-Abschlussnote 2,8 (befriedigend). Note wird
+# nur genannt, wenn sie gut ist; die Zeugnisse liegen der Bewerbung ohnehin bei.
+OFFENE_FRAGEN = [
+    'Işıklar-Gymnasium: Ort "Bursa" bitte bestätigen.',
+]
+
+
+def _cprint(text):
+    """Konsolenausgabe, die auch bei cp1252-Terminals nicht abstürzt."""
+    enc = (getattr(sys.stdout, 'encoding', None) or 'ascii')
+    print(text.encode(enc, 'replace').decode(enc, 'replace'))
+
+
+def warne_offene_punkte():
+    """Gibt Platzhalter und offene Fragen nach dem Build auf der Konsole aus."""
+    offen = []
+    for e in BILDUNGSWEG:
+        txt = ''.join(str(e.get(k) or '') for k in ('period', 'title', 'inst', 'detail'))
+        if TODO in txt:
+            offen.append('{}  {}'.format(e['period'], e['title']))
+    if offen:
+        _cprint('')
+        _cprint('  !! Noch unbestaetigte Angaben IM PDF (' + TODO + '):')
+        for o in offen:
+            _cprint('     - ' + o)
+    if OFFENE_FRAGEN:
+        _cprint('')
+        _cprint('  !! Vor dem Versand klaeren:')
+        for f in OFFENE_FRAGEN:
+            _cprint('     - ' + f)
+    if offen or OFFENE_FRAGEN:
+        print('')
+
+
 # ─── BUILD STORY ─────────────────────────────────────────────────────────────
 def build(story, sty, W, cfg=None):
     cfg = {**DEFAULT_CONFIG, **(cfg or {})}
@@ -416,14 +506,14 @@ def build(story, sty, W, cfg=None):
     CW_EXP = W - DW_EXP
 
     # ── 1  HEADER ────────────────────────────────────────────────────────────
-    PHOTO_D = 3.1 * cm          # Durchmesser des runden Portraits
+    PHOTO_D = 2.85 * cm         # Durchmesser des runden Portraits
     PHOTO_W = PHOTO_D
     HDR_W   = W - PHOTO_W - 1.0 * cm
 
     # Contact info with bold navy label prefixes – each on its own line
     c_ort = (
         icon_prefix(ICON_LOCATION, '⌂:') + '&#160;'
-        'Freiburg'
+        'Bissierstr. 16, 79114 Freiburg'
     )
     c_tel = (
         icon_prefix(ICON_PHONE, '☎:') + '&#160;'
@@ -450,11 +540,13 @@ def build(story, sty, W, cfg=None):
     )
     c_geb = (
         '<font color="#1B3764"><b>Geb.:</b></font>&#160;'
-        ' 1996'
+        '18.02.1996, Groß-Gerau'
+        '&#160;&#160;<font color="#1B3764">·</font>&#160;&#160;'
+        '<font color="#1B3764"><b>Führerschein:</b></font>&#160;Klasse B'
     )
     c_visa = (
-        '<font color="#1B3764"><b>Visum:</b></font>&#160;'
-        'kein Visum nötig'
+        '<font color="#1B3764"><b>Status:</b></font>&#160;'
+        'Aufenthalts- &amp; Arbeitserlaubnis'
     )
 
     contact_table = Table(
@@ -464,7 +556,7 @@ def build(story, sty, W, cfg=None):
             [Paragraph(c_linkedin, sty['contact']), Paragraph(c_github, sty['contact'])],
             [Paragraph(c_website, sty['contact']), Paragraph(c_visa, sty['contact'])],
         ],
-        colWidths=[HDR_W * 0.56, HDR_W * 0.44],
+        colWidths=[HDR_W * 0.48, HDR_W * 0.52],
     )
     contact_table.setStyle(TableStyle([
         ('VALIGN',       (0, 0), (-1, -1), 'TOP'),
@@ -533,7 +625,7 @@ def build(story, sty, W, cfg=None):
 
     # — Bike Haus Freiburg (aktuell)
     story.append(KeepTogether([
-        exp_header('Bike Haus Freiburg – Full-Stack Entwickler (Inhouse-Software)',
+        exp_header('Bike Haus Freiburg – Full-Stack Entwickler (Festanstellung)',
                    '03/2026 – heute'),
         Paragraph(
             lnk('https://bikehausfreiburg.com', 'bikehausfreiburg.com')
@@ -549,17 +641,18 @@ def build(story, sty, W, cfg=None):
             sty['bullet'],
         ),
         bul(
-            'Vermietung vollständig digitalisiert (Online-Buchung, PDF-Verträge '
-            'mit QR-Code, digitale Unterschrift, Kaution, automatische E-Mails): '
-            '<b>190 Mietverträge, 1.097 Miettage und 16.716 € Mietumsatz</b> '
-            'papierlos abgewickelt (2026).',
+            'Vermietung und Warenwirtschaft papierlos abgewickelt (Online-Buchung, '
+            'PDF-Belege mit QR-Code, digitale Unterschrift, Kaution, automatische '
+            'E-Mails): <b>405 Mietverträge mit 35.000 € Mietumsatz</b>, 696 Ankäufe '
+            'und 990 Verkäufe '
+            '— über 2.000 Belege digital erzeugt (2026).',
             sty['bullet'],
         ),
         bul(
             'SEO-Ausbau der SSR-Homepage (12 Sprachen mit hreflang, Prerendering, '
             'IndexNow, stadtbasierte Landing-Pages): in 6 Monaten auf '
-            '<b>222.000 Impressionen und 9.700 Klicks</b> gewachsen '
-            '(CTR 4,4 %, Ø-Position 9,3).',
+            '<b>342.000 Impressionen und 13.000 Klicks</b> gewachsen '
+            '(CTR 3,8 %, Ø-Position 9).',
             sty['bullet'],
         ),
         bul(
@@ -580,9 +673,23 @@ def build(story, sty, W, cfg=None):
     ]))
     story.append(Spacer(1, 2))
 
+    # — Freiberufliche Softwareentwicklung (parallel zur Festanstellung)
+    story.append(KeepTogether([
+        exp_header('Freiberufliche Softwareentwicklung (nebenberuflich)',
+                   '03/2026 – heute'),
+        bul(
+            'Web- und Warenwirtschaftslösungen für eigene Kunden: Rollout der '
+            'Fahrrad-Plattform auf zwei weitere Betriebe sowie Zerin Gold '
+            '(siehe Projekte).',
+            sty['bullet'],
+        ),
+    ]))
+    story.append(Spacer(1, 2))
+
     # — Dicom GmbH
     story.append(KeepTogether([
-        exp_header('Dicom GmbH – Full-Stack Entwickler', '02/2024 – 02/2026'),
+        exp_header('Dicom GmbH – Full-Stack Entwickler '
+                   '(verkürzte duale Ausbildung, IHK)', '02/2024 – 02/2026'),
         bul(
             'Migration eines kompletten ERP-Systems von WinForms zu einer '
             '<b>C#/.NET 10</b> + <b>Angular</b> Web-Lösung; Einführung einer '
@@ -624,7 +731,7 @@ def build(story, sty, W, cfg=None):
     story.append(KeepTogether([
         Paragraph(
             b('Rollout der Fahrrad-Plattform')
-            + ' <font color="#1B3764">(2× weitere Live-Installationen)</font>'
+            + ' <font color="#1B3764">(freiberuflich · 2× weitere Live-Installationen)</font>'
             + '&#160;&#160;'
             + lnk('https://karaarslan-bike.de', 'karaarslan-bike.de')
             + '&#160;&#160;<font color="#1B3764">|</font>&#160;&#160;'
@@ -666,7 +773,7 @@ def build(story, sty, W, cfg=None):
         Paragraph(
             b('Zerin Gold')
             + ' – Premium-Website für Goldhändler &amp; Juwelier'
-            + ' <font color="#1B3764">(Live)</font>'
+            + ' <font color="#1B3764">(freiberuflich · Live)</font>'
             + '&#160;&#160;'
             + lnk('https://zerin-gold.de', 'zerin-gold.de')
             + '&#160;&#160;<font color="#1B3764">|</font>&#160;&#160;'
@@ -717,8 +824,8 @@ def build(story, sty, W, cfg=None):
         ('LEFTPADDING',  (0, 0), (0, -1),  8),
         ('LEFTPADDING',  (1, 0), (1, -1),  8),
         ('RIGHTPADDING', (0, 0), (-1, -1), 0),
-        ('TOPPADDING',   (0, 0), (-1, -1), 1.6),
-        ('BOTTOMPADDING',(0, 0), (-1, -1), 1.6),
+        ('TOPPADDING',   (0, 0), (-1, -1), 1.2),
+        ('BOTTOMPADDING',(0, 0), (-1, -1), 1.2),
         ('LINEBELOW',    (0, 0), (-1, -1), 0.25, RULE_C),
         ('BACKGROUND',   (0, 0), (-1, 0), BG_SKILL),
         ('BACKGROUND',   (0, 1), (-1, 1), BG_SKILL2),
@@ -728,38 +835,19 @@ def build(story, sty, W, cfg=None):
     ]))
     story.append(sk)
 
-    # ── 6  AUSBILDUNG ────────────────────────────────────────────────────────
+    # ── 6  AUSBILDUNG ──────────────────────────────────────────────
     story.extend(sec('AUSBILDUNG', sty))
-    edu = [
-        ('05/2022 – 03/2023',
-         'Zertifikat: Data Analytics',
-         'Clarusway IT School'),
-       
-    ]
-
-    # Fachinformatiker with Abschlussprojekt detail
-    story.append(KeepTogether(entry_row(
-        [Paragraph(
-            'Fachinformatiker für Anwendungsentwicklung (IHK) — '
-            'Walther-Rathenau-Gewerbeschule, Freiburg',
-            sty['edu_title']),
-         bul(
-            b('Abschlussprojekt DI-Flux:')
-            + ' Enterprise-Web-Zeiterfassung mit Angular, JWT-Auth, '
-            'C#/.NET und SQL Server.',
-            sty['edu_bullet']),
-        ],
-        '02/2024 – 02/2026', sty, CW, DW,
-    )))
-    story.append(Spacer(1, 0.1))
-
-    for idx, (period, title, inst) in enumerate(edu):
-        story.append(KeepTogether(entry_row(
-            Paragraph(f'{title} — {inst}', sty['edu_title']),
-            period, sty, CW, DW,
-        )))
-        if idx < len(edu) - 1:
+    for idx, e in enumerate(BILDUNGSWEG):
+        head = b(e['title'])
+        if e.get('inst'):
+            head += ' — ' + e['inst']
+        left = [Paragraph(head, sty['edu_title'])]
+        if e.get('detail'):
+            left.append(bul(e['detail'], sty['edu_bullet']))
+        story.append(KeepTogether(entry_row(left, e['period'], sty, CW, DW)))
+        if idx < len(BILDUNGSWEG) - 1:
             story.append(Spacer(1, 0.1))
+
 
     # ── 7  SPRACHEN ─────────────────────────────────────────────────────────
     story.extend([
@@ -769,8 +857,9 @@ def build(story, sty, W, cfg=None):
     ])
     lang_rows = [
         ('Türkisch',  'Muttersprache'),
-        ('Deutsch',   'Fließend in Wort und Schrift'),
-        ('Englisch',  'Fließend in Wort und Schrift'),
+        ('Deutsch',   'C1 – verhandlungssicher (Sprachausbildung und '
+                      'IHK-Ausbildung auf Deutsch abgeschlossen)'),
+        ('Englisch',  'B2 – sicher in Wort und Schrift'),
     ]
     lang_data = [[Paragraph(b(l), sty['skill_lbl']),
                   Paragraph(v, sty['skill_val'])] for l, v in lang_rows]
@@ -780,8 +869,8 @@ def build(story, sty, W, cfg=None):
         ('LEFTPADDING',  (0, 0), (0, -1),  8),
         ('LEFTPADDING',  (1, 0), (1, -1),  8),
         ('RIGHTPADDING', (0, 0), (-1, -1), 0),
-        ('TOPPADDING',   (0, 0), (-1, -1), 1.6),
-        ('BOTTOMPADDING',(0, 0), (-1, -1), 1.6),
+        ('TOPPADDING',   (0, 0), (-1, -1), 1.2),
+        ('BOTTOMPADDING',(0, 0), (-1, -1), 1.2),
         ('LINEBELOW',    (0, 0), (-1, -1), 0.25, RULE_C),
         ('BACKGROUND',   (0, 0), (-1, 0), BG_SKILL),
         ('BACKGROUND',   (0, 1), (-1, 1), BG_SKILL2),
@@ -792,56 +881,72 @@ def build(story, sty, W, cfg=None):
     # ── 8  UNTERSCHRIFT ─────────────────────────────────────────────────────
     story.append(Spacer(1, 0.04 * cm))
     if os.path.isfile(SIGNATUR_PATH):
-        story.append(Image(SIGNATUR_PATH, width=2.8*cm, height=0.95*cm,
+        story.append(Image(SIGNATUR_PATH, width=2.5*cm, height=0.85*cm,
                            hAlign='LEFT'))
     story.append(Paragraph(f'Freiburg, {esc(cfg["datum"])}', sty['footer']))
     story.append(Paragraph('Hamza Öztürk', sty['footer']))
+
+
+# ─── SEITENANPASSUNG ─────────────────────────────────────────────────────────
+# Der Inhalt passt knapp auf eine Seite. Wird aus der GUI ein längeres
+# Kurzprofil übergeben, wird der Zeilenabstand stufenweise nachgezogen,
+# statt eine zweite Seite mit nur der Unterschrift anzufangen.
+_FIT_STUFEN = (0.0, 0.2, 0.4, 0.6, 0.8, 1.0)
+
+
+def _baue_pdf(out, cfg, tighten, subject):
+    """Baut das PDF einmal und gibt die Seitenzahl zurück."""
+    doc = SimpleDocTemplate(
+        out, pagesize=A4,
+        leftMargin=L_MARGIN, rightMargin=R_MARGIN,
+        topMargin=T_MARGIN, bottomMargin=B_MARGIN,
+        title='Lebenslauf – Hamza Öztürk', author='Hamza Öztürk',
+        subject=subject, creator='Python / ReportLab',
+    )
+    story = []
+    build(story, make_styles(tighten), doc.width, cfg)
+    doc.build(story, onFirstPage=_draw_page, onLaterPages=_draw_page)
+    return doc.page
+
+
+def _passt_auf_eine_seite(out, cfg, subject):
+    """Baut das PDF und zieht nach, bis es auf eine Seite passt.
+
+    Gibt (seiten, tighten) des zuletzt geschriebenen PDFs zurück.
+    """
+    seiten = 0
+    for tighten in _FIT_STUFEN:
+        seiten = _baue_pdf(out, cfg, tighten, subject)
+        if seiten <= 1:
+            return seiten, tighten
+    return seiten, _FIT_STUFEN[-1]
 
 
 # ─── MAIN ────────────────────────────────────────────────────────────────────
 def main():
     os.makedirs(os.path.dirname(OUTPUT), exist_ok=True)
     register_fonts()
-
-    sty = make_styles()
-
-    doc = SimpleDocTemplate(
-        OUTPUT,
-        pagesize=A4,
-        leftMargin=L_MARGIN,
-        rightMargin=R_MARGIN,
-        topMargin=T_MARGIN,
-        bottomMargin=B_MARGIN,
-        title='Lebenslauf – Hamza Öztürk',
-        author='Hamza Öztürk',
-        subject='Bewerbung als Fullstack Entwickler',
-        creator='Python / ReportLab',
-    )
-
-    story = []
-    build(story, sty, doc.width)
-    doc.build(story, onFirstPage=_draw_page, onLaterPages=_draw_page)
+    seiten, tighten = _passt_auf_eine_seite(
+        OUTPUT, None, 'Bewerbung als Fullstack Entwickler')
+    if tighten:
+        _cprint('  (Zeilenabstand um %.1f pt nachgezogen, damit es auf eine '
+                'Seite passt)' % tighten)
+    if seiten > 1:
+        _cprint('  !! Passt trotz Nachziehen nicht auf eine Seite (%d Seiten).'
+                % seiten)
     print(f"PDF erfolgreich erstellt:\n  {OUTPUT}")
+    warne_offene_punkte()
     return 0
 
 
 def generate(output_path=None, cfg=None):
     """Public API – called from the GUI app."""
     register_fonts()
-    sty = make_styles()
     out = output_path or OUTPUT
     os.makedirs(os.path.dirname(out), exist_ok=True)
-    doc = SimpleDocTemplate(
-        out, pagesize=A4,
-        leftMargin=L_MARGIN, rightMargin=R_MARGIN,
-        topMargin=T_MARGIN, bottomMargin=B_MARGIN,
-        title='Lebenslauf – Hamza Öztürk', author='Hamza Öztürk',
-        subject=f'Bewerbung als {(cfg or {}).get("stelle", "Fullstack Entwickler")}',
-        creator='Python / ReportLab',
-    )
-    story = []
-    build(story, sty, doc.width, cfg)
-    doc.build(story, onFirstPage=_draw_page, onLaterPages=_draw_page)
+    _passt_auf_eine_seite(
+        out, cfg,
+        f'Bewerbung als {(cfg or {}).get("stelle", "Fullstack Entwickler")}')
     return out
 
 
