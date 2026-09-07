@@ -22,8 +22,11 @@ from reportlab.pdfbase import pdfmetrics
 from reportlab.pdfbase.ttfonts import TTFont
 
 # ─── PATHS ────────────────────────────────────────────────────────────────────
-OUTPUT        = r"C:\Users\hamza\Desktop\Lebenslauf\bewerbung_software_entwicker_herr_öztürk.pdf"
-SIGNATUR_PATH = r"C:\Users\hamza\Desktop\Lebenslauf\sıgnatur.png"
+# Relativ zum Skript, nicht fest auf einen Desktop-Pfad verdrahtet: sonst
+# schreibt jeder Lauf – auch aus einem Worktree – in denselben Ordner.
+BASE_DIR      = os.path.dirname(os.path.abspath(__file__))
+OUTPUT        = os.path.join(BASE_DIR, "bewerbung_software_entwicker_herr_öztürk.pdf")
+SIGNATUR_PATH = os.path.join(BASE_DIR, "sıgnatur.png")
 
 # ─── LAYOUT ──────────────────────────────────────────────────────────────────
 L_MARGIN  = 2.5 * cm
@@ -59,18 +62,25 @@ def register_fonts():
                       .replace('calibriz', 'arialbi'))
             pdfmetrics.registerFont(TTFont(name, fb))
 
+    # Ohne Familie findet ReportLab zu <b>/<i> keine passende Variante und
+    # setzt die Auszeichnungen still normal.
+    pdfmetrics.registerFontFamily(
+        'CV-R', normal='CV-R', bold='CV-B', italic='CV-I', boldItalic='CV-BI')
+    pdfmetrics.registerFontFamily(
+        'CV-B', normal='CV-B', bold='CV-B', italic='CV-BI', boldItalic='CV-BI')
+
 
 # ─── PARAGRAPH STYLES ────────────────────────────────────────────────────────
 def make_styles():
     def ps(name, font='CV-R', size=10, color=DARK, leading=None,
            spaceBefore=0, spaceAfter=0, align=TA_LEFT, leftIndent=0,
-           firstLineIndent=0):
+           firstLineIndent=0, **kw):
         return ParagraphStyle(
             name, fontName=font, fontSize=size, textColor=color,
             leading=leading or round(size * 1.4, 1),
             spaceBefore=spaceBefore, spaceAfter=spaceAfter,
             alignment=align, leftIndent=leftIndent,
-            firstLineIndent=firstLineIndent,
+            firstLineIndent=firstLineIndent, **kw,
         )
     return {
         'name':      ps('name',      'CV-B', 18, NAVY, leading=22),
@@ -85,7 +95,9 @@ def make_styles():
         'body':      ps('body',      'CV-R',  9.5, DARK, leading=13,
                         spaceAfter=3, align=TA_JUSTIFY),
         'bullet':    ps('bullet',    'CV-R',  9.5, DARK, leading=13,
-                        spaceAfter=1, leftIndent=14, firstLineIndent=-14),
+                        spaceAfter=1, leftIndent=14, bulletIndent=2,
+                        bulletFontName='CV-R', bulletFontSize=9.5,
+                        bulletColor=NAVY),
         'gruss':     ps('gruss',     'CV-R',  9.5, DARK, leading=13,
                         spaceBefore=1),
         'footer':    ps('footer',    'CV-R',  8.5, LGRAY, leading=11,
@@ -278,14 +290,20 @@ DEFAULT_CONFIG = {
         'Eigeninitiative mit, die Ihr Team weiterbringt.'
     ),
     'absatz_2': (
-        'In meiner aktuellen Rolle bei der Dicom GmbH habe ich '
-        'zuletzt konkrete Ergebnisse erzielt:'
+        'Aus meiner Arbeit bei Bike Haus Freiburg und zuvor der Dicom GmbH '
+        'bringe ich konkrete Ergebnisse mit:'
     ),
+    # Reihenfolge bewusst: erst was gebaut wurde, dann Kennzahlen. Eine
+    # Violations-Quote als erster Punkt sagt nichts über die Fachlichkeit aus.
     'highlights': [
-        'SonarQube-Violations um 99 % reduziert (2.100 → 30) in drei Wochen',
-        'Deployment-Zeiten um 40 % beschleunigt durch CI/CD-Pipeline-Aufbau',
-        'Monolithische ERP-Desktop-Anwendung erfolgreich auf Clean Architecture migriert',
-        'Systematisches Bug-Fixing und Feature-Entwicklung – von der Anforderungsanalyse bis zum Rollout',
+        'Komplettes ERP von WinForms auf <b>C#/.NET</b> und <b>Angular</b> migriert '
+        '– Clean Architecture, modulare API-Struktur, produktiv im Einsatz',
+        'Eigene Warenwirtschafts- und Vermietungsplattform konzipiert, entwickelt '
+        'und betrieben – über 2.000 Belege und 35.000 € Mietumsatz papierlos abgewickelt',
+        'Datenmodelle und Queries (<b>EF Core</b>, SQL Server) neu aufgebaut '
+        '– spürbar kürzere API-Antwortzeiten und Ladezeiten',
+        'CI/CD-Pipelines aufgebaut – Deployment-Zeit um 40 % reduziert, '
+        'SonarQube-Violations um 99 % gesenkt (2.100 → 30)',
     ],
     'absatz_3': (
         'Diese Kombination aus technischer Tiefe, Verständnis für '
@@ -388,7 +406,8 @@ def build(story, sty, W, cfg=None):
     highlights = cfg.get('highlights', [])
     if isinstance(highlights, list) and highlights:
         for item in highlights:
-            story.append(Paragraph(f'•&nbsp;&nbsp;{item}', sty['bullet']))
+            story.append(Paragraph(item, sty['bullet'],
+                                   bulletText=chr(0x2022)))
         story.append(Spacer(1, 2))
 
     # Remaining paragraphs
