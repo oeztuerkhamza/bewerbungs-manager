@@ -691,9 +691,17 @@ def build(story, sty, W, cfg=None):
         exp_header('Dicom GmbH – Full-Stack Entwickler '
                    '(verkürzte duale Ausbildung, IHK)', '02/2024 – 02/2026'),
         bul(
-            'Migration eines kompletten ERP-Systems von WinForms zu einer '
+            'Migration eines kompletten ERP-Systems für den '
+            '<b>Getränke-Großhandel</b> von WinForms zu einer '
             '<b>C#/.NET 10</b> + <b>Angular</b> Web-Lösung; Einführung einer '
             '<b>Clean Architecture</b> und modularen API-Struktur.',
+            sty['bullet'],
+        ),
+        bul(
+            'Fachlich über die gesamte Prozesskette umgesetzt: '
+            '<b>Stammdaten, Artikelverwaltung, Einkauf, Verkauf und '
+            'Leergut-/Pfandabwicklung</b> — von der Anforderungsanalyse über '
+            'die Entwicklung bis zum Rollout beim Kunden.',
             sty['bullet'],
         ),
         bul(
@@ -718,8 +726,7 @@ def build(story, sty, W, cfg=None):
         bul(
             'Betrieb der gesamten Infrastruktur in der <b>Azure Cloud</b> '
             '(Dev/Staging/Prod); REST-APIs inkl. KI-gestützter Tools zur '
-            'Beschleunigung von Entwicklungszyklen; Lösung mehrerer kritischer '
-            'Bugs in produktiven ERP-Modulen.',
+            'Beschleunigung von Entwicklungszyklen.',
             sty['bullet'],
         ),
     ]))

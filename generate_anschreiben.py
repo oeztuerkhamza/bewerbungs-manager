@@ -296,12 +296,13 @@ DEFAULT_CONFIG = {
     # Reihenfolge bewusst: erst was gebaut wurde, dann Kennzahlen. Eine
     # Violations-Quote als erster Punkt sagt nichts über die Fachlichkeit aus.
     'highlights': [
-        'Komplettes ERP von WinForms auf <b>C#/.NET</b> und <b>Angular</b> migriert '
-        '– Clean Architecture, modulare API-Struktur, produktiv im Einsatz',
+        'Komplettes ERP für den Getränke-Großhandel von WinForms auf '
+        '<b>C#/.NET</b> und <b>Angular</b> migriert – Clean Architecture, '
+        'produktiv im Einsatz',
+        'Fachlich über die gesamte Prozesskette gearbeitet: <b>Stammdaten, '
+        'Artikel, Einkauf, Verkauf und Leergut-/Pfandabwicklung</b>',
         'Eigene Warenwirtschafts- und Vermietungsplattform konzipiert, entwickelt '
         'und betrieben – über 2.000 Belege und 35.000 € Mietumsatz papierlos abgewickelt',
-        'Datenmodelle und Queries (<b>EF Core</b>, SQL Server) neu aufgebaut '
-        '– spürbar kürzere API-Antwortzeiten und Ladezeiten',
         'CI/CD-Pipelines aufgebaut – Deployment-Zeit um 40 % reduziert, '
         'SonarQube-Violations um 99 % gesenkt (2.100 → 30)',
     ],

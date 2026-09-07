@@ -53,6 +53,9 @@ Freiberufliche Softwareentwicklung (nebenberuflich) | 03/2026 – heute
 
 Fachinformatiker für Anwendungsentwicklung (verkürzte duale Ausbildung, IHK)
 Dicom GmbH, Freiburg im Breisgau | 02/2024 – 02/2026
+• Fachlichkeit: ERP für den Getränke-Großhandel (DI-ONE) über die gesamte
+  Prozesskette – Stammdaten, Artikelverwaltung, Einkauf, Verkauf und
+  Leergut-/Pfandabwicklung; von der Anforderungsanalyse bis zum Rollout.
 • Full-Stack & Architektur: Feature-Entwicklung in C#/.NET (Backend) und
   Angular (Frontend); Migration monolithischer Desktop-Apps auf Clean Architecture.
 • CI/CD & Code-Qualität: GitHub Actions-Pipelines aufgebaut – Deployment-Zeit
