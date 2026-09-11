@@ -85,7 +85,7 @@ AUSBILDUNG:
 • 02/2024 – 02/2026: Fachinformatiker für Anwendungsentwicklung (IHK),
   verkürzte duale Ausbildung – Walther-Rathenau-Gewerbeschule Freiburg,
   Ausbildungsbetrieb Dicom GmbH
-• 02/2023 – 12/2023: Deutsch-Sprachausbildung bis C1, Deutsches Kolleg Stuttgart
+• 02/2023 – 12/2023: Deutsch-Sprachausbildung bis C1, Deutschkolleg Stuttgart
 • 05/2022 – 03/2023: Data Analytics & Visualization (260 Std.), Clarusway IT School
 • 10/2019 – 08/2022: Wirtschaftsingenieurwesen, TU Istanbul (İTÜ) – ohne Abschluss
 • 08/2015 – 07/2019: Militärwissenschaften – ohne Abschluss,

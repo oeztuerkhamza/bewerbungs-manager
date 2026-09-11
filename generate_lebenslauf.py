@@ -437,7 +437,7 @@ BILDUNGSWEG = [
     {
         'period': '02/2023 – 12/2023',
         'title':  'Deutsch-Sprachausbildung – Abschluss C1',
-        'inst':   'Deutsches Kolleg, Stuttgart',
+        'inst':   'Deutschkolleg Stuttgart',
     },
     {
         'period': '05/2022 – 03/2023',
