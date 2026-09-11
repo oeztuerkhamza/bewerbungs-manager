@@ -32,7 +32,7 @@ ich SonarQube-Violations innerhalb von 3 Wochen um ~99 % (2.100 → 30) gesenkt,
 CI/CD-Pipelines aufgebaut und eine Legacy-ERP-Anwendung auf Clean Architecture
 migriert. Seit 03/2026 verantworte ich in Festanstellung bei Bike Haus
 Freiburg eine produktiv genutzte Warenwirtschafts- und Vermietungsplattform
-(.NET 9 / Angular 17) und rolle sie freiberuflich für weitere Betriebe aus.
+(.NET 9 / Angular 17).
 
 BERUFSERFAHRUNG:
 Full-Stack Entwickler (Festanstellung)
@@ -46,10 +46,6 @@ Bike Haus Freiburg | 03/2026 – heute
   342.000 Impressionen und 13.000 Klicks in 6 Monaten (CTR 3,8 %, Ø-Position 9).
 • DevOps: 6-Container-Docker-Stack auf eigenem VPS, GitHub Actions CI/CD mit
   Zero-Downtime-Deployment, Nginx, Mailcow-Mailserver (DKIM/SPF/DMARC).
-
-Freiberufliche Softwareentwicklung (nebenberuflich) | 03/2026 – heute
-• Web- und Warenwirtschaftslösungen für eigene Kunden: Ausrollung der
-  eigenen Fahrrad-Plattform auf zwei weitere Betriebe sowie Zerin Gold.
 
 Fachinformatiker für Anwendungsentwicklung (verkürzte duale Ausbildung, IHK)
 Dicom GmbH, Freiburg im Breisgau | 02/2024 – 02/2026

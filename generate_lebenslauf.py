@@ -673,19 +673,6 @@ def build(story, sty, W, cfg=None):
     ]))
     story.append(Spacer(1, 2))
 
-    # — Freiberufliche Softwareentwicklung (parallel zur Festanstellung)
-    story.append(KeepTogether([
-        exp_header('Freiberufliche Softwareentwicklung (nebenberuflich)',
-                   '03/2026 – heute'),
-        bul(
-            'Web- und Warenwirtschaftslösungen für eigene Kunden: Ausrollung '
-            'der eigenen Fahrrad-Plattform auf zwei weitere Betriebe sowie '
-            'Zerin Gold (siehe Projekte).',
-            sty['bullet'],
-        ),
-    ]))
-    story.append(Spacer(1, 2))
-
     # — Dicom GmbH
     story.append(KeepTogether([
         exp_header('Dicom GmbH – Full-Stack Entwickler '
