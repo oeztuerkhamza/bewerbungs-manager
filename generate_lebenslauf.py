@@ -678,9 +678,9 @@ def build(story, sty, W, cfg=None):
         exp_header('Freiberufliche Softwareentwicklung (nebenberuflich)',
                    '03/2026 – heute'),
         bul(
-            'Web- und Warenwirtschaftslösungen für eigene Kunden: Rollout der '
-            'Fahrrad-Plattform auf zwei weitere Betriebe sowie Zerin Gold '
-            '(siehe Projekte).',
+            'Web- und Warenwirtschaftslösungen für eigene Kunden: Ausrollung '
+            'der eigenen Fahrrad-Plattform auf zwei weitere Betriebe sowie '
+            'Zerin Gold (siehe Projekte).',
             sty['bullet'],
         ),
     ]))
@@ -734,31 +734,11 @@ def build(story, sty, W, cfg=None):
     # ── 4  PROJEKTE ──────────────────────────────────────────────────────────
     story.extend(sec('PROJEKTE', sty))
 
-    # — Ausrollung der Fahrrad-Plattform auf weitere Geschäfte
-    story.append(KeepTogether([
-        Paragraph(
-            b('Rollout der Fahrrad-Plattform')
-            + ' <font color="#1B3764">(freiberuflich · 2× weitere Live-Installationen)</font>'
-            + '&#160;&#160;'
-            + lnk('https://karaarslan-bike.de', 'karaarslan-bike.de')
-            + '&#160;&#160;<font color="#1B3764">|</font>&#160;&#160;'
-            + lnk('https://benlirad.de', 'benlirad.de'),
-            sty['entry_title'],
-        ),
-        bul(
-            'Ausrollung des eigenen Warenwirtschaftssystems als wiederverwendbares '
-            'Produkt für zwei weitere Fahrradgeschäfte: eigenes Branding, '
-            'Standort- und Preislogik, separate Docker-Deployments inkl. '
-            'Mailserver und CI/CD.',
-            sty['bullet'],
-        ),
-    ]))
-
-    # — Kulturplattform
+    # — Kulturplattform (ehrenamtlich)
     story.append(KeepTogether([
         Paragraph(
             b('Kulturplattform Freiburg e.V.')
-            + ' <font color="#1B3764">(Live)</font>'
+            + ' <font color="#1B3764">(ehrenamtliche Arbeit · Live)</font>'
             + '&#160;&#160;'
             + lnk('https://kulturplattformfreiburg.org',
                   'kulturplattformfreiburg.org')
@@ -768,7 +748,7 @@ def build(story, sty, W, cfg=None):
             sty['entry_title'],
         ),
         bul(
-            '.NET 10, React 19, Docker Compose — Ehrenamtliche '
+            '<b>.NET 10</b>, <b>React 19</b>, Docker Compose — '
             'Full-Stack-Entwicklung: Admin-Panel, Newsletter-System, '
             'Bildverarbeitung, DE/TR-Zweisprachigkeit.',
             sty['bullet'],

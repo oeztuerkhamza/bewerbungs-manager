@@ -48,8 +48,8 @@ Bike Haus Freiburg | 03/2026 – heute
   Zero-Downtime-Deployment, Nginx, Mailcow-Mailserver (DKIM/SPF/DMARC).
 
 Freiberufliche Softwareentwicklung (nebenberuflich) | 03/2026 – heute
-• Web- und Warenwirtschaftslösungen für eigene Kunden: Rollout der
-  Fahrrad-Plattform auf zwei weitere Betriebe sowie Zerin Gold.
+• Web- und Warenwirtschaftslösungen für eigene Kunden: Ausrollung der
+  eigenen Fahrrad-Plattform auf zwei weitere Betriebe sowie Zerin Gold.
 
 Fachinformatiker für Anwendungsentwicklung (verkürzte duale Ausbildung, IHK)
 Dicom GmbH, Freiburg im Breisgau | 02/2024 – 02/2026
@@ -70,24 +70,19 @@ DevOps & Tools: Docker, GitHub Actions, Azure Pipelines, SonarQube/Cloud, Git, C
 KI & Analytics: OpenAI API, Prompt Engineering, Python, SQL, Tableau, Web-Scraping
 
 PROJEKTE:
-1) Rollout der Fahrrad-Plattform (freiberuflich) – karaarslan-bike.de, benlirad.de
-   Eigenes Warenwirtschaftssystem als wiederverwendbares Produkt für zwei
-   weitere Fahrradgeschäfte: eigenes Branding, Standort- und Preislogik,
-   separate Docker-Deployments inkl. Mailserver und CI/CD.
-
-2) Zerin Gold (zerin-gold.de) – freiberuflich, Live
+1) Zerin Gold (zerin-gold.de) – freiberuflich, Live
    Next.js 16, TypeScript, PostgreSQL 16/Prisma 7, Redis, Auth.js v5 (Argon2 + 2FA).
    7-sprachig inkl. RTL, White-Label-Architektur, Live-Goldpreis-Engine.
 
-3) Kulturplattform Freiburg e.V. (kulturplattformfreiburg.org) – Ehrenamtlich
+2) Kulturplattform Freiburg e.V. (kulturplattformfreiburg.org) – ehrenamtliche Arbeit
    Vereinswebsite mit Admin-Panel, Newsletter, DE/TR-Zweisprachigkeit.
    .NET 10 Clean Architecture, React 19, Docker Compose.
 
-4) DI-ONE – Enterprise Getränke-ERP (Dicom GmbH)
+3) DI-ONE – Enterprise Getränke-ERP (Dicom GmbH)
    .NET 9, Clean Architecture, 40+ API-Controller, OpenAI Assistants v2.
    Angular 19, NgRx. CI/CD: Azure Pipelines, SonarCloud.
 
-5) DI-FLUX – Zeiterfassungssystem (IHK-Abschlussprojekt)
+4) DI-FLUX – Zeiterfassungssystem (IHK-Abschlussprojekt)
    Angular, C#/.NET, SQL Server, JWT-Authentifizierung.
 
 AUSBILDUNG:
