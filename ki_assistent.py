@@ -76,7 +76,7 @@ PROJEKTE:
    .NET 10 Clean Architecture, React 19, Docker Compose.
 
 3) DI-ONE – Enterprise Getränke-ERP (Dicom GmbH)
-   .NET 9, Clean Architecture, 40+ API-Controller, OpenAI Assistants v2.
+   .NET 10, Clean Architecture, 40+ API-Controller, OpenAI Assistants v2.
    Angular 19, NgRx. CI/CD: Azure Pipelines, SonarCloud.
 
 4) DI-FLUX – Zeiterfassungssystem (IHK-Abschlussprojekt)

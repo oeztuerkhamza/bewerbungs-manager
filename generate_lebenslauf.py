@@ -681,7 +681,7 @@ def build(story, sty, W, cfg=None):
         bul(
             'Mitarbeit an der Migration eines kompletten ERP-Systems für den '
             '<b>Getränke-Großhandel</b> von WinForms zu einer '
-            '<b>C#/.NET</b> + <b>Angular</b> Web-Lösung; Einführung einer '
+            '<b>C#/.NET 10</b> + <b>Angular 19</b> Web-Lösung; Einführung einer '
             '<b>Clean Architecture</b> und modularen API-Struktur im Team.',
             sty['bullet'],
         ),
