@@ -466,9 +466,9 @@ BILDUNGSWEG = [
 # Versand geklaert werden muessen. Werden beim Build ausgegeben.
 # Bewusst NICHT im Lebenslauf: IHK-Abschlussnote 2,8 (befriedigend). Note wird
 # nur genannt, wenn sie gut ist; die Zeugnisse liegen der Bewerbung ohnehin bei.
-OFFENE_FRAGEN = [
-    'Işıklar-Gymnasium: Ort "Bursa" bitte bestätigen.',
-]
+# Alles bestätigt. Neue offene Punkte hier eintragen, sie werden nach dem
+# Build ausgegeben (siehe warne_offene_punkte).
+OFFENE_FRAGEN = []
 
 
 def _cprint(text):
