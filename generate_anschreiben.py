@@ -24,8 +24,11 @@ from reportlab.pdfbase.ttfonts import TTFont
 from pdf_text_utils import esc, esc_rich
 
 # ─── PATHS ────────────────────────────────────────────────────────────────────
-OUTPUT        = r"C:\Users\hamza\Desktop\Lebenslauf\bewerbung_software_entwicker_herr_öztürk.pdf"
-SIGNATUR_PATH = r"C:\Users\hamza\Desktop\Lebenslauf\sıgnatur.png"
+# Relativ zum Skript, nicht fest auf einen Desktop-Pfad verdrahtet: sonst
+# schreibt jeder Lauf – auch aus einem Worktree – in denselben Ordner.
+BASE_DIR      = os.path.dirname(os.path.abspath(__file__))
+OUTPUT        = os.path.join(BASE_DIR, "bewerbung_software_entwicker_herr_öztürk.pdf")
+SIGNATUR_PATH = os.path.join(BASE_DIR, "sıgnatur.png")
 
 # ─── LAYOUT ──────────────────────────────────────────────────────────────────
 L_MARGIN  = 2.5 * cm
@@ -78,18 +81,25 @@ def register_fonts():
         pdfmetrics.registerFont(
             pdfmetrics.Font(name, _STD_FALLBACK[name], 'WinAnsiEncoding'))
 
+    # Ohne Familie findet ReportLab zu <b>/<i> keine passende Variante und
+    # setzt die Auszeichnungen still normal.
+    pdfmetrics.registerFontFamily(
+        'CV-R', normal='CV-R', bold='CV-B', italic='CV-I', boldItalic='CV-BI')
+    pdfmetrics.registerFontFamily(
+        'CV-B', normal='CV-B', bold='CV-B', italic='CV-BI', boldItalic='CV-BI')
+
 
 # ─── PARAGRAPH STYLES ────────────────────────────────────────────────────────
 def make_styles():
     def ps(name, font='CV-R', size=10, color=DARK, leading=None,
            spaceBefore=0, spaceAfter=0, align=TA_LEFT, leftIndent=0,
-           firstLineIndent=0):
+           firstLineIndent=0, **kw):
         return ParagraphStyle(
             name, fontName=font, fontSize=size, textColor=color,
             leading=leading or round(size * 1.4, 1),
             spaceBefore=spaceBefore, spaceAfter=spaceAfter,
             alignment=align, leftIndent=leftIndent,
-            firstLineIndent=firstLineIndent,
+            firstLineIndent=firstLineIndent, **kw,
         )
     return {
         'name':      ps('name',      'CV-B', 18, NAVY, leading=22),
@@ -104,7 +114,9 @@ def make_styles():
         'body':      ps('body',      'CV-R',  9.5, DARK, leading=13,
                         spaceAfter=3, align=TA_JUSTIFY),
         'bullet':    ps('bullet',    'CV-R',  9.5, DARK, leading=13,
-                        spaceAfter=1, leftIndent=14, firstLineIndent=-14),
+                        spaceAfter=1, leftIndent=14, bulletIndent=2,
+                        bulletFontName='CV-R', bulletFontSize=9.5,
+                        bulletColor=NAVY),
         'gruss':     ps('gruss',     'CV-R',  9.5, DARK, leading=13,
                         spaceBefore=1),
         'footer':    ps('footer',    'CV-R',  8.5, LGRAY, leading=11,
@@ -291,31 +303,42 @@ DEFAULT_CONFIG = {
     'absatz_1': (
         'mit großem Interesse habe ich Ihre Stellenausschreibung als '
         'Fullstack Entwickler gelesen. Als ausgebildeter '
-        '<b>Fachinformatiker für Anwendungsentwicklung</b> mit '
-        'fundierter Praxis in <b>C#/.NET</b> und <b>Angular</b> '
-        'bringe ich genau die Kombination aus technischer Tiefe und '
-        'Eigeninitiative mit, die Ihr Team weiterbringt.'
+        '<b>Fachinformatiker für Anwendungsentwicklung</b> entwickle ich '
+        'Software, die Geschäftsprozesse vom Papier in ein laufendes System '
+        'überführt – mit <b>C#/.NET</b> und <b>Angular</b> in der Anwendung, '
+        'Docker und CI/CD im Betrieb.'
     ),
     'absatz_2': (
-        'In meiner aktuellen Rolle bei der Dicom GmbH habe ich '
-        'zuletzt konkrete Ergebnisse erzielt:'
+        'Aus meiner Arbeit bei Bike Haus Freiburg und zuvor der Dicom GmbH '
+        'bringe ich konkrete Ergebnisse mit:'
     ),
+    # Reihenfolge bewusst: erst was gebaut wurde, dann Kennzahlen. Eine
+    # Violations-Quote als erster Punkt sagt nichts über die Fachlichkeit aus.
     'highlights': [
-        'SonarQube-Violations um 99 % reduziert (2.100 → 30) in drei Wochen',
-        'Deployment-Zeiten um 40 % beschleunigt durch CI/CD-Pipeline-Aufbau',
-        'Monolithische ERP-Desktop-Anwendung erfolgreich auf Clean Architecture migriert',
-        'Systematisches Bug-Fixing und Feature-Entwicklung – von der Anforderungsanalyse bis zum Rollout',
+        'Eigene Warenwirtschafts- und Vermietungsplattform konzipiert, '
+        'entwickelt und im Tagesgeschäft betrieben – <b>Vermietung, An- und '
+        'Verkauf laufen papierlos</b>, über 2.000 Belege und 35.000 € '
+        'Mietumsatz',
+        'Im Team ein ERP für den Getränke-Großhandel von WinForms auf '
+        '<b>C#/.NET</b> und <b>Angular</b> migriert – Clean Architecture, '
+        'produktiv im Einsatz',
+        'Fachlich über die gesamte Prozesskette gearbeitet: <b>Stammdaten, '
+        'Artikel, Einkauf, Verkauf und Leergut-/Pfandabwicklung</b>',
+        'Betrieb selbst aufgebaut und automatisiert: Docker-Stack, CI/CD mit '
+        'Zero-Downtime-Deployment, eigener Mailserver – Deployment-Zeit um '
+        '40 % reduziert',
     ],
     'absatz_3': (
-        'Diese Kombination aus technischer Tiefe, Verständnis für '
-        'Unternehmensprozesse und Erfahrung im 3rd-Level-Support '
-        'macht mich zu einem Entwickler, der nicht nur Code schreibt – '
-        'sondern mitdenkt.'
+        'Was ich mitbringe, endet nicht beim Rollout: Ich nehme bestehende '
+        'Abläufe auf, modelliere sie, baue die Anwendung und übernehme '
+        'anschließend Deployment, Monitoring und Wartung. Dadurch weiß ich '
+        'aus der Praxis, welche Entscheidungen im laufenden Betrieb später '
+        'Zeit und Geld kosten – und treffe sie vorher anders.'
     ),
     'absatz_4': (
-        'Ich freue mich auf ein persönliches Gespräch, um Sie davon '
-        'zu überzeugen, wie ich Ihre Projekte technisch und menschlich '
-        'voranbringe.'
+        'Über ein persönliches Gespräch, in dem ich Ihre Abläufe und Ihre '
+        'Systemlandschaft kennenlernen kann, würde ich mich sehr freuen. '
+        'Meinen Eintrittstermin stimme ich gern mit Ihnen ab.'
     ),
     'absatz_5': '',
     'gehalt':           '',
@@ -407,7 +430,8 @@ def build(story, sty, W, cfg=None):
     highlights = cfg.get('highlights', [])
     if isinstance(highlights, list) and highlights:
         for item in highlights:
-            story.append(Paragraph(f'•&nbsp;&nbsp;{esc_rich(item)}', sty['bullet']))
+            story.append(Paragraph(esc_rich(item), sty['bullet'],
+                                   bulletText=chr(0x2022)))
         story.append(Spacer(1, 2))
 
     # Remaining paragraphs

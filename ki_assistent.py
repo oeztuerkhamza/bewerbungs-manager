@@ -31,11 +31,28 @@ Ausbildung) und praktischer Projektarbeit habe ich mein Profil geschärft. Bei
 Dicom GmbH habe
 ich SonarQube-Violations innerhalb von 3 Wochen um ~99 % (2.100 → 30) gesenkt,
 CI/CD-Pipelines aufgebaut und eine Legacy-ERP-Anwendung auf Clean Architecture
-migriert. Nebenbei betreibe ich eigene Open-Source-Projekte.
+migriert. Seit 03/2026 verantworte ich in Festanstellung bei Bike Haus
+Freiburg eine produktiv genutzte Warenwirtschafts- und Vermietungsplattform
+(.NET 9 / Angular 17).
 
 BERUFSERFAHRUNG:
-Fachinformatiker für Anwendungsentwicklung (Softwareentwickler-Niveau)
+Full-Stack Entwickler (Festanstellung)
+Bike Haus Freiburg | 03/2026 – heute
+• Eigene Warenwirtschafts- und Vermietungsplattform (.NET 9, Angular 17, SSR):
+  40 Controller, 46 Domain-Entities, 130+ EF-Core-Migrationen, produktiv im Einsatz.
+• Vermietung und Warenwirtschaft papierlos: 405 Mietverträge mit 35.000 €
+  Mietumsatz, 696 Ankäufe,
+  990 Verkäufe – über 2.000 Belege digital erzeugt (2026).
+• SEO der SSR-Homepage (12 Sprachen mit hreflang, Prerendering, IndexNow):
+  342.000 Impressionen und 13.000 Klicks in 6 Monaten (CTR 3,8 %, Ø-Position 9).
+• DevOps: 6-Container-Docker-Stack auf eigenem VPS, GitHub Actions CI/CD mit
+  Zero-Downtime-Deployment, Nginx, Mailcow-Mailserver (DKIM/SPF/DMARC).
+
+Fachinformatiker für Anwendungsentwicklung (verkürzte duale Ausbildung, IHK)
 Dicom GmbH, Freiburg im Breisgau | 02/2024 – 02/2026
+• Fachlichkeit: ERP für den Getränke-Großhandel (DI-ONE) über die gesamte
+  Prozesskette – Stammdaten, Artikelverwaltung, Einkauf, Verkauf und
+  Leergut-/Pfandabwicklung; von der Anforderungsanalyse bis zum Rollout.
 • Full-Stack & Architektur: Feature-Entwicklung in C#/.NET (Backend) und
   Angular (Frontend); Migration monolithischer Desktop-Apps auf Clean Architecture.
 • CI/CD & Code-Qualität: GitHub Actions-Pipelines aufgebaut – Deployment-Zeit
@@ -50,12 +67,11 @@ DevOps & Tools: Docker, GitHub Actions, Azure Pipelines, SonarQube/Cloud, Git, C
 KI & Analytics: OpenAI API, Prompt Engineering, Python, SQL, Tableau, Web-Scraping
 
 PROJEKTE:
-1) Bikehaus Freiburg (bikehausfreiburg.com) – Live Produkt
-   Digitale Warenwirtschaft: 
-    selbstentwickelte ERP-Software mit C#/.NET Backend, Angular Frontend, SQLite DB.
-   Stack: C#/.NET, SQLite, EF Core, QuestPDF, Angular 19, Docker, Nginx.
+1) Zerin Gold (zerin-gold.de) – freiberuflich, Live
+   Next.js 16, TypeScript, PostgreSQL 16/Prisma 7, Redis, Auth.js v5 (Argon2 + 2FA).
+   7-sprachig inkl. RTL, White-Label-Architektur, Live-Goldpreis-Engine.
 
-2) Kulturplattform Freiburg e.V. (kulturplattformfreiburg.org) – Ehrenamtlich
+2) Kulturplattform Freiburg e.V. (kulturplattformfreiburg.org) – ehrenamtliche Arbeit
    Vereinswebsite mit Admin-Panel, Newsletter, DE/TR-Zweisprachigkeit.
    .NET 10 Clean Architecture, React 19, Docker Compose.
 
@@ -67,14 +83,21 @@ PROJEKTE:
    Angular, C#/.NET, SQL Server, JWT-Authentifizierung.
 
 AUSBILDUNG:
-• 09/2024 – 12/2025: Berufsschule Fachinformatiker, Walther-Rathenau-Gewerbeschule Freiburg
-• 02/2023 – 12/2023: Sprachausbildung Deutsch, Deutsches Kolleg Stuttgart
-• 05/2022 – 12/2022: Data Analytics & Visualization (260 Std.), Clarusway IT School
-• 10/2019 – 08/2022: Wirtschaftsingenieurwesen, TU Istanbul (ITÜ)
-• 08/2015 – 07/2018: Militärwissenschaften, Türkische Luftwaffenakademie Istanbul
+• 02/2024 – 02/2026: Fachinformatiker für Anwendungsentwicklung (IHK),
+  verkürzte duale Ausbildung – Walther-Rathenau-Gewerbeschule Freiburg,
+  Ausbildungsbetrieb Dicom GmbH
+• 02/2023 – 12/2023: Deutsch-Sprachausbildung bis C1, Deutschkolleg Stuttgart
+• 05/2022 – 03/2023: Data Analytics & Visualization (260 Std.), Clarusway IT School
+• 10/2019 – 08/2022: Wirtschaftsingenieurwesen, TU Istanbul (İTÜ) – ohne Abschluss
+• 08/2015 – 07/2019: Militärwissenschaften – ohne Abschluss,
+  Türkische Luftwaffenakademie Istanbul
+• 2010 – 2015: Schulabschluss (Lise), Işıklar Militärgymnasium der Luftwaffe, Bursa
 
 SPRACHEN:
-Türkisch: Muttersprache | Deutsch: B2 | Englisch: B2
+Türkisch: Muttersprache | Deutsch: C1 (verhandlungssicher) | Englisch: B2
+
+SONSTIGES:
+Führerschein Klasse B | Aufenthalts- und Arbeitserlaubnis vorhanden
 """
 
 
@@ -422,6 +445,13 @@ GRENZEN (immer gültig):
   nicht mit Java. Verlangt die Stelle Java, nenne C#/.NET als stark vergleichbare
   Plattform – erfinde aber keine Java-Erfahrung.
 
+STIL (immer gültig):
+- Belege Aussagen mit konkreten Zahlen aus dem Profil statt mit Adjektiven.
+  Verzichte auf Floskeln wie "teamfähig", "lernbereit", "hoch motiviert"
+  oder "genau die Kombination, die Ihr Team weiterbringt".
+- Bei der Digitalisierung immer beides betonen: Aufbau (Datenmodell, API,
+  Frontend) und anschließender Betrieb (Docker, CI/CD, Server, Monitoring).
+
 WICHTIG – Anschreiben-Anpassung:
 - Beziehe dich konkret auf die Anforderungen der Stelle und den ROLLEN-FOKUS.
 - Verwende <b>HTML-Bold-Tags</b> für Hervorhebungen. Jeder Absatz 3–5 Sätze.
@@ -442,6 +472,12 @@ WICHTIG – Bewerbungs-E-Mail:
 - email_text: Der E-Mail-Text. Kurz (5-8 Sätze), höflich, professionell.
   Erwähne die Stelle, verweise auf die Anhänge (Lebenslauf & Anschreiben),
   und schließe mit freundlichen Grüßen.
+- Die E-Mail MUSS mindestens ein konkretes Ergebnis mit Zahl aus dem Profil
+  nennen (z.B. papierlose Abwicklung von über 2.000 Belegen, 35.000 EUR
+  Mietumsatz, Deployment-Zeit um 40 % reduziert). Eine E-Mail, die nur
+  "ich bewerbe mich und freue mich auf Ihre Antwort" sagt, ist unbrauchbar.
+- Stelle einen Bezug zur Firma her: was sie tut und wo dabei
+  Digitalisierung oder Systembetrieb eine Rolle spielt.
   Verwende KEINE HTML-Tags. Am Ende immer:
   Mit freundlichen Grüßen
   Hamza Öztürk
