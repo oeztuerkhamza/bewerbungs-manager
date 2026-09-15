@@ -33,12 +33,12 @@ ich SonarQube-Violations innerhalb von 3 Wochen um ~99 % (2.100 → 30) gesenkt,
 CI/CD-Pipelines aufgebaut und eine Legacy-ERP-Anwendung auf Clean Architecture
 migriert. Seit 03/2026 verantworte ich in Festanstellung bei Bike Haus
 Freiburg eine produktiv genutzte Warenwirtschafts- und Vermietungsplattform
-(.NET 9 / Angular 17).
+(.NET 10 / Angular 22).
 
 BERUFSERFAHRUNG:
 Full-Stack Entwickler (Festanstellung)
 Bike Haus Freiburg | 03/2026 – heute
-• Eigene Warenwirtschafts- und Vermietungsplattform (.NET 9, Angular 17, SSR):
+• Eigene Warenwirtschafts- und Vermietungsplattform (.NET 10, Angular 22, SSR):
   40 Controller, 46 Domain-Entities, 130+ EF-Core-Migrationen, produktiv im Einsatz.
 • Vermietung und Warenwirtschaft papierlos: 405 Mietverträge mit 35.000 €
   Mietumsatz, 696 Ankäufe,
@@ -62,7 +62,7 @@ Dicom GmbH, Freiburg im Breisgau | 02/2024 – 02/2026
 
 IT-KENNTNISSE:
 Backend: C#, .NET Core, ASP.NET Core, Clean Architecture, EF Core, RESTful APIs, SQLite, SQL Server
-Frontend: Angular (17/19), TypeScript, React 19, Tailwind CSS, NgRx, Infragistics
+Frontend: Angular (19–22), TypeScript, React 19, Tailwind CSS, NgRx, Infragistics
 DevOps & Tools: Docker, GitHub Actions, Azure Pipelines, SonarQube/Cloud, Git, CI/CD, Netcup VPS
 KI & Analytics: OpenAI API, Prompt Engineering, Python, SQL, Tableau, Web-Scraping
 

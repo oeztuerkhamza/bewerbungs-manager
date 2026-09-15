@@ -636,8 +636,8 @@ def build(story, sty, W, cfg=None):
         ),
         bul(
             'Konzeption, Entwicklung und Betrieb einer eigenen Warenwirtschafts- '
-            'und Vermietungsplattform: <b>.NET 9</b>-API (40 Controller, '
-            '46 Domain-Entities, 130+ EF-Core-Migrationen), <b>Angular 17</b> '
+            'und Vermietungsplattform: <b>.NET 10</b>-API (40 Controller, '
+            '46 Domain-Entities, 130+ EF-Core-Migrationen), <b>Angular 22</b> '
             'Admin-SPA und SSR-Homepage — im täglichen Geschäftsbetrieb produktiv.',
             sty['bullet'],
         ),
@@ -778,7 +778,7 @@ def build(story, sty, W, cfg=None):
          'C#, .NET Core, ASP.NET Core, Clean Architecture, EF Core, Web-Scraping, '
          'RESTful APIs, xUnit'),
         ('Frontend',
-         'Angular (17/19), TypeScript, React 19, Tailwind CSS, NgRx, HTML, '
+         'Angular (19–22), TypeScript, React 19, Tailwind CSS, NgRx, HTML, '
          'Infragistics'),
         ('Datenbanken',
          'SQL Server, SQLite, PostgreSQL'),
