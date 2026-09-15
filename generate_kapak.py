@@ -17,6 +17,8 @@ from reportlab.lib.enums import TA_LEFT, TA_CENTER
 from reportlab.pdfbase import pdfmetrics
 from reportlab.pdfbase.ttfonts import TTFont
 
+from pdf_text_utils import esc
+
 # ─── PATHS ───────────────────────────────────────────────────────────────────
 OUTPUT = r"C:\Users\hamza\Desktop\Lebenslauf\Hamza_Oeztuerk_Kapak.pdf"
 FOTO_PATH = r"C:\Users\hamza\Desktop\Lebenslauf\foto_small.jpeg"
@@ -57,16 +59,31 @@ _FONT_MAP = {
 }
 
 
+_FALLBACK_TTF = {
+    'CV-R':  os.path.join(WIN_FONTS, 'arial.ttf'),
+    'CV-B':  os.path.join(WIN_FONTS, 'arialbd.ttf'),
+    'CV-I':  os.path.join(WIN_FONTS, 'ariali.ttf'),
+    'CV-BI': os.path.join(WIN_FONTS, 'arialbi.ttf'),
+}
+_STD_FALLBACK = {
+    'CV-R':  'Helvetica',
+    'CV-B':  'Helvetica-Bold',
+    'CV-I':  'Helvetica-Oblique',
+    'CV-BI': 'Helvetica-BoldOblique',
+}
+
+
 def register_fonts():
     for name, path in _FONT_MAP.items():
         if os.path.exists(path):
             pdfmetrics.registerFont(TTFont(name, path))
-        else:
-            fb = (path.replace('calibri', 'arial')
-                      .replace('calibrib', 'arialbd')
-                      .replace('calibrii', 'ariali')
-                      .replace('calibriz', 'arialbi'))
+            continue
+        fb = _FALLBACK_TTF.get(name)
+        if fb and os.path.exists(fb):
             pdfmetrics.registerFont(TTFont(name, fb))
+            continue
+        pdfmetrics.registerFont(
+            pdfmetrics.Font(name, _STD_FALLBACK[name], 'WinAnsiEncoding'))
 
 
 # ─── PARAGRAPH STYLES ────────────────────────────────────────────────────────
@@ -127,10 +144,11 @@ class PhotoFrame(Flowable):
     def draw(self):
         c = self.canv
         b = self.border
-        c.saveState()
-        c.drawImage(self.img_path, b, b, self.img_w, self.img_h,
-                    preserveAspectRatio=False)
-        c.restoreState()
+        if os.path.isfile(self.img_path):
+            c.saveState()
+            c.drawImage(self.img_path, b, b, self.img_w, self.img_h,
+                        preserveAspectRatio=False)
+            c.restoreState()
         c.saveState()
         c.setStrokeColor(NAVY)
         c.setLineWidth(b)
@@ -185,14 +203,14 @@ def build(story, sty, W, cfg=None):
     
     stelle = cfg.get('stelle', 'Software Entwickler')
     story.append(Paragraph(
-        f'Bewerbung als {stelle}',
+        f'Bewerbung als {esc(stelle)}',
         sty['subtitle'],
     ))
 
     story.append(Spacer(1, GAP_TITLE_TO_ANLAGEN))
     story.append(Paragraph('Anlagen:', sty['anlagen']))
     story.append(Spacer(1, 0.2 * cm))
-    story.append(Paragraph(cfg.get('anlagen', ''), sty['anlagen_list']))
+    story.append(Paragraph(esc(cfg.get('anlagen', '')), sty['anlagen_list']))
 
 
 # ─── MAIN ─────────────────────────────────────────────────────────────────---

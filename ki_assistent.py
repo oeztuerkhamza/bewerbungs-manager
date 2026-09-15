@@ -7,6 +7,7 @@ Liest Stellenanzeigen und erstellt maßgeschneiderte Bewerbungsunterlagen.
 
 import json
 import re
+import time
 import urllib.request
 import urllib.error
 import urllib.parse
@@ -300,7 +301,7 @@ def _parse_claude_json(text):
 
 def _request_claude(api_key, system_prompt, user_msg, max_tokens=8192):
     body = json.dumps({
-        "model": "claude-sonnet-4-20250514",
+        "model": "claude-sonnet-4-6",
         "max_tokens": max_tokens,
         "system": system_prompt,
         "messages": [{"role": "user", "content": user_msg}],
@@ -317,17 +318,54 @@ def _request_claude(api_key, system_prompt, user_msg, max_tokens=8192):
         method='POST',
     )
 
-    try:
-        resp = urllib.request.urlopen(req, timeout=90)
-    except urllib.error.HTTPError as e:
-        err_body = e.read().decode('utf-8', errors='replace')
-        raise RuntimeError(f'Claude API Fehler {e.code}: {err_body}') from e
+    # Bis zu 3 Versuche mit Backoff bei Rate-Limit/Overload/Netzwerkfehlern.
+    raw = None
+    max_attempts = 3
+    for attempt in range(max_attempts):
+        last = attempt == max_attempts - 1
+        try:
+            resp = urllib.request.urlopen(req, timeout=90)
+            raw = resp.read().decode('utf-8', errors='replace')
+            break
+        except urllib.error.HTTPError as e:
+            err_body = e.read().decode('utf-8', errors='replace')
+            # 429 = Rate-Limit, 529 = überlastet, 5xx = transienter Serverfehler
+            if e.code in (429, 500, 502, 503, 529) and not last:
+                time.sleep(2 * (attempt + 1))
+                continue
+            raise RuntimeError(f'Claude API Fehler {e.code}: {err_body}') from e
+        except urllib.error.URLError as e:
+            # DNS/offline/Timeout – einige Male erneut versuchen
+            if not last:
+                time.sleep(2 * (attempt + 1))
+                continue
+            raise RuntimeError(
+                f'Netzwerkfehler bei der Claude API: {e.reason}. '
+                'Bitte Internetverbindung prüfen.') from e
 
-    data = json.loads(resp.read().decode('utf-8'))
+    if raw is None:
+        raise RuntimeError('Claude API: keine Antwort nach mehreren Versuchen.')
+
+    try:
+        data = json.loads(raw)
+    except json.JSONDecodeError as e:
+        raise RuntimeError(
+            f'Claude API: Antwort ist kein gültiges JSON: {raw[:300]}') from e
+
+    if isinstance(data, dict) and data.get('type') == 'error':
+        msg = (data.get('error') or {}).get('message', 'Unbekannter Fehler')
+        raise RuntimeError(f'Claude API Fehler: {msg}')
+
     text = ''
     for block in data.get('content', []):
         if block.get('type') == 'text':
             text += block.get('text', '')
+
+    if data.get('stop_reason') == 'max_tokens':
+        raise RuntimeError(
+            'Claude-Antwort wurde abgeschnitten (max_tokens erreicht). '
+            'Bitte den Stellentext kürzen und erneut versuchen.')
+
     return text.strip()
 
 
@@ -343,26 +381,59 @@ Du erhältst:
 Du musst daraus ein JSON-Objekt generieren, das ALLE folgenden Felder enthält.
 Die Texte sollen in professionellem Deutsch verfasst sein.
 
-WICHTIG – Lebenslauf-Anpassung:
-- Die Stelle-Bezeichnung und Technologie-Schwerpunkte sollen zur Stellenanzeige passen.
-- Das Kurzprofil (stelle) soll auf die Anforderungen der Stelle zugeschnitten sein.
-- Verwende NUR Fähigkeiten und Erfahrungen, die der Bewerber TATSÄCHLICH HAT (siehe Profil).
-- Erfinde KEINE neuen Erfahrungen oder Technologien. Betone stattdessen die
-  relevanten vorhandenen Fähigkeiten stärker.
-- Der Bewerber ist C#/.NET-Entwickler, NICHT Java-Entwickler.
-  Verwende NIEMALS Java, JavaEE, Spring Boot oder ähnliche Java-Technologien
-    im Text. Verwende stattdessen immer C#, .NET, ASP.NET Core etc.
-- Wenn die Stellenanzeige Java verlangt, betone die Parallelen zu C#/.NET
-  (z.B. "C#/.NET als stark vergleichbare Plattform zu Java/.NET").
+WICHTIG – ZUERST: ROLLEN-FOKUS BESTIMMEN
+- Analysiere die Stellenanzeige und bestimme den ECHTEN Schwerpunkt der Stelle.
+  Das ist NICHT automatisch Softwareentwicklung. Mögliche Schwerpunkte z.B.:
+  * Softwareentwicklung / Programmierung
+  * IT-Koordination / IT-Administration / Systembetreuung / Anwender-Support
+  * Digitalisierung / IT-Projektmanagement / Prozessoptimierung
+  * Schul-IT / Medienkonzepte / Anwenderschulung
+- Richte ALLE Texte (stelle, kurzprofil, betreff, alle Anschreiben-Absätze,
+  highlights, E-Mail) an DIESEM Fokus aus. Beispiel: Ist die Stelle
+  "IT-Koordination & Digitalisierung", erzeuge KEINE reine Entwickler-Bewerbung,
+  sondern stelle die dazu passenden Kompetenzen des Bewerbers in den Vordergrund.
+  Reine Programmier-Details werden dann nur als ergänzende technische Tiefe erwähnt.
+
+DER BEWERBER bringt mit (je nach Rollen-Fokus unterschiedlich gewichten):
+- Ausgebildeter Fachinformatiker für Anwendungsentwicklung (IHK).
+- Digitalisierung & Prozessoptimierung: vollständige Digitalisierung/Modernisierung
+  von Geschäftsprozessen (ERP von Desktop- zu Web-Lösung).
+- IT-Infrastruktur & Systembetreuung: Azure Cloud, Docker, Linux-Server (VPS),
+  Nginx, Backups, E-Mail-Server, CI/CD, Netzwerk-/IT-Sicherheitsthemen.
+- Anwender-Support, Fehleranalyse und Wartung produktiver Systeme.
+- Eigenständige End-to-End-Projektkoordination (Anforderung bis Rollout).
+- Wissensvermittlung: Bootcamp, Berufsschule, Einarbeitung; mehrsprachig (TR/DE/EN).
+- Softwareentwicklung: C#/.NET, Angular, Datenbanken (als technische Tiefe).
+
+WICHTIG – Lebenslauf-Anpassung (Feld "kurzprofil"):
+- 4–6 Sätze, professionelles Deutsch, Fließtext (KEINE Aufzählung).
+- Stelle die zum ROLLEN-FOKUS passenden Kompetenzen nach vorne. Bei einer
+  IT-Koordinations-/Digitalisierungsstelle also z.B. IT-Infrastruktur,
+  Digitalisierung, Support, Projektkoordination und die Fachinformatiker-
+  Qualifikation – Programmierung nur als ergänzende technische Stärke.
+- <b>HTML-Bold-Tags</b> für die 3–4 wichtigsten Stichworte der Stelle.
+- "stelle" = exakte Bezeichnung aus der Anzeige; "betreff" dazu passend
+  (NICHT automatisch "C# / .NET / Angular").
+- NUR wahrheitsgemäße Inhalte aus dem Profil; KEINE Fakten/Zahlen erfinden.
+
+GRENZEN (immer gültig):
+- Erfinde KEINE Erfahrungen oder Technologien; betone vorhandene stärker.
+- Geht es konkret um PROGRAMMIERSPRACHEN: der Bewerber arbeitet mit C#/.NET,
+  nicht mit Java. Verlangt die Stelle Java, nenne C#/.NET als stark vergleichbare
+  Plattform – erfinde aber keine Java-Erfahrung.
 
 WICHTIG – Anschreiben-Anpassung:
-- Das Anschreiben soll sich auf die konkreten Anforderungen der Stelle beziehen.
-- Verwende <b>HTML-Bold-Tags</b> für Hervorhebungen (wird für PDF-Rendering gebraucht).
-- Jeder Absatz soll 3-5 Sätze lang sein.
-- absatz_1: Einleitung – warum diese Stelle, welche Qualifikation.
-- absatz_2: Berufserfahrung – konkrete Erfolge aus bisheriger Arbeit, relevant für die Stelle.
-- absatz_3: Projekte – eigene Projekte die zur Stelle passen.
-- absatz_4: Technologien & Arbeitsweise – passend zur Stellenanfrage.
+- Beziehe dich konkret auf die Anforderungen der Stelle und den ROLLEN-FOKUS.
+- Verwende <b>HTML-Bold-Tags</b> für Hervorhebungen. Jeder Absatz 3–5 Sätze.
+- absatz_1: Einleitung – Bezug zur konkreten Stelle und passende Kernqualifikation
+  (NICHT generisch "Fullstack Entwickler", sondern zum Rollen-Fokus passend).
+- absatz_2: KURZER Überleitungssatz (1–2 Sätze), der die folgenden
+  Erfolgs-Stichpunkte einleitet. KEINE vollständige Aufzählung im Fließtext.
+- highlights: 3–4 konkrete, WAHRE Erfolge des Bewerbers, ausgewählt passend zum
+  Rollen-Fokus (z.B. Digitalisierung/Infrastruktur/Support statt nur Code-Metriken).
+  Kurze Stichpunkte ohne Satzzeichen am Ende, KEINE erfundenen Zahlen.
+- absatz_3: relevante eigene Projekte/Erfahrungen mit Bezug zur Stelle.
+- absatz_4: Arbeitsweise & relevante Kompetenzen, passend zum Rollen-Fokus.
 - absatz_5: Schluss – Motivation, Gesprächswunsch.
 
 WICHTIG – Bewerbungs-E-Mail:
@@ -380,6 +451,7 @@ WICHTIG – Bewerbungs-E-Mail:
 RÜCKGABE – EXAKT dieses JSON-Schema (keine Markdown-Codeblöcke, nur roher JSON):
 {
   "stelle": "...",
+  "kurzprofil": "Auf die Stelle zugeschnittenes CV-Kurzprofil, 4–6 Sätze, mit <b>Bold</b>-Tags für die wichtigsten Technologien.",
   "betreff": "Bewerbung als ... – ...",
   "firma": "Firmenname GmbH",
   "ansprechpartner": "Frau/Herrn Nachname",
@@ -387,7 +459,8 @@ RÜCKGABE – EXAKT dieses JSON-Schema (keine Markdown-Codeblöcke, nur roher JS
   "firma_plz_ort": "PLZ Ort",
   "anrede": "Sehr geehrte Frau .../Sehr geehrter Herr .../Sehr geehrte Damen und Herren,",
   "absatz_1": "...",
-  "absatz_2": "...",
+  "absatz_2": "Kurzer Überleitungssatz zu den Erfolgs-Stichpunkten.",
+  "highlights": ["Erfolg 1", "Erfolg 2", "Erfolg 3"],
   "absatz_3": "...",
   "absatz_4": "...",
   "absatz_5": "...",

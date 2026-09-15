@@ -21,6 +21,8 @@ from reportlab.lib.enums import TA_LEFT, TA_RIGHT, TA_JUSTIFY
 from reportlab.pdfbase import pdfmetrics
 from reportlab.pdfbase.ttfonts import TTFont
 
+from pdf_text_utils import esc, esc_rich
+
 # ─── PATHS ────────────────────────────────────────────────────────────────────
 OUTPUT        = r"C:\Users\hamza\Desktop\Lebenslauf\bewerbung_software_entwicker_herr_öztürk.pdf"
 SIGNATUR_PATH = r"C:\Users\hamza\Desktop\Lebenslauf\sıgnatur.png"
@@ -48,16 +50,33 @@ _FONT_MAP = {
     'CV-BI': os.path.join(WIN_FONTS, 'calibriz.ttf'),
 }
 
+# Explizite Arial-Ersatzdateien je Stil (keine fehleranfällige replace-Kette).
+_FALLBACK_TTF = {
+    'CV-R':  os.path.join(WIN_FONTS, 'arial.ttf'),
+    'CV-B':  os.path.join(WIN_FONTS, 'arialbd.ttf'),
+    'CV-I':  os.path.join(WIN_FONTS, 'ariali.ttf'),
+    'CV-BI': os.path.join(WIN_FONTS, 'arialbi.ttf'),
+}
+# Letzter Ausweg: eingebaute Standard-Schriften, damit Rendering nie crasht.
+_STD_FALLBACK = {
+    'CV-R':  'Helvetica',
+    'CV-B':  'Helvetica-Bold',
+    'CV-I':  'Helvetica-Oblique',
+    'CV-BI': 'Helvetica-BoldOblique',
+}
+
 def register_fonts():
     for name, path in _FONT_MAP.items():
         if os.path.exists(path):
             pdfmetrics.registerFont(TTFont(name, path))
-        else:
-            fb = (path.replace('calibri', 'arial')
-                      .replace('calibrib', 'arialbd')
-                      .replace('calibrii', 'ariali')
-                      .replace('calibriz', 'arialbi'))
+            continue
+        fb = _FALLBACK_TTF.get(name)
+        if fb and os.path.exists(fb):
             pdfmetrics.registerFont(TTFont(name, fb))
+            continue
+        # Weder Calibri noch Arial vorhanden -> Alias auf Standard-Font.
+        pdfmetrics.registerFont(
+            pdfmetrics.Font(name, _STD_FALLBACK[name], 'WinAnsiEncoding'))
 
 
 # ─── PARAGRAPH STYLES ────────────────────────────────────────────────────────
@@ -334,14 +353,14 @@ def build(story, sty, W, cfg=None):
     else:
         ap_line = ''
 
-    empf_parts = [cfg['firma']]
+    empf_parts = [esc(cfg['firma'])]
     if ap_line:
-        empf_parts.append(ap_line)
-    empf_parts.append(cfg['firma_strasse'])
-    empf_parts.append(cfg['firma_plz_ort'])
+        empf_parts.append(esc(ap_line))
+    empf_parts.append(esc(cfg['firma_strasse']))
+    empf_parts.append(esc(cfg['firma_plz_ort']))
 
     empf_para = Paragraph('<br/>'.join(empf_parts), sty['empf'])
-    datum_para = Paragraph(f'Freiburg, {cfg["datum"]}', sty['datum'])
+    datum_para = Paragraph(f'Freiburg, {esc(cfg["datum"])}', sty['datum'])
 
     info_table = Table(
         [[empf_para, datum_para]],
@@ -359,7 +378,7 @@ def build(story, sty, W, cfg=None):
     story.append(Spacer(1, 0.3 * cm))
 
     # ── 3  BETREFF ───────────────────────────────────────────────────────────
-    story.append(Paragraph(cfg['betreff'], sty['betreff']))
+    story.append(Paragraph(esc(cfg['betreff']), sty['betreff']))
 
     story.append(Spacer(1, 0.15 * cm))
 
@@ -373,29 +392,29 @@ def build(story, sty, W, cfg=None):
             anrede = _normalize_anrede('')
     else:
         anrede = _normalize_anrede(anrede)
-    story.append(Paragraph(anrede, sty['anrede']))
+    story.append(Paragraph(esc(anrede), sty['anrede']))
 
     # ── 5  FLIESSTEXT ────────────────────────────────────────────────────────
     p1 = _polish_german_phrasing(cfg.get('absatz_1', DEFAULT_CONFIG['absatz_1']))
-    story.append(Paragraph(_lowercase_first_content_char(p1), sty['body']))
+    story.append(Paragraph(esc_rich(_lowercase_first_content_char(p1)), sty['body']))
 
     # Intro before highlights (absatz_2)
     p2 = cfg.get('absatz_2', '')
     if p2 and p2.strip():
-        story.append(Paragraph(_polish_german_phrasing(p2), sty['body']))
+        story.append(Paragraph(esc_rich(_polish_german_phrasing(p2)), sty['body']))
 
     # Bullet highlights
     highlights = cfg.get('highlights', [])
     if isinstance(highlights, list) and highlights:
         for item in highlights:
-            story.append(Paragraph(f'•&nbsp;&nbsp;{item}', sty['bullet']))
+            story.append(Paragraph(f'•&nbsp;&nbsp;{esc_rich(item)}', sty['bullet']))
         story.append(Spacer(1, 2))
 
     # Remaining paragraphs
     for key in ('absatz_3', 'absatz_4', 'absatz_5'):
         val = cfg.get(key, '')
         if val and val.strip():
-            story.append(Paragraph(_polish_german_phrasing(val), sty['body']))
+            story.append(Paragraph(esc_rich(_polish_german_phrasing(val)), sty['body']))
 
     # ── 6  GRUSSFORMEL ───────────────────────────────────────────────────────
     gruss = 'Herzliche Grüße' if du else 'Mit freundlichen Grüßen'
@@ -423,11 +442,11 @@ def build(story, sty, W, cfg=None):
     if has_footer:
         story.append(Spacer(1, 0.2 * cm))
         if gehalt:
-            story.append(Paragraph(f'Gehalt: {gehalt}', sty['footer']))
+            story.append(Paragraph(f'Gehalt: {esc(gehalt)}', sty['footer']))
         if eintritt:
-            story.append(Paragraph(f'Eintritt: {eintritt}', sty['footer']))
+            story.append(Paragraph(f'Eintritt: {esc(eintritt)}', sty['footer']))
         if arbeitsmodell:
-            story.append(Paragraph(f'Arbeitsmodell: {arbeitsmodell}',
+            story.append(Paragraph(f'Arbeitsmodell: {esc(arbeitsmodell)}',
                                    sty['footer']))
 
 

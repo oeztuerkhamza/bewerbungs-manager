@@ -6,6 +6,7 @@ Hamza Öztürk · 10.03.2026
 """
 
 import json
+import math
 import os
 import csv
 import re
@@ -20,6 +21,7 @@ import mimetypes
 import subprocess
 import sys
 import threading
+import time
 import tkinter as tk
 from datetime import date, timedelta
 from tkinter import filedialog, messagebox, ttk
@@ -63,6 +65,14 @@ except Exception:
     import generate_kapak as gen_k
 
 import ki_assistent as ki
+import initiativ_bewerbung as initiativ
+
+try:
+    import tkintermapview
+    MAP_AVAILABLE = True
+except Exception:
+    tkintermapview = None
+    MAP_AVAILABLE = False
 
 try:
     from PyPDF2 import PdfReader, PdfWriter, Transformation, PageObject
@@ -78,12 +88,20 @@ APPLICATIONS_CSV = os.path.join(SCRIPT_DIR, 'Bewerbungen.csv')
 APPLICATIONS_XLSX = os.path.join(SCRIPT_DIR, 'Bewerbungen.xlsx')
 IMAP_SETTINGS_FILE = os.path.join(SCRIPT_DIR, '.imap_settings.json')
 SMTP_SETTINGS_FILE = os.path.join(SCRIPT_DIR, '.smtp_settings.json')
+INITIATIV_SENT_FILE = os.path.join(SCRIPT_DIR, '.initiativ_sent.json')
 API_KEY_FILE  = os.path.join(SCRIPT_DIR, '.claude_api_key')
 MAIL_PDF_DIR = os.path.join(SCRIPT_DIR, 'mail_pdfs')
-ARBEITS_ZEUGNIS_PDF = os.path.join(SCRIPT_DIR, 'Zeugnis', 'bewerbung_software_entwickler_herr_öztürk_arbeitszeugnis.pdf')
-BERUFSCHULE_ZEUGNIS_PDF = os.path.join(SCRIPT_DIR, 'Zeugnis', 'bewerbung_software_entwickler_herr_öztürk_berufschule_zeugnis.pdf')
-DATA_ANALYST_ZERT_PDF = os.path.join(SCRIPT_DIR, 'Zeugnis', 'bewerbung_software_entwickler_herr_öztürk_data_analyst _zertifikate.pdf')
-IHK_ZEUGNIS_PDF = os.path.join(SCRIPT_DIR, 'Zeugnis', 'bewerbung_software_entwickler_herr_öztürk_IHK_zeugnis.pdf')
+ZEUGNIS_DIR = os.path.join(SCRIPT_DIR, 'Zeugnis')
+# Zeugnis-Anhänge werden NICHT mehr über exakte (fehleranfällige) Dateinamen,
+# sondern per Schlüsselwort im Zeugnis-Ordner aufgelöst. Reihenfolge =
+# Anhang-Reihenfolge im finalen Bewerbungs-PDF.
+_ZEUGNIS_KEYWORDS = [
+    ('arbeitszeugnis',),
+    ('ihk',),
+    ('berufschule', 'berufsschule'),
+    ('data_analyst', 'zertifikat', 'zertifikate'),
+    ('zeugnisse',),
+]
 # ─── PREMIUM COLOR PALETTE ───────────────────────────────────────────────────
 NAVY       = '#0D1B2A'
 NAVY_MID   = '#1B2838'
@@ -128,6 +146,16 @@ class BewerbungsApp(tk.Tk):
         self.minsize(1080, 860)
         self.resizable(True, True)
 
+        # Nicht-Widget-Felder aus der KI-Antwort (z.B. highlights), die
+        # sonst beim _get_config()/_set_config()-Umweg verloren gingen.
+        self._extra_cfg = {}
+        # Registry aller scrollbaren Canvas-Bereiche. Ein einziger globaler
+        # Mausrad-Handler scrollt jeweils den Bereich unter dem Mauszeiger.
+        self._scroll_canvases = set()
+        # Schützt die gemeinsamen Bewerbungs-Tabellen (CSV/XLSX) vor
+        # gleichzeitigen Schreibzugriffen aus mehreren Hintergrund-Threads.
+        self._table_lock = threading.Lock()
+
         # Centre on screen
         self.update_idletasks()
         sw, sh = self.winfo_screenwidth(), self.winfo_screenheight()
@@ -136,6 +164,53 @@ class BewerbungsApp(tk.Tk):
 
         self._build_ui()
         self._load_defaults()
+
+        # Ein globaler Mausrad-Handler für alle scrollbaren Tabs.
+        self.bind_all('<MouseWheel>', self._on_mousewheel)
+
+    # ── SCROLL-HELFER ─────────────────────────────────────────────────────────
+    def _make_scrollable(self, parent):
+        """Erzeugt einen vertikal scrollbaren Bereich, gibt das Inhalts-Frame
+        zurück und registriert den Canvas für das globale Mausrad-Scrollen."""
+        canvas = tk.Canvas(parent, bg=BG, highlightthickness=0)
+        scrollbar = ttk.Scrollbar(parent, orient='vertical',
+                                  command=canvas.yview)
+        scroll_frame = tk.Frame(canvas, bg=BG)
+
+        window_id = canvas.create_window((0, 0), window=scroll_frame,
+                                         anchor='nw')
+
+        scroll_frame.bind(
+            '<Configure>',
+            lambda e: canvas.configure(scrollregion=canvas.bbox('all')))
+        # Inhalt immer auf Canvas-Breite strecken (verhindert horizontales
+        # Verrutschen / abgeschnittene Karten).
+        canvas.bind(
+            '<Configure>',
+            lambda e: canvas.itemconfigure(window_id, width=e.width))
+
+        canvas.configure(yscrollcommand=scrollbar.set)
+        canvas.pack(side='left', fill='both', expand=True)
+        scrollbar.pack(side='right', fill='y')
+
+        self._scroll_canvases.add(canvas)
+        # Beim Zerstören wieder austragen, damit keine toten Referenzen bleiben.
+        canvas.bind('<Destroy>',
+                    lambda e: self._scroll_canvases.discard(canvas), add='+')
+        return scroll_frame
+
+    def _on_mousewheel(self, e):
+        """Scrollt den scrollbaren Canvas unter dem Mauszeiger.
+
+        Liegt der Zeiger über einem anderen Widget (z.B. Treeview/Listbox),
+        passiert hier nichts – dessen eigenes Scrollverhalten bleibt aktiv.
+        """
+        w = self.winfo_containing(e.x_root, e.y_root)
+        while w is not None:
+            if w in self._scroll_canvases:
+                w.yview_scroll(int(-1 * (e.delta / 120)), 'units')
+                return
+            w = getattr(w, 'master', None)
 
     # ── UI BUILDING ──────────────────────────────────────────────────────────
     def _build_ui(self):
@@ -279,6 +354,7 @@ class BewerbungsApp(tk.Tk):
         self._tab_stelle    = self._make_tab(nb, '📋  Stelle & Firma')
         self._tab_anschr    = self._make_tab(nb, '✍  Anschreiben')
         self._tab_email     = self._make_tab(nb, '📧  E-Mail')
+        self._tab_initiativ = self._make_tab(nb, '📮  Initiativbewerbung')
         self._tab_uebersicht = self._make_tab(nb, '📊  Übersicht')
         self._tab_profile   = self._make_tab(nb, '👤  Profile')
 
@@ -286,6 +362,7 @@ class BewerbungsApp(tk.Tk):
         self._build_stelle_tab(self._tab_stelle)
         self._build_anschreiben_tab(self._tab_anschr)
         self._build_email_tab(self._tab_email)
+        self._build_initiativ_tab(self._tab_initiativ)
         self._build_uebersicht_tab(self._tab_uebersicht)
         self._build_profile_tab(self._tab_profile)
         self._nb = nb
@@ -338,17 +415,7 @@ class BewerbungsApp(tk.Tk):
 
     # ── TAB 0: KI-ASSISTENT ─────────────────────────────────────────────
     def _build_ki_tab(self, parent):
-        canvas = tk.Canvas(parent, bg=BG, highlightthickness=0)
-        scrollbar = ttk.Scrollbar(parent, orient='vertical',
-                                  command=canvas.yview)
-        scroll_frame = tk.Frame(canvas, bg=BG)
-        scroll_frame.bind('<Configure>',
-                          lambda e: canvas.configure(
-                              scrollregion=canvas.bbox('all')))
-        canvas.create_window((0, 0), window=scroll_frame, anchor='nw')
-        canvas.configure(yscrollcommand=scrollbar.set)
-        canvas.pack(side='left', fill='both', expand=True)
-        scrollbar.pack(side='right', fill='y')
+        scroll_frame = self._make_scrollable(parent)
 
         # ── Description card ──
         desc_card = self._make_card(scroll_frame, padx=16, pady=(12, 4))
@@ -465,6 +532,11 @@ class BewerbungsApp(tk.Tk):
         return row + 1
 
     def _log(self, msg):
+        # Tkinter ist nicht thread-safe: Aufrufe aus Worker-Threads in den
+        # UI-Thread marshallen.
+        if threading.current_thread() is not threading.main_thread():
+            self.after(0, lambda m=msg: self._log(m))
+            return
         self._ki_log.configure(state='normal')
         self._ki_log.insert('end', msg + '\n')
         self._ki_log.see('end')
@@ -551,6 +623,7 @@ class BewerbungsApp(tk.Tk):
         self._ki_generate(then_pdf=True)
 
     def _apply_ki_result(self, cfg, then_pdf=False):
+        self._stash_extra_cfg(cfg)
         self._set_config(cfg)
         self._log('✓ Alle Felder ausgefüllt.')
 
@@ -596,22 +669,7 @@ class BewerbungsApp(tk.Tk):
 
     # ── TAB 1: STELLE & FIRMA ────────────────────────────────────────────────
     def _build_stelle_tab(self, parent):
-        canvas = tk.Canvas(parent, bg=BG, highlightthickness=0)
-        scrollbar = ttk.Scrollbar(parent, orient='vertical',
-                                  command=canvas.yview)
-        scroll_frame = tk.Frame(canvas, bg=BG)
-        scroll_frame.bind('<Configure>',
-                          lambda e: canvas.configure(
-                              scrollregion=canvas.bbox('all')))
-        canvas.create_window((0, 0), window=scroll_frame, anchor='nw')
-        canvas.configure(yscrollcommand=scrollbar.set)
-        canvas.pack(side='left', fill='both', expand=True)
-        scrollbar.pack(side='right', fill='y')
-
-        # Bind mousewheel
-        def _on_mousewheel(e):
-            canvas.yview_scroll(int(-1 * (e.delta / 120)), 'units')
-        canvas.bind_all('<MouseWheel>', _on_mousewheel)
+        scroll_frame = self._make_scrollable(parent)
 
         self.vars = {}
 
@@ -627,6 +685,15 @@ class BewerbungsApp(tk.Tk):
                           'Bewerbung als Fullstack Entwickler – C# / .NET / Angular',
                           row, width=70)
         row = self._field_card(stelle_card, 'datum', 'Datum', today_de(), row)
+
+        # ── CV-Kurzprofil Card (von KI auf die Stelle zugeschnitten) ──
+        kp_outer, kp_card = self._make_card_grid(scroll_frame, '🧩  CV-KURZPROFIL', padx=16, pady=4)
+        kp_outer.pack(fill='x', padx=16, pady=4)
+        self._textarea_card(
+            kp_card, 'kurzprofil',
+            'Kurzprofil im Lebenslauf (HTML <b>fett</b> erlaubt) – '
+            'wird von der KI an die Stelle angepasst',
+            gen_l.DEFAULT_KURZPROFIL, 2, height=6)
 
         # ── Firma Card ──
         firma_outer, firma_card = self._make_card_grid(scroll_frame, '🏢  FIRMA', padx=16, pady=4)
@@ -651,17 +718,7 @@ class BewerbungsApp(tk.Tk):
 
     # ── TAB 2: ANSCHREIBEN-TEXT ──────────────────────────────────────────────
     def _build_anschreiben_tab(self, parent):
-        canvas = tk.Canvas(parent, bg=BG, highlightthickness=0)
-        scrollbar = ttk.Scrollbar(parent, orient='vertical',
-                                  command=canvas.yview)
-        scroll_frame = tk.Frame(canvas, bg=BG)
-        scroll_frame.bind('<Configure>',
-                          lambda e: canvas.configure(
-                              scrollregion=canvas.bbox('all')))
-        canvas.create_window((0, 0), window=scroll_frame, anchor='nw')
-        canvas.configure(yscrollcommand=scrollbar.set)
-        canvas.pack(side='left', fill='both', expand=True)
-        scrollbar.pack(side='right', fill='y')
+        scroll_frame = self._make_scrollable(parent)
 
         # Info card
         info_card = self._make_card(scroll_frame, padx=16, pady=(12, 4))
@@ -865,13 +922,29 @@ class BewerbungsApp(tk.Tk):
         self._status('✓  Betreff + E-Mail-Text in Zwischenablage kopiert.')
 
     @staticmethod
+    def _safe_decode(payload, charset):
+        """Bytes dekodieren und unbekannte/fehlerhafte Charsets tolerieren.
+
+        Ein unbekannter Codec-Name (z.B. 'x-unknown') würde sonst LookupError
+        werfen und den ganzen Sync/Export abbrechen.
+        """
+        for enc in (charset, 'utf-8', 'latin-1'):
+            if not enc:
+                continue
+            try:
+                return payload.decode(enc, errors='replace')
+            except (LookupError, TypeError):
+                continue
+        return payload.decode('utf-8', errors='replace')
+
+    @staticmethod
     def _decode_mime_header(value):
         if not value:
             return ''
         parts = []
         for part, enc in decode_header(value):
             if isinstance(part, bytes):
-                parts.append(part.decode(enc or 'utf-8', errors='replace'))
+                parts.append(BewerbungsApp._safe_decode(part, enc or 'utf-8'))
             else:
                 parts.append(part)
         return ''.join(parts).strip()
@@ -890,7 +963,7 @@ class BewerbungsApp(tk.Tk):
                     if payload is None:
                         continue
                     charset = part.get_content_charset() or 'utf-8'
-                    text = payload.decode(charset, errors='replace')
+                    text = BewerbungsApp._safe_decode(payload, charset)
                     if ctype == 'text/html':
                         text = re.sub(r'<[^>]+>', ' ', text)
                         text = html.unescape(text)
@@ -899,7 +972,7 @@ class BewerbungsApp(tk.Tk):
             payload = msg.get_payload(decode=True)
             if payload:
                 charset = msg.get_content_charset() or 'utf-8'
-                text = payload.decode(charset, errors='replace')
+                text = BewerbungsApp._safe_decode(payload, charset)
                 if msg.get_content_type() == 'text/html':
                     text = re.sub(r'<[^>]+>', ' ', text)
                     text = html.unescape(text)
@@ -940,15 +1013,17 @@ class BewerbungsApp(tk.Tk):
             'vielen dank fuer ihre bewerbung', 'wir haben ihre bewerbung erhalten'
         ]
 
+        # Rückgabewerte entsprechen der kanonischen Status-Liste der Übersicht
+        # (_DURUM_OPTIONS), damit Sync-Zeilen korrekt gefiltert/eingefärbt werden.
         if (any(w in text for w in sent_words) and
                 ('gesendet' in text or 'sent' in text)):
             return 'Beworben'
         if any(w in text for w in invite_words):
-            return 'Einladung zum Vorstellungsgespräch'
+            return 'Mülakat Daveti'
         if any(w in text for w in reject_words):
-            return 'Absage'
+            return 'Olumsuz (Red)'
         if any(w in text for w in ack_words):
-            return 'Eingangsbestätigung (In Bearbeitung)'
+            return 'Alındı Teyidi (İşlemde)'
         return None
 
     @staticmethod
@@ -1038,16 +1113,28 @@ class BewerbungsApp(tk.Tk):
     def _read_applications_rows(self):
         rows = []
 
-        # Prefer Excel as source of truth if available.
-        if load_workbook is not None and os.path.isfile(APPLICATIONS_XLSX):
-            wb = load_workbook(APPLICATIONS_XLSX)
-            ws = wb.active
-            for r in ws.iter_rows(values_only=True):
-                row = [str(v).strip() if v is not None else '' for v in r]
-                if any(cell for cell in row):
-                    rows.append(row)
+        xlsx_ok = load_workbook is not None and os.path.isfile(APPLICATIONS_XLSX)
+        csv_ok = os.path.isfile(APPLICATIONS_CSV)
 
-        if not rows and os.path.isfile(APPLICATIONS_CSV):
+        # Die zuletzt geänderte Quelle gewinnt. So überdeckt eine veraltete
+        # XLSX (z.B. weil Excel sie gesperrt hatte) NICHT die frisch
+        # geschriebene CSV – sonst gingen Status-Updates verloren.
+        prefer_xlsx = xlsx_ok
+        if xlsx_ok and csv_ok:
+            prefer_xlsx = os.path.getmtime(APPLICATIONS_XLSX) >= os.path.getmtime(APPLICATIONS_CSV)
+
+        if prefer_xlsx:
+            try:
+                wb = load_workbook(APPLICATIONS_XLSX)
+                ws = wb.active
+                for r in ws.iter_rows(values_only=True):
+                    row = [str(v).strip() if v is not None else '' for v in r]
+                    if any(cell for cell in row):
+                        rows.append(row)
+            except Exception:
+                rows = []  # XLSX defekt/gesperrt -> auf CSV ausweichen
+
+        if not rows and csv_ok:
             with open(APPLICATIONS_CSV, 'r', encoding='utf-8-sig', newline='') as f:
                 rows = list(csv.reader(f))
 
@@ -1057,6 +1144,7 @@ class BewerbungsApp(tk.Tk):
         return rows
 
     def _write_applications_rows(self, rows):
+        # CSV ist die verlässliche Quelle und wird immer zuerst geschrieben.
         with open(APPLICATIONS_CSV, 'w', encoding='utf-8-sig', newline='') as f:
             writer = csv.writer(f)
             writer.writerows(rows)
@@ -1072,23 +1160,42 @@ class BewerbungsApp(tk.Tk):
         try:
             wb.save(APPLICATIONS_XLSX)
         except PermissionError:
-            # If the main workbook is open in Excel, save a fallback file
-            # so data is not lost and the app can continue.
+            # XLSX ist in Excel geöffnet -> Backup speichern und warnen.
+            # Die CSV ist bereits aktuell und wird beim nächsten Lesen
+            # (neuere mtime) bevorzugt, daher gehen keine Daten verloren.
             fallback = os.path.join(SCRIPT_DIR, 'Bewerbungen_backup.xlsx')
-            wb.save(fallback)
+            try:
+                wb.save(fallback)
+            except Exception:
+                pass
+            self._status('⚠ Bewerbungen.xlsx ist in Excel geöffnet – '
+                         'Update in CSV gespeichert. Bitte Excel schließen.')
 
     @staticmethod
     def _load_imap_settings():
+        defaults = {'email': '', 'server': 'imap.web.de', 'port': 993, 'password': ''}
         if os.path.isfile(IMAP_SETTINGS_FILE):
-            with open(IMAP_SETTINGS_FILE, 'r', encoding='utf-8') as f:
-                return json.load(f)
-        return {'email': '', 'server': 'imap.web.de', 'port': 993, 'password': ''}
+            try:
+                with open(IMAP_SETTINGS_FILE, 'r', encoding='utf-8') as f:
+                    data = json.load(f)
+                if isinstance(data, dict):
+                    defaults.update(data)
+            except (json.JSONDecodeError, OSError):
+                pass  # beschädigte Datei -> Defaults verwenden
+        return defaults
+
+    @staticmethod
+    def _safe_port(value, fallback):
+        try:
+            return int(str(value).strip())
+        except (ValueError, AttributeError):
+            return fallback
 
     def _save_imap_settings(self):
         settings = {
             'email': self._imap_email_var.get().strip(),
             'server': self._imap_server_var.get().strip() or 'imap.web.de',
-            'port': int((self._imap_port_var.get() or '993').strip() or '993'),
+            'port': self._safe_port(self._imap_port_var.get(), 993),
             'password': self._imap_password_var.get()
         }
         with open(IMAP_SETTINGS_FILE, 'w', encoding='utf-8') as f:
@@ -1097,10 +1204,16 @@ class BewerbungsApp(tk.Tk):
 
     @staticmethod
     def _load_smtp_settings():
+        defaults = {'server': 'smtp.web.de', 'port': 587}
         if os.path.isfile(SMTP_SETTINGS_FILE):
-            with open(SMTP_SETTINGS_FILE, 'r', encoding='utf-8') as f:
-                return json.load(f)
-        return {'server': 'smtp.web.de', 'port': 587}
+            try:
+                with open(SMTP_SETTINGS_FILE, 'r', encoding='utf-8') as f:
+                    data = json.load(f)
+                if isinstance(data, dict):
+                    defaults.update(data)
+            except (json.JSONDecodeError, OSError):
+                pass
+        return defaults
 
     def _save_smtp_settings(self):
         try:
@@ -1192,10 +1305,16 @@ class BewerbungsApp(tk.Tk):
                 for path in required_files:
                     self._attach_file_to_message(msg, path)
 
-                with smtplib.SMTP(smtp_server, smtp_port, timeout=30) as smtp:
-                    smtp.starttls()
-                    smtp.login(sender, password)
-                    smtp.send_message(msg)
+                if smtp_port == 465:
+                    # Implizites TLS (z.B. web.de/GMX/Gmail auf 465)
+                    with smtplib.SMTP_SSL(smtp_server, smtp_port, timeout=30) as smtp:
+                        smtp.login(sender, password)
+                        smtp.send_message(msg)
+                else:
+                    with smtplib.SMTP(smtp_server, smtp_port, timeout=30) as smtp:
+                        smtp.starttls()
+                        smtp.login(sender, password)
+                        smtp.send_message(msg)
 
                 self._log_application(cfg)
                 self.after(0, lambda: self._status('✓  Bewerbungs-E-Mail gesendet.'))
@@ -1205,6 +1324,622 @@ class BewerbungsApp(tk.Tk):
             except Exception as exc:
                 self.after(0, lambda: self._status(f'E-Mail-Fehler: {exc}'))
                 self.after(0, lambda: messagebox.showerror('E-Mail-Sendefehler', str(exc)))
+
+        threading.Thread(target=_worker, daemon=True).start()
+
+    # ── TAB: INITIATIVBEWERBUNG ─────────────────────────────────────────────
+    def _build_initiativ_tab(self, parent):
+        scroll_frame = self._make_scrollable(parent)
+
+        # State
+        self._init_companies = []   # aktuell gefundene Firmen (aligned mit Tree)
+
+        # ── Info / Hinweis ──
+        info_card = self._make_card(scroll_frame, padx=16, pady=(12, 4))
+        tk.Label(info_card, text=(
+            'Findet Firmen mit öffentlich hinterlegter Kontakt-E-Mail in einer '
+            'Region (Quelle: OpenStreetMap) und verschickt eine Initiativbewerbung '
+            'mit Lebenslauf im Anhang. Der Firmenname wird automatisch in den Text '
+            'eingesetzt ({firma}).'),
+            bg=WHITE, fg=FG_LIGHT, font=(FONT, 10),
+            wraplength=850, justify='left', anchor='w').pack(anchor='w')
+        tk.Label(info_card, text=(
+            '⚠  Nur an relevante Firmen senden. Nutze eine angemessene Pause '
+            'zwischen den Mails, damit dein Postfach nicht als Spam eingestuft wird.'),
+            bg=WHITE, fg=ACCENT_HVR, font=(FONT, 9),
+            wraplength=850, justify='left', anchor='w').pack(anchor='w', pady=(6, 0))
+
+        # ── Suche ──
+        s_outer, s_card = self._make_card_grid(
+            scroll_frame, '🔎  FIRMEN IN REGION SUCHEN', padx=16, pady=4)
+        s_outer.pack(fill='x', padx=16, pady=4)
+
+        tk.Label(s_card, text='Region / Stadt', bg=WHITE, fg=FG,
+                 font=(FONT, 10)).grid(row=2, column=0, sticky='e',
+                                       padx=(0, 8), pady=4)
+        self._init_region_var = tk.StringVar(value='Freiburg im Breisgau')
+        ttk.Entry(s_card, textvariable=self._init_region_var, width=36,
+                  font=(FONT, 10)).grid(row=2, column=1, sticky='w', pady=4)
+
+        tk.Label(s_card, text='Umkreis (km)', bg=WHITE, fg=FG,
+                 font=(FONT, 10)).grid(row=2, column=2, sticky='e',
+                                       padx=(12, 8), pady=4)
+        self._init_radius_var = tk.StringVar(value='10')
+        ttk.Entry(s_card, textvariable=self._init_radius_var, width=8,
+                  font=(FONT, 10)).grid(row=2, column=3, sticky='w', pady=4)
+
+        tk.Label(s_card, text='Kategorie', bg=WHITE, fg=FG,
+                 font=(FONT, 10)).grid(row=3, column=0, sticky='e',
+                                       padx=(0, 8), pady=4)
+        self._init_cat_var = tk.StringVar(value=initiativ.CATEGORY_ORDER[0])
+        ttk.Combobox(s_card, textvariable=self._init_cat_var,
+                     values=initiativ.CATEGORY_ORDER, state='readonly',
+                     width=34, font=(FONT, 10)).grid(
+                         row=3, column=1, sticky='w', pady=4)
+
+        tk.Label(s_card, text='Max. Anzahl', bg=WHITE, fg=FG,
+                 font=(FONT, 10)).grid(row=3, column=2, sticky='e',
+                                       padx=(12, 8), pady=4)
+        self._init_limit_var = tk.StringVar(value='100')
+        ttk.Entry(s_card, textvariable=self._init_limit_var, width=8,
+                  font=(FONT, 10)).grid(row=3, column=3, sticky='w', pady=4)
+
+        btn_row = tk.Frame(s_card, bg=WHITE)
+        btn_row.grid(row=4, column=0, columnspan=4, sticky='w', pady=(8, 2))
+        ttk.Button(btn_row, text='🔎  Firmen suchen', style='Navy.TButton',
+                   command=self._init_search_companies).pack(side='left')
+        ttk.Button(btn_row, text='🗺  Gebiet auf Karte zeigen',
+                   style='Ghost.TButton',
+                   command=self._init_show_area).pack(side='left', padx=6)
+        ttk.Button(btn_row, text='🚲  Alle Fahrradfirmen in Deutschland',
+                   style='Gold.TButton',
+                   command=self._init_search_bicycles).pack(side='left', padx=6)
+
+        # ── Karte (Suchgebiet wie bei Kleinanzeigen) ──
+        map_card = self._make_card(
+            scroll_frame, '🗺  SUCHGEBIET AUF DER KARTE', padx=16, pady=4)
+        self._init_map = None
+        self._init_map_circle = None
+        self._init_map_center = None
+        self._init_map_markers = []
+        if MAP_AVAILABLE:
+            tk.Label(map_card, text=(
+                'Zeigt das gewählte Suchgebiet (Umkreis) und – nach der Suche – '
+                'die gefundenen Firmen als Marker.'),
+                bg=WHITE, fg=FG_LIGHT, font=(FONT, 9),
+                anchor='w').pack(anchor='w', pady=(0, 6))
+            self._init_map = tkintermapview.TkinterMapView(
+                map_card, height=360, corner_radius=8)
+            self._init_map.pack(fill='both', expand=True)
+            # Deutschland als Startansicht
+            self._init_map.set_position(51.1657, 10.4515)
+            self._init_map.set_zoom(6)
+        else:
+            tk.Label(map_card, text=(
+                'ℹ  Karte nicht verfügbar. Bitte einmalig installieren:\n'
+                '    pip install tkintermapview\n'
+                'Danach die App neu starten.'),
+                bg=WHITE, fg=ACCENT_HVR, font=(FONT_MONO, 9),
+                justify='left', anchor='w').pack(anchor='w', pady=4)
+
+        # ── Ergebnisliste ──
+        res_card = self._make_card(
+            scroll_frame, '🏢  GEFUNDENE FIRMEN', padx=16, pady=4)
+
+        tools = tk.Frame(res_card, bg=WHITE)
+        tools.pack(fill='x', pady=(0, 6))
+        ttk.Button(tools, text='Alle auswählen', style='Ghost.TButton',
+                   command=self._init_select_all).pack(side='left', padx=(0, 4))
+        ttk.Button(tools, text='Auswahl aufheben', style='Ghost.TButton',
+                   command=self._init_select_none).pack(side='left', padx=4)
+        self._init_count_var = tk.StringVar(value='0 Firmen')
+        tk.Label(tools, textvariable=self._init_count_var, bg=WHITE,
+                 fg=FG_LIGHT, font=(FONT, 9)).pack(side='right')
+
+        tree_frame = tk.Frame(res_card, bg=WHITE)
+        tree_frame.pack(fill='both', expand=True)
+        cols = ('firma', 'email', 'adresse', 'website')
+        self._init_tree = ttk.Treeview(tree_frame, columns=cols,
+                                       show='headings', selectmode='extended',
+                                       height=10)
+        self._init_tree.heading('firma', text='Firma', anchor='w')
+        self._init_tree.heading('email', text='E-Mail', anchor='w')
+        self._init_tree.heading('adresse', text='Adresse', anchor='w')
+        self._init_tree.heading('website', text='Website', anchor='w')
+        self._init_tree.column('firma', width=220, minwidth=120, stretch=True)
+        self._init_tree.column('email', width=220, minwidth=140, stretch=True)
+        self._init_tree.column('adresse', width=200, minwidth=120, stretch=True)
+        self._init_tree.column('website', width=160, minwidth=100, stretch=True)
+        vsb = ttk.Scrollbar(tree_frame, orient='vertical',
+                            command=self._init_tree.yview)
+        self._init_tree.configure(yscrollcommand=vsb.set)
+        self._init_tree.pack(side='left', fill='both', expand=True)
+        vsb.pack(side='right', fill='y')
+        self._init_tree.tag_configure('sent', foreground=GRAY)
+
+        # ── E-Mail-Text ──
+        t_outer, t_card = self._make_card_grid(
+            scroll_frame, '✉  INITIATIV-E-MAIL', padx=16, pady=4)
+        t_outer.pack(fill='x', padx=16, pady=4)
+
+        tk.Label(t_card, text='Betreff', bg=WHITE, fg=FG,
+                 font=(FONT, 10)).grid(row=2, column=0, sticky='e',
+                                       padx=(0, 8), pady=4)
+        self._init_betreff_var = tk.StringVar(value=initiativ.DEFAULT_BETREFF)
+        ttk.Entry(t_card, textvariable=self._init_betreff_var, width=70,
+                  font=(FONT, 10)).grid(row=2, column=1, columnspan=2,
+                                        sticky='we', padx=(0, 12), pady=4)
+
+        tk.Label(t_card, text='Der Platzhalter {firma} wird pro Firma ersetzt.',
+                 bg=WHITE, fg=GRAY, font=(FONT, 9)).grid(
+                     row=3, column=0, columnspan=3, sticky='w', pady=(4, 2))
+        self._init_text_widget = tk.Text(
+            t_card, height=13, width=95, font=(FONT, 10), wrap='word',
+            bg='#F8FAFC', fg=FG, relief='solid', borderwidth=1,
+            highlightbackground=CARD_BD, highlightthickness=0, padx=8, pady=6)
+        self._init_text_widget.insert('1.0', initiativ.DEFAULT_TEXT)
+        self._init_text_widget.grid(row=4, column=0, columnspan=3,
+                                    sticky='we', pady=(0, 6))
+
+        gen_row = tk.Frame(t_card, bg=WHITE)
+        gen_row.grid(row=5, column=0, columnspan=3, sticky='w', pady=(0, 2))
+        ttk.Button(gen_row, text='🤖  KI-Text erstellen', style='Gold.TButton',
+                   command=self._init_generate_text).pack(side='left')
+        ttk.Button(gen_row, text='↺  Standardtext', style='Ghost.TButton',
+                   command=self._init_reset_text).pack(side='left', padx=6)
+
+        # ── Versand ──
+        send_card = self._make_card(
+            scroll_frame, '📤  VERSAND', padx=16, pady=4)
+
+        opt_row = tk.Frame(send_card, bg=WHITE)
+        opt_row.pack(fill='x', pady=(0, 8))
+        tk.Label(opt_row, text='Pause zwischen Mails (Sek.):', bg=WHITE, fg=NAVY,
+                 font=(FONT, 10, 'bold')).pack(side='left', padx=(0, 8))
+        self._init_delay_var = tk.StringVar(value='20')
+        ttk.Entry(opt_row, textvariable=self._init_delay_var, width=6,
+                  font=(FONT, 10)).pack(side='left', padx=(0, 16))
+
+        self._init_attach_lebenslauf = tk.BooleanVar(value=True)
+        tk.Checkbutton(opt_row, text='Lebenslauf anhängen',
+                       variable=self._init_attach_lebenslauf, bg=WHITE, fg=FG,
+                       font=(FONT, 9), activebackground=WHITE,
+                       selectcolor=WHITE).pack(side='left', padx=(0, 12))
+        self._init_skip_sent = tk.BooleanVar(value=True)
+        tk.Checkbutton(opt_row, text='Bereits kontaktierte überspringen',
+                       variable=self._init_skip_sent, bg=WHITE, fg=FG,
+                       font=(FONT, 9), activebackground=WHITE,
+                       selectcolor=WHITE).pack(side='left')
+
+        tk.Label(send_card, text=(
+            'Absender & App-Passwort werden aus dem Tab „E-Mail" verwendet '
+            '(IMAP-Feld). SMTP-Server/Port ebenfalls dort einstellen.'),
+            bg=WHITE, fg=GRAY, font=(FONT, 9)).pack(anchor='w', pady=(0, 8))
+
+        ttk.Button(send_card, text='✉  Ausgewählte Firmen anschreiben',
+                   style='Gold.TButton',
+                   command=self._init_send_selected).pack(anchor='w')
+
+        # ── Log ──
+        log_outer, log_card = self._make_card_grid(
+            scroll_frame, '📊  LOG', padx=16, pady=(4, 12))
+        log_outer.pack(fill='x', padx=16, pady=(4, 12))
+        self._init_log_widget = tk.Text(
+            log_card, height=8, width=95, font=(FONT_MONO, 9), wrap='word',
+            bg='#0F172A', fg='#E2E8F0', relief='flat', borderwidth=0,
+            padx=10, pady=8, state='disabled', insertbackground='#E2E8F0')
+        self._init_log_widget.grid(row=2, column=0, columnspan=3, sticky='we',
+                                   pady=(0, 4))
+
+    def _init_log(self, msg):
+        if threading.current_thread() is not threading.main_thread():
+            self.after(0, lambda m=msg: self._init_log(m))
+            return
+        self._init_log_widget.configure(state='normal')
+        self._init_log_widget.insert('end', msg + '\n')
+        self._init_log_widget.see('end')
+        self._init_log_widget.configure(state='disabled')
+        self.update_idletasks()
+
+    @staticmethod
+    def _init_sent_load():
+        if os.path.isfile(INITIATIV_SENT_FILE):
+            try:
+                with open(INITIATIV_SENT_FILE, 'r', encoding='utf-8') as f:
+                    data = json.load(f)
+                if isinstance(data, list):
+                    return {str(e).strip().lower() for e in data}
+            except (json.JSONDecodeError, OSError):
+                pass
+        return set()
+
+    @staticmethod
+    def _init_sent_save(sent):
+        try:
+            with open(INITIATIV_SENT_FILE, 'w', encoding='utf-8') as f:
+                json.dump(sorted(sent), f, ensure_ascii=False, indent=2)
+        except OSError:
+            pass
+
+    def _init_reset_text(self):
+        self._init_betreff_var.set(initiativ.DEFAULT_BETREFF)
+        self._init_text_widget.delete('1.0', 'end')
+        self._init_text_widget.insert('1.0', initiativ.DEFAULT_TEXT)
+
+    def _init_show_area(self):
+        """Gewähltes Suchgebiet (Umkreis) auf der Karte anzeigen."""
+        if not MAP_AVAILABLE:
+            messagebox.showinfo(
+                'Karte nicht verfügbar',
+                'Bitte einmalig installieren:\n\n    pip install tkintermapview\n\n'
+                'Danach die App neu starten.')
+            return
+        region = self._init_region_var.get().strip()
+        if not region:
+            messagebox.showwarning('Region fehlt',
+                                   'Bitte eine Region / Stadt eingeben.')
+            return
+        try:
+            radius = float(self._init_radius_var.get().strip() or '10')
+        except ValueError:
+            messagebox.showwarning('Ungültig', 'Umkreis muss eine Zahl sein.')
+            return
+
+        self._init_log(f'🗺 Kartenausschnitt für "{region}" wird geladen ...')
+
+        def _worker():
+            try:
+                lat, lon, name = initiativ.geocode(region)
+                self.after(0, lambda: self._init_draw_area(
+                    lat, lon, radius, name))
+            except Exception as exc:
+                self._init_log(f'✗ Karte: {exc}')
+
+        threading.Thread(target=_worker, daemon=True).start()
+
+    def _init_draw_area(self, lat, lon, radius, name):
+        """Umkreis-Kreis + Mittelpunkt zeichnen und passend zoomen."""
+        if not MAP_AVAILABLE or self._init_map is None:
+            return
+        if self._init_map_circle is not None:
+            self._init_map_circle.delete()
+        if self._init_map_center is not None:
+            self._init_map_center.delete()
+
+        self._init_map_circle = self._init_map.set_polygon(
+            initiativ.circle_points(lat, lon, radius),
+            fill_color='#1D4ED8', outline_color='#1D4ED8', border_width=2,
+            name='Suchgebiet')
+        self._init_map_center = self._init_map.set_marker(
+            lat, lon, text=name.split(',')[0])
+
+        # Kreis komplett einpassen (Bounding-Box des Umkreises).
+        dlat = radius / 111.32
+        dlon = radius / (111.32 * max(0.01, math.cos(math.radians(lat))))
+        self._init_map.fit_bounding_box(
+            (lat + dlat, lon - dlon), (lat - dlat, lon + dlon))
+        self._init_log(f'🗺 Suchgebiet angezeigt: {name.split(",")[0]} '
+                       f'· {radius:.0f} km Umkreis.')
+
+    def _init_map_add_companies(self, companies):
+        """Gefundene Firmen als Marker auf der Karte setzen."""
+        if not MAP_AVAILABLE or self._init_map is None:
+            return
+        for m in self._init_map_markers:
+            m.delete()
+        self._init_map_markers = []
+        # Tausende Marker würden die Karte einfrieren – Anzeige begrenzen.
+        max_marker = 300
+        if len(companies) > max_marker:
+            self._init_log(f'🗺 Karte zeigt die ersten {max_marker} von '
+                           f'{len(companies)} Firmen (Liste bleibt vollständig).')
+            companies = companies[:max_marker]
+        for c in companies:
+            lat, lon = c.get('lat'), c.get('lon')
+            if lat is None or lon is None:
+                continue
+            marker = self._init_map.set_marker(
+                lat, lon, text=c.get('firma', ''),
+                marker_color_circle='#B45309',
+                marker_color_outside='#D97706')
+            self._init_map_markers.append(marker)
+
+    def _init_search_companies(self):
+        region = self._init_region_var.get().strip()
+        if not region:
+            messagebox.showwarning('Region fehlt',
+                                   'Bitte eine Region / Stadt eingeben.')
+            return
+        try:
+            radius = float(self._init_radius_var.get().strip() or '10')
+        except ValueError:
+            messagebox.showwarning('Ungültig', 'Umkreis muss eine Zahl sein.')
+            return
+        try:
+            limit = int(self._init_limit_var.get().strip() or '100')
+        except ValueError:
+            limit = 100
+        category = self._init_cat_var.get()
+
+        self._init_log(f'▶ Suche in "{region}" ...')
+        self._status('Firmensuche läuft...')
+
+        def _worker():
+            try:
+                # Suchgebiet zuerst auf der Karte anzeigen.
+                if MAP_AVAILABLE:
+                    try:
+                        m_lat, m_lon, m_name = initiativ.geocode(region)
+                        self.after(0, lambda: self._init_draw_area(
+                            m_lat, m_lon, radius, m_name))
+                    except Exception:
+                        pass
+                companies = initiativ.find_companies(
+                    region, radius, category, limit, log=self._init_log)
+                self.after(0, lambda: self._init_populate_tree(companies))
+                self.after(0, lambda: self._init_map_add_companies(companies))
+            except Exception as exc:
+                self._init_log(f'✗ Fehler: {exc}')
+                self.after(0, lambda: self._status(f'Fehler: {exc}'))
+
+        threading.Thread(target=_worker, daemon=True).start()
+
+    def _init_search_bicycles(self):
+        """Bundesweite Suche nach allen Fahrradfirmen mit Kontakt-E-Mail."""
+        if not messagebox.askyesno(
+                'Alle Fahrradfirmen in Deutschland',
+                'Es werden ALLE Fahrradläden, -werkstätten und -hersteller in '
+                'Deutschland gesucht, die eine öffentliche Kontakt-E-Mail '
+                'hinterlegt haben.\n\n'
+                'Die Abfrage läuft in mehreren Stufen (ca. 10–15 Minuten), erste '
+                'Ergebnisse erscheinen schon nach ca. 30 Sekunden. '
+                '„Region", „Umkreis", „Kategorie" und „Max. Anzahl" werden '
+                'dabei ignoriert.\n\nJetzt suchen?'):
+            return
+
+        self._init_log('▶ Bundesweite Fahrradfirmen-Suche gestartet ...')
+        self._status('Fahrradfirmen in Deutschland werden gesucht...')
+
+        def _partial(companies):
+            # Zwischenstand nach jeder Stufe anzeigen (läuft im Worker-Thread).
+            self.after(0, lambda c=companies: self._init_populate_tree(c))
+            self.after(0, lambda c=companies: self._init_show_germany(c))
+
+        def _worker():
+            try:
+                companies = initiativ.find_bicycle_companies_germany(
+                    limit=0, log=self._init_log, on_partial=_partial)
+                self.after(0, lambda: self._init_populate_tree(companies))
+                self.after(0, lambda: self._init_show_germany(companies))
+            except Exception as exc:
+                self._init_log(f'✗ Fehler: {exc}')
+                self.after(0, lambda: self._status(f'Fehler: {exc}'))
+
+        threading.Thread(target=_worker, daemon=True).start()
+
+    def _init_show_germany(self, companies):
+        """Karte auf Deutschland stellen und die Treffer als Marker zeigen."""
+        if not MAP_AVAILABLE or self._init_map is None:
+            return
+        if self._init_map_circle is not None:
+            self._init_map_circle.delete()
+            self._init_map_circle = None
+        if self._init_map_center is not None:
+            self._init_map_center.delete()
+            self._init_map_center = None
+        self._init_map.set_position(51.1657, 10.4515)
+        self._init_map.set_zoom(6)
+        self._init_map_add_companies(companies)
+
+    def _init_populate_tree(self, companies):
+        self._init_companies = companies
+        self._init_tree.delete(*self._init_tree.get_children())
+        sent = self._init_sent_load()
+        new_count = 0
+        for idx, c in enumerate(companies):
+            adresse = ', '.join(p for p in (c.get('strasse'), c.get('plz_ort'))
+                                if p)
+            already = c['email'] in sent
+            tags = ('sent',) if already else ()
+            if not already:
+                new_count += 1
+            self._init_tree.insert(
+                '', 'end', iid=str(idx),
+                values=(c['firma'], c['email'], adresse, c.get('website', '')),
+                tags=tags)
+        self._init_count_var.set(
+            f'{len(companies)} Firmen · {new_count} neu · '
+            f'{len(companies) - new_count} bereits kontaktiert')
+        self._status(f'✓  {len(companies)} Firmen gefunden.')
+
+    def _init_select_all(self):
+        self._init_tree.selection_set(self._init_tree.get_children())
+
+    def _init_select_none(self):
+        self._init_tree.selection_remove(self._init_tree.get_children())
+
+    def _init_generate_text(self):
+        api_key = self._api_key_var.get().strip()
+        if not api_key:
+            messagebox.showwarning('API Key fehlt',
+                                   'Bitte im Tab „KI-Assistent" einen Claude '
+                                   'API Key eingeben.')
+            return
+        region = self._init_region_var.get().strip()
+        self._init_log('🤖 Erstelle Initiativ-Text mit Claude ...')
+        self._status('KI erstellt Initiativ-Text...')
+
+        def _worker():
+            try:
+                res = initiativ.generate_email_template(api_key, region)
+                def _apply():
+                    self._init_betreff_var.set(res['betreff'])
+                    self._init_text_widget.delete('1.0', 'end')
+                    self._init_text_widget.insert('1.0', res['text'])
+                    self._init_log('✓ KI-Text übernommen.')
+                    self._status('✓  Initiativ-Text erstellt.')
+                self.after(0, _apply)
+            except Exception as exc:
+                self._init_log(f'✗ Fehler: {exc}')
+                self.after(0, lambda: self._status(f'Fehler: {exc}'))
+
+        threading.Thread(target=_worker, daemon=True).start()
+
+    def _init_selected_companies(self):
+        result = []
+        for iid in self._init_tree.selection():
+            try:
+                result.append(self._init_companies[int(iid)])
+            except (ValueError, IndexError):
+                continue
+        return result
+
+    def _init_log_application(self, firma):
+        """Initiativbewerbung in die Übersichts-Tabelle eintragen."""
+        firma = (firma or '').strip()
+        if not firma:
+            return
+        with self._table_lock:
+            rows = self._read_applications_rows()
+            rows.append([firma, 'Initiativbewerbung', 'Gönderildi', today_de()])
+            self._write_applications_rows(rows)
+
+    def _init_send_selected(self):
+        companies = self._init_selected_companies()
+        if not companies:
+            messagebox.showinfo('Keine Auswahl',
+                                'Bitte zuerst Firmen in der Liste auswählen.')
+            return
+
+        sender = self._imap_email_var.get().strip()
+        password = self._imap_password_var.get().strip()
+        smtp_server = self._smtp_server_var.get().strip() or 'smtp.web.de'
+        smtp_port_text = self._smtp_port_var.get().strip() or '587'
+        if not sender or not password:
+            messagebox.showwarning(
+                'Zugangsdaten fehlen',
+                'Bitte im Tab „E-Mail" Absender-E-Mail und App-Passwort '
+                'eingeben.')
+            return
+        try:
+            smtp_port = int(smtp_port_text)
+        except ValueError:
+            messagebox.showwarning('Ungültiger Port',
+                                   'SMTP-Port muss eine Zahl sein (z.B. 587).')
+            return
+        try:
+            delay = max(0.0, float(self._init_delay_var.get().strip() or '20'))
+        except ValueError:
+            delay = 20.0
+
+        betreff = self._init_betreff_var.get().strip() or initiativ.DEFAULT_BETREFF
+        body_template = self._init_text_widget.get('1.0', 'end-1c').strip()
+        if not body_template:
+            messagebox.showwarning('Text fehlt', 'E-Mail-Text darf nicht leer sein.')
+            return
+
+        skip_sent = self._init_skip_sent.get()
+        attach_cv = self._init_attach_lebenslauf.get()
+        sent = self._init_sent_load()
+
+        todo = [c for c in companies
+                if not (skip_sent and c['email'] in sent)]
+        skipped = len(companies) - len(todo)
+        if not todo:
+            messagebox.showinfo(
+                'Nichts zu senden',
+                'Alle ausgewählten Firmen wurden bereits kontaktiert.')
+            return
+
+        if not messagebox.askyesno(
+                'Initiativbewerbungen senden',
+                f'{len(todo)} Initiativbewerbung(en) werden versendet'
+                + (f'\n({skipped} bereits kontaktierte übersprungen)' if skipped else '')
+                + f'\n\nPause zwischen Mails: {delay:.0f} Sek.\n\nFortfahren?'):
+            return
+
+        self._save_imap_settings()
+        self._save_smtp_settings()
+        self._status('Initiativbewerbungen werden gesendet...')
+
+        def _worker():
+            # Lebenslauf einmalig erzeugen und für alle Mails wiederverwenden.
+            lebenslauf_path = None
+            if attach_cv:
+                try:
+                    cfg = self._get_config()
+                    folder = os.path.join(OUTPUT_DIR, 'bewerbungen',
+                                          'Initiativbewerbung')
+                    os.makedirs(folder, exist_ok=True)
+                    lebenslauf_path = os.path.join(
+                        folder, 'Hamza_Oeztuerk_Lebenslauf.pdf')
+                    gen_l.generate(lebenslauf_path, cfg)
+                    self._init_log('✓ Lebenslauf erstellt (Anhang).')
+                except Exception as exc:
+                    self._init_log(f'✗ Lebenslauf-Fehler: {exc}')
+                    self.after(0, lambda: self._status(f'Fehler: {exc}'))
+                    return
+
+            ok, fail = 0, 0
+            total = len(todo)
+            smtp = None
+            try:
+                for i, c in enumerate(todo, start=1):
+                    firma = c['firma']
+                    recipient = c['email']
+                    self._init_log(f'[{i}/{total}] → {firma} <{recipient}>')
+                    try:
+                        msg = EmailMessage()
+                        msg['From'] = sender
+                        msg['To'] = recipient
+                        msg['Subject'] = betreff
+                        msg.set_content(initiativ.personalize(body_template, firma))
+                        if lebenslauf_path and os.path.isfile(lebenslauf_path):
+                            self._attach_file_to_message(msg, lebenslauf_path)
+
+                        # Verbindung pro Mail neu aufbauen (robust gegen Timeouts).
+                        if smtp_port == 465:
+                            smtp = smtplib.SMTP_SSL(smtp_server, smtp_port,
+                                                    timeout=30)
+                        else:
+                            smtp = smtplib.SMTP(smtp_server, smtp_port,
+                                                timeout=30)
+                            smtp.starttls()
+                        smtp.login(sender, password)
+                        smtp.send_message(msg)
+                        smtp.quit()
+                        smtp = None
+
+                        ok += 1
+                        sent.add(recipient)
+                        self._init_sent_save(sent)
+                        self._init_log_application(firma)
+                        self._init_log(f'    ✓ gesendet ({ok} ok)')
+                    except Exception as exc:
+                        fail += 1
+                        self._init_log(f'    ✗ Fehler: {exc}')
+                        if smtp is not None:
+                            try:
+                                smtp.quit()
+                            except Exception:
+                                pass
+                            smtp = None
+
+                    if i < total and delay:
+                        time.sleep(delay)
+            finally:
+                if smtp is not None:
+                    try:
+                        smtp.quit()
+                    except Exception:
+                        pass
+
+            self.after(0, lambda: self._uebersicht_refresh())
+            self.after(0, lambda: self._status(
+                f'✓  Initiativversand fertig. Gesendet: {ok}, Fehler: {fail}'))
+            self.after(0, lambda: messagebox.showinfo(
+                'Initiativversand abgeschlossen',
+                f'Erfolgreich gesendet: {ok}\nFehlgeschlagen: {fail}'))
 
         threading.Thread(target=_worker, daemon=True).start()
 
@@ -1300,6 +2035,13 @@ class BewerbungsApp(tk.Tk):
         threading.Thread(target=_worker, daemon=True).start()
 
     def _run_mail_sync(self, email_addr, password, server, port, only_unseen, scan_all=False):
+        # Tabellen-Lock über den gesamten Read-Modify-Write halten, damit
+        # parallele Sync-/Sende-Vorgänge die CSV/XLSX nicht beschädigen.
+        with self._table_lock:
+            return self._run_mail_sync_locked(
+                email_addr, password, server, port, only_unseen, scan_all)
+
+    def _run_mail_sync_locked(self, email_addr, password, server, port, only_unseen, scan_all=False):
         rows = self._read_applications_rows()
 
         changed = 0
@@ -1488,8 +2230,12 @@ class BewerbungsApp(tk.Tk):
                 conn.logout()
             except Exception:
                 pass
-
-        c.save()
+            # Canvas immer schließen – auch bei einem Fehler im Schleifenkörper –
+            # damit keine unvollständige/gesperrte PDF-Datei zurückbleibt.
+            try:
+                c.save()
+            except Exception:
+                pass
 
         return saved, scanned, skipped
 
@@ -1957,13 +2703,19 @@ class BewerbungsApp(tk.Tk):
 
     # ── CONFIG GATHERING ─────────────────────────────────────────────────────
     def _get_config(self):
-        cfg = {}
+        # Mit Nicht-Widget-Feldern (z.B. highlights von der KI) starten,
+        # damit diese in die PDF-Generierung gelangen. Widget-Werte haben Vorrang.
+        cfg = dict(self._extra_cfg)
         for key, widget in self.vars.items():
             if isinstance(widget, tk.StringVar):
                 cfg[key] = widget.get()
             elif isinstance(widget, tk.Text):
                 cfg[key] = widget.get('1.0', 'end-1c').strip()
         return cfg
+
+    def _stash_extra_cfg(self, cfg):
+        """Felder ohne eigenes Widget für die spätere Generierung merken."""
+        self._extra_cfg = {k: v for k, v in cfg.items() if k not in self.vars}
 
     def _set_config(self, cfg):
         for key, widget in self.vars.items():
@@ -2069,6 +2821,34 @@ class BewerbungsApp(tk.Tk):
 
         return _PdfReader, _PdfWriter, _Transformation, _PageObject
 
+    @staticmethod
+    def _resolve_zeugnis_files():
+        """Zeugnis-PDFs robust über Schlüsselwörter im Ordner auflösen.
+
+        Unabhängig von wechselnden Dateinamen; gibt die gefundenen Pfade in
+        definierter Reihenfolge zurück (jede Datei höchstens einmal).
+        """
+        if not os.path.isdir(ZEUGNIS_DIR):
+            return []
+        try:
+            pdfs = [f for f in sorted(os.listdir(ZEUGNIS_DIR))
+                    if f.lower().endswith('.pdf')]
+        except OSError:
+            return []
+
+        resolved = []
+        used = set()
+        for keywords in _ZEUGNIS_KEYWORDS:
+            for fname in pdfs:
+                if fname in used:
+                    continue
+                low = fname.lower()
+                if any(kw in low for kw in keywords):
+                    resolved.append(os.path.join(ZEUGNIS_DIR, fname))
+                    used.add(fname)
+                    break
+        return resolved
+
     def _build_application_pdf(self, output_path, cfg):
         PdfReader, PdfWriter, Transformation, PageObject = self._ensure_pdf_merger()
 
@@ -2080,19 +2860,14 @@ class BewerbungsApp(tk.Tk):
         gen_a.generate(anschreiben, cfg)
         gen_l.generate(lebenslauf, cfg)
 
-        parts = [
-            kapak,
-            anschreiben,
-            lebenslauf,
-            ARBEITS_ZEUGNIS_PDF,
-            IHK_ZEUGNIS_PDF,
-            BERUFSCHULE_ZEUGNIS_PDF,
-            DATA_ANALYST_ZERT_PDF,
-        ]
-
-        missing = [p for p in parts if not os.path.isfile(p)]
+        # Generierte Dokumente sind Pflicht; Zeugnisse werden so weit
+        # angehängt, wie sie im Zeugnis-Ordner vorhanden sind.
+        required = [kapak, anschreiben, lebenslauf]
+        missing = [p for p in required if not os.path.isfile(p)]
         if missing:
             raise FileNotFoundError('Fehlende Datei(en):\n' + '\n'.join(missing))
+
+        parts = required + self._resolve_zeugnis_files()
 
         writer = PdfWriter()
         a4_width = 595.276
@@ -2145,25 +2920,28 @@ class BewerbungsApp(tk.Tk):
         if not firma or not stelle:
             return
 
-        rows = self._read_applications_rows()
+        # Lock: verhindert verschachtelte Schreibvorgänge, wenn Senden/Sync
+        # gleichzeitig laufen.
+        with self._table_lock:
+            rows = self._read_applications_rows()
 
-        updated = False
-        for i in range(1, len(rows)):
-            row = rows[i]
-            if len(row) < 4:
-                row = (row + [''] * 4)[:4]
-                rows[i] = row
+            updated = False
+            for i in range(1, len(rows)):
+                row = rows[i]
+                if len(row) < 4:
+                    row = (row + [''] * 4)[:4]
+                    rows[i] = row
 
-            if row[0].strip().lower() == firma.lower() and row[1].strip().lower() == stelle.lower():
-                row[2] = 'Beworben'
-                row[3] = datum
-                updated = True
-                break
+                if row[0].strip().lower() == firma.lower() and row[1].strip().lower() == stelle.lower():
+                    row[2] = 'Beworben'
+                    row[3] = datum
+                    updated = True
+                    break
 
-        if not updated:
-            rows.append([firma, stelle, 'Beworben', datum])
+            if not updated:
+                rows.append([firma, stelle, 'Beworben', datum])
 
-        self._write_applications_rows(rows)
+            self._write_applications_rows(rows)
 
     # ── PROFILE MANAGEMENT ───────────────────────────────────────────────────
     def _profiles_path(self):
@@ -2196,8 +2974,14 @@ class BewerbungsApp(tk.Tk):
             return
         name = self._profile_list.get(sel[0])
         path = os.path.join(self._profiles_path(), name + '.json')
-        with open(path, 'r', encoding='utf-8') as fp:
-            cfg = json.load(fp)
+        try:
+            with open(path, 'r', encoding='utf-8') as fp:
+                cfg = json.load(fp)
+        except (json.JSONDecodeError, OSError) as exc:
+            messagebox.showerror('Profil fehlerhaft',
+                                 f'Profil konnte nicht geladen werden:\n{exc}')
+            return
+        self._stash_extra_cfg(cfg)
         self._set_config(cfg)
         self._status(f'✓  Profil geladen: {name}')
 
@@ -2216,27 +3000,38 @@ class BewerbungsApp(tk.Tk):
 
     # ── MISC ─────────────────────────────────────────────────────────────────
     def _status(self, msg):
+        if threading.current_thread() is not threading.main_thread():
+            self.after(0, lambda m=msg: self._status(m))
+            return
         self._status_var.set(f'◆  {msg}')
         self.update_idletasks()
 
-    @staticmethod
-    def _open_pdf(path):
-        if sys.platform == 'win32':
-            os.startfile(path)
-        elif sys.platform == 'darwin':
-            subprocess.Popen(['open', path])
-        else:
-            subprocess.Popen(['xdg-open', path])
+    def _open_pdf(self, path):
+        try:
+            if not os.path.isfile(path):
+                raise FileNotFoundError(path)
+            if sys.platform == 'win32':
+                os.startfile(path)
+            elif sys.platform == 'darwin':
+                subprocess.Popen(['open', path])
+            else:
+                subprocess.Popen(['xdg-open', path])
+        except Exception as exc:
+            self._status(f'Konnte PDF nicht öffnen: {exc}')
 
-    @staticmethod
-    def _open_folder():
+    def _open_folder(self):
         """Open the bewerbungen base folder."""
         folder = os.path.join(OUTPUT_DIR, 'bewerbungen')
-        os.makedirs(folder, exist_ok=True)
-        if sys.platform == 'win32':
-            os.startfile(folder)
-        else:
-            subprocess.Popen(['xdg-open', folder])
+        try:
+            os.makedirs(folder, exist_ok=True)
+            if sys.platform == 'win32':
+                os.startfile(folder)
+            elif sys.platform == 'darwin':
+                subprocess.Popen(['open', folder])
+            else:
+                subprocess.Popen(['xdg-open', folder])
+        except Exception as exc:
+            self._status(f'Konnte Ordner nicht öffnen: {exc}')
 
 
 # ─── ENTRY POINT ─────────────────────────────────────────────────────────────
