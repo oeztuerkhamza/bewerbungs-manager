@@ -399,15 +399,16 @@ def _draw_page(canvas, doc):
 
 # ─── DEFAULT CONFIG ──────────────────────────────────────────────────────────
 DEFAULT_KURZPROFIL = (
-    'Full-Stack-Entwickler mit Fokus auf <b>C#/.NET</b>, <b>Angular</b>, '
-    '<b>Docker/Azure</b> und <b>CI/CD</b>. Über 2,5 Jahre Erfahrung in der '
-    'Modernisierung von ERP-Systemen inkl. vollständiger Migration einer '
-    'Legacy-Desktop-Anwendung in eine Web-Architektur; aktuell verantwortlich '
-    'für eine selbst entwickelte, produktiv genutzte Warenwirtschafts- und '
-    'Vermietungsplattform. End-to-End von Datenmodellierung und API-Design '
-    'über Frontend und SEO bis zu Cloud-Betrieb und '
-    'Deployment-Automatisierung — mit messbaren Ergebnissen in Performance '
-    'und Code-Qualität.'
+    'Full-Stack-Entwickler mit Schwerpunkt auf der <b>Digitalisierung von '
+    'Geschäftsprozessen</b> — vom bisherigen Papierweg über Datenmodell, API '
+    'und Frontend bis zum laufenden Cloud-Betrieb. Technischer Kern: '
+    '<b>C#/.NET</b>, <b>Angular</b>, <b>Docker/Azure</b> und <b>CI/CD</b>. '
+    'Aktuell verantwortlich für eine selbst entwickelte Warenwirtschafts- und '
+    'Vermietungsplattform, die Vermietung, An- und Verkauf eines Handels'
+    'betriebs vollständig papierlos abwickelt; zuvor Mitarbeit an der '
+    'Migration eines ERP-Systems für den Getränke-Großhandel von WinForms in '
+    'eine Web-Architektur — mit messbaren Ergebnissen in Durchlaufzeit, '
+    'Performance und Code-Qualität.'
 )
 
 DEFAULT_CONFIG = {
@@ -678,10 +679,10 @@ def build(story, sty, W, cfg=None):
         exp_header('Dicom GmbH – Full-Stack Entwickler '
                    '(verkürzte duale Ausbildung, IHK)', '02/2024 – 02/2026'),
         bul(
-            'Migration eines kompletten ERP-Systems für den '
+            'Mitarbeit an der Migration eines kompletten ERP-Systems für den '
             '<b>Getränke-Großhandel</b> von WinForms zu einer '
-            '<b>C#/.NET 10</b> + <b>Angular</b> Web-Lösung; Einführung einer '
-            '<b>Clean Architecture</b> und modularen API-Struktur.',
+            '<b>C#/.NET</b> + <b>Angular</b> Web-Lösung; Einführung einer '
+            '<b>Clean Architecture</b> und modularen API-Struktur im Team.',
             sty['bullet'],
         ),
         bul(
@@ -711,9 +712,9 @@ def build(story, sty, W, cfg=None):
             sty['bullet'],
         ),
         bul(
-            'Betrieb der gesamten Infrastruktur in der <b>Azure Cloud</b> '
-            '(Dev/Staging/Prod); REST-APIs inkl. KI-gestützter Tools zur '
-            'Beschleunigung von Entwicklungszyklen.',
+            'Mitbetreuung der <b>Azure</b>-Umgebungen (Dev/Staging/Prod); '
+            'REST-APIs inkl. KI-gestützter Tools zur Beschleunigung von '
+            'Entwicklungszyklen.',
             sty['bullet'],
         ),
     ]))
@@ -777,7 +778,7 @@ def build(story, sty, W, cfg=None):
          'C#, .NET Core, ASP.NET Core, Clean Architecture, EF Core, Web-Scraping, '
          'RESTful APIs, xUnit'),
         ('Frontend',
-         'Angular (17/19), TypeScript, React 19, Tailwind CSS, NgRx, HTML, Bulma, '
+         'Angular (17/19), TypeScript, React 19, Tailwind CSS, NgRx, HTML, '
          'Infragistics'),
         ('Datenbanken',
          'SQL Server, SQLite, PostgreSQL'),

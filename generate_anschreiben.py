@@ -284,10 +284,10 @@ DEFAULT_CONFIG = {
     'absatz_1': (
         'mit großem Interesse habe ich Ihre Stellenausschreibung als '
         'Fullstack Entwickler gelesen. Als ausgebildeter '
-        '<b>Fachinformatiker für Anwendungsentwicklung</b> mit '
-        'fundierter Praxis in <b>C#/.NET</b> und <b>Angular</b> '
-        'bringe ich genau die Kombination aus technischer Tiefe und '
-        'Eigeninitiative mit, die Ihr Team weiterbringt.'
+        '<b>Fachinformatiker für Anwendungsentwicklung</b> entwickle ich '
+        'Software, die Geschäftsprozesse vom Papier in ein laufendes System '
+        'überführt – mit <b>C#/.NET</b> und <b>Angular</b> in der Anwendung, '
+        'Docker und CI/CD im Betrieb.'
     ),
     'absatz_2': (
         'Aus meiner Arbeit bei Bike Haus Freiburg und zuvor der Dicom GmbH '
@@ -296,26 +296,30 @@ DEFAULT_CONFIG = {
     # Reihenfolge bewusst: erst was gebaut wurde, dann Kennzahlen. Eine
     # Violations-Quote als erster Punkt sagt nichts über die Fachlichkeit aus.
     'highlights': [
-        'Komplettes ERP für den Getränke-Großhandel von WinForms auf '
+        'Eigene Warenwirtschafts- und Vermietungsplattform konzipiert, '
+        'entwickelt und im Tagesgeschäft betrieben – <b>Vermietung, An- und '
+        'Verkauf laufen papierlos</b>, über 2.000 Belege und 35.000 € '
+        'Mietumsatz',
+        'Im Team ein ERP für den Getränke-Großhandel von WinForms auf '
         '<b>C#/.NET</b> und <b>Angular</b> migriert – Clean Architecture, '
         'produktiv im Einsatz',
         'Fachlich über die gesamte Prozesskette gearbeitet: <b>Stammdaten, '
         'Artikel, Einkauf, Verkauf und Leergut-/Pfandabwicklung</b>',
-        'Eigene Warenwirtschafts- und Vermietungsplattform konzipiert, entwickelt '
-        'und betrieben – über 2.000 Belege und 35.000 € Mietumsatz papierlos abgewickelt',
-        'CI/CD-Pipelines aufgebaut – Deployment-Zeit um 40 % reduziert, '
-        'SonarQube-Violations um 99 % gesenkt (2.100 → 30)',
+        'Betrieb selbst aufgebaut und automatisiert: Docker-Stack, CI/CD mit '
+        'Zero-Downtime-Deployment, eigener Mailserver – Deployment-Zeit um '
+        '40 % reduziert',
     ],
     'absatz_3': (
-        'Diese Kombination aus technischer Tiefe, Verständnis für '
-        'Unternehmensprozesse und Erfahrung im 3rd-Level-Support '
-        'macht mich zu einem Entwickler, der nicht nur Code schreibt – '
-        'sondern mitdenkt.'
+        'Was ich mitbringe, endet nicht beim Rollout: Ich nehme bestehende '
+        'Abläufe auf, modelliere sie, baue die Anwendung und übernehme '
+        'anschließend Deployment, Monitoring und Wartung. Dadurch weiß ich '
+        'aus der Praxis, welche Entscheidungen im laufenden Betrieb später '
+        'Zeit und Geld kosten – und treffe sie vorher anders.'
     ),
     'absatz_4': (
-        'Ich freue mich auf ein persönliches Gespräch, um Sie davon '
-        'zu überzeugen, wie ich Ihre Projekte technisch und menschlich '
-        'voranbringe.'
+        'Über ein persönliches Gespräch, in dem ich Ihre Abläufe und Ihre '
+        'Systemlandschaft kennenlernen kann, würde ich mich sehr freuen. '
+        'Meinen Eintrittstermin stimme ich gern mit Ihnen ab.'
     ),
     'absatz_5': '',
     'gehalt':           '',

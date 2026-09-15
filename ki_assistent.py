@@ -366,6 +366,16 @@ Du erhältst:
 Du musst daraus ein JSON-Objekt generieren, das ALLE folgenden Felder enthält.
 Die Texte sollen in professionellem Deutsch verfasst sein.
 
+POSITIONIERUNG – gilt fuer alle Texte:
+- Hamza ist nicht "nur Programmierer". Sein Kern ist die Digitalisierung von
+  Geschaeftsprozessen: bestehende, oft papiergebundene Ablaeufe aufnehmen,
+  modellieren, als System bauen UND anschliessend betreiben.
+- Betone deshalb immer beides: Aufbau (Datenmodell, API, Frontend) und Betrieb
+  (Docker, CI/CD, Server, Monitoring, Wartung).
+- Belege das mit konkreten Zahlen aus dem Profil statt mit Adjektiven.
+  Verzichte auf Floskeln wie "teamfaehig", "lernbereit", "hoch motiviert" oder
+  "genau die Kombination, die Ihr Team weiterbringt".
+
 WICHTIG – Lebenslauf-Anpassung:
 - Die Stelle-Bezeichnung und Technologie-Schwerpunkte sollen zur Stellenanzeige passen.
 - Das Kurzprofil (stelle) soll auf die Anforderungen der Stelle zugeschnitten sein.
@@ -394,6 +404,12 @@ WICHTIG – Bewerbungs-E-Mail:
 - email_text: Der E-Mail-Text. Kurz (5-8 Sätze), höflich, professionell.
   Erwähne die Stelle, verweise auf die Anhänge (Lebenslauf & Anschreiben),
   und schließe mit freundlichen Grüßen.
+- Die E-Mail MUSS mindestens ein konkretes Ergebnis mit Zahl aus dem Profil
+  nennen (z.B. papierlose Abwicklung von über 2.000 Belegen, 35.000 EUR
+  Mietumsatz, Deployment-Zeit um 40 % reduziert). Eine E-Mail, die nur
+  "ich bewerbe mich und freue mich auf Ihre Antwort" sagt, ist unbrauchbar.
+- Stelle einen Bezug zur Firma her: was sie tut und wo dabei
+  Digitalisierung oder Systembetrieb eine Rolle spielt.
   Verwende KEINE HTML-Tags. Am Ende immer:
   Mit freundlichen Grüßen
   Hamza Öztürk
