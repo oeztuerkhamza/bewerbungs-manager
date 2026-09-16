@@ -1883,6 +1883,28 @@ class BewerbungsApp(tk.Tk):
             ok, fail = 0, 0
             total = len(todo)
             smtp = None
+
+            # Kopie jeder gesendeten Mail in den Ordner "Gesendet" legen.
+            # SMTP tut das nicht; ohne diesen Schritt ist serverseitig nicht
+            # nachvollziehbar, was rausgegangen ist. Scheitert das Ablegen,
+            # gilt die Mail trotzdem als gesendet - sie ist bereits raus.
+            imap_conn = None
+            sent_folder = None
+            try:
+                imap_conn = imaplib.IMAP4_SSL(
+                    self._imap_server_var.get().strip() or 'imap.web.de',
+                    int(self._imap_port_var.get().strip() or '993'))
+                imap_conn.login(sender, password)
+                sent_folder = self._imap_find_sent_folder(imap_conn)
+                if sent_folder:
+                    self._init_log(f'Kopien landen in "{sent_folder}".')
+                else:
+                    self._init_log('! Kein Sent-Ordner gefunden – es werden '
+                                   'keine Kopien abgelegt.')
+            except Exception as exc:
+                self._init_log(f'! IMAP-Ablage nicht möglich ({exc}). '
+                               'Versand läuft trotzdem.')
+                imap_conn = None
             try:
                 for i, c in enumerate(todo, start=1):
                     firma = c['firma']
@@ -1914,7 +1936,15 @@ class BewerbungsApp(tk.Tk):
                         sent.add(recipient)
                         self._init_sent_save(sent)
                         self._init_log_application(firma)
-                        self._init_log(f'    ✓ gesendet ({ok} ok)')
+
+                        kopie = ''
+                        if imap_conn is not None and sent_folder:
+                            try:
+                                self._imap_append_sent(imap_conn, sent_folder, msg)
+                                kopie = ', Kopie abgelegt'
+                            except Exception as exc:
+                                kopie = f', Kopie fehlgeschlagen ({exc})'
+                        self._init_log(f'    ✓ gesendet ({ok} ok){kopie}')
                     except Exception as exc:
                         fail += 1
                         self._init_log(f'    ✗ Fehler: {exc}')
@@ -1931,6 +1961,11 @@ class BewerbungsApp(tk.Tk):
                 if smtp is not None:
                     try:
                         smtp.quit()
+                    except Exception:
+                        pass
+                if imap_conn is not None:
+                    try:
+                        imap_conn.logout()
                     except Exception:
                         pass
 
@@ -2238,6 +2273,54 @@ class BewerbungsApp(tk.Tk):
                 pass
 
         return saved, scanned, skipped
+
+    # Kandidaten für den Ordner "Gesendet", in dieser Reihenfolge geprüft.
+    _SENT_KANDIDATEN = ('gesendet', 'gesendete objekte', 'sent', 'sent items',
+                        'sent messages', 'inbox.sent', 'inbox.gesendet')
+
+    @classmethod
+    def _imap_find_sent_folder(cls, conn):
+        """Namen des Sent-Ordners ermitteln, sonst None."""
+        try:
+            status, data = conn.list()
+        except Exception:
+            return None
+        if status != 'OK' or not data:
+            return None
+
+        namen = []
+        for raw in data:
+            if not raw:
+                continue
+            line = raw.decode('utf-8', errors='replace')
+            flags, name = cls._parse_imap_list_line(line)
+            if '\\Noselect' in flags:
+                continue
+            if not name:
+                continue
+            # Special-Use-Flag ist der zuverlässigste Hinweis.
+            if '\\Sent' in flags:
+                return name
+            namen.append(name)
+
+        for kandidat in cls._SENT_KANDIDATEN:
+            for name in namen:
+                if name.lower() == kandidat:
+                    return name
+        return None
+
+    @staticmethod
+    def _imap_append_sent(conn, folder, msg):
+        """Kopie der gesendeten Nachricht im Sent-Ordner ablegen."""
+        import imaplib as _imaplib
+        from email.utils import parsedate_tz, mktime_tz
+        zeit = None
+        datum = msg.get('Date')
+        if datum:
+            zerlegt = parsedate_tz(datum)
+            if zerlegt:
+                zeit = _imaplib.Time2Internaldate(mktime_tz(zerlegt))
+        conn.append(folder, '(\\Seen)', zeit, msg.as_bytes())
 
     @staticmethod
     def _imap_list_mailboxes(conn):
