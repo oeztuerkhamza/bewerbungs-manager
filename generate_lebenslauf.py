@@ -522,7 +522,7 @@ def build(story, sty, W, cfg=None):
     )
     c_email = (
         icon_prefix(ICON_EMAIL, '@:') + '&#160;'
-        + lnk('mailto:oeztuerk.hamza@web.de', 'oeztuerk.hamza@web.de')
+        + lnk('mailto:ichbin@hamzaoeztuerk.de', 'ichbin@hamzaoeztuerk.de')
     )
     c_linkedin = (
         icon_prefix(ICON_LINKEDIN, 'in:') + '&#160;'

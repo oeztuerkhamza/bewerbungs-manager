@@ -88,6 +88,7 @@ APPLICATIONS_CSV = os.path.join(SCRIPT_DIR, 'Bewerbungen.csv')
 APPLICATIONS_XLSX = os.path.join(SCRIPT_DIR, 'Bewerbungen.xlsx')
 IMAP_SETTINGS_FILE = os.path.join(SCRIPT_DIR, '.imap_settings.json')
 SMTP_SETTINGS_FILE = os.path.join(SCRIPT_DIR, '.smtp_settings.json')
+MAIL_HOST = 'mail.bikehausfreiburg.com'
 INITIATIV_SENT_FILE = os.path.join(SCRIPT_DIR, '.initiativ_sent.json')
 API_KEY_FILE  = os.path.join(SCRIPT_DIR, '.claude_api_key')
 MAIL_PDF_DIR = os.path.join(SCRIPT_DIR, 'mail_pdfs')
@@ -775,7 +776,7 @@ class BewerbungsApp(tk.Tk):
             'Mit freundlichen Grüßen\n'
             'Hamza Öztürk\n'
             '+49 155 66859378\n'
-            'oeztuerk.hamza@web.de')
+            'ichbin@hamzaoeztuerk.de')
         self._email_text_widget.pack(fill='both', expand=True, pady=(0, 10))
 
         # Buttons
@@ -817,7 +818,7 @@ class BewerbungsApp(tk.Tk):
         tk.Label(row1, text='IMAP-Server:', bg=WHITE, fg=NAVY,
                  font=(FONT, 10, 'bold')).pack(
             side='left', padx=(0, 8))
-        self._imap_server_var = tk.StringVar(value=imap_cfg.get('server', 'imap.web.de'))
+        self._imap_server_var = tk.StringVar(value=imap_cfg.get('server', MAIL_HOST))
         ttk.Entry(row1, textvariable=self._imap_server_var,
                   width=24, font=(FONT, 10)).pack(side='left')
 
@@ -875,7 +876,7 @@ class BewerbungsApp(tk.Tk):
         tk.Label(row4, text='SMTP-Server:', bg=WHITE, fg=NAVY,
                  font=(FONT, 10, 'bold')).pack(
             side='left', padx=(0, 8))
-        self._smtp_server_var = tk.StringVar(value=smtp_cfg.get('server', 'smtp.web.de'))
+        self._smtp_server_var = tk.StringVar(value=smtp_cfg.get('server', MAIL_HOST))
         ttk.Entry(row4, textvariable=self._smtp_server_var,
                   width=24, font=(FONT, 10)).pack(side='left', padx=(0, 12))
 
@@ -1173,7 +1174,7 @@ class BewerbungsApp(tk.Tk):
 
     @staticmethod
     def _load_imap_settings():
-        defaults = {'email': '', 'server': 'imap.web.de', 'port': 993, 'password': ''}
+        defaults = {'email': '', 'server': MAIL_HOST, 'port': 993, 'password': ''}
         if os.path.isfile(IMAP_SETTINGS_FILE):
             try:
                 with open(IMAP_SETTINGS_FILE, 'r', encoding='utf-8') as f:
@@ -1194,7 +1195,7 @@ class BewerbungsApp(tk.Tk):
     def _save_imap_settings(self):
         settings = {
             'email': self._imap_email_var.get().strip(),
-            'server': self._imap_server_var.get().strip() or 'imap.web.de',
+            'server': self._imap_server_var.get().strip() or MAIL_HOST,
             'port': self._safe_port(self._imap_port_var.get(), 993),
             'password': self._imap_password_var.get()
         }
@@ -1204,7 +1205,7 @@ class BewerbungsApp(tk.Tk):
 
     @staticmethod
     def _load_smtp_settings():
-        defaults = {'server': 'smtp.web.de', 'port': 587}
+        defaults = {'server': MAIL_HOST, 'port': 587}
         if os.path.isfile(SMTP_SETTINGS_FILE):
             try:
                 with open(SMTP_SETTINGS_FILE, 'r', encoding='utf-8') as f:
@@ -1223,7 +1224,7 @@ class BewerbungsApp(tk.Tk):
             return
 
         settings = {
-            'server': self._smtp_server_var.get().strip() or 'smtp.web.de',
+            'server': self._smtp_server_var.get().strip() or MAIL_HOST,
             'port': port
         }
         with open(SMTP_SETTINGS_FILE, 'w', encoding='utf-8') as f:
@@ -1246,7 +1247,7 @@ class BewerbungsApp(tk.Tk):
         sender = self._imap_email_var.get().strip()
         password = self._imap_password_var.get().strip()
         recipient = self._mail_to_var.get().strip()
-        smtp_server = self._smtp_server_var.get().strip() or 'smtp.web.de'
+        smtp_server = self._smtp_server_var.get().strip() or MAIL_HOST
         smtp_port_text = self._smtp_port_var.get().strip() or '587'
 
         if not sender or not password:
@@ -1813,7 +1814,7 @@ class BewerbungsApp(tk.Tk):
 
         sender = self._imap_email_var.get().strip()
         password = self._imap_password_var.get().strip()
-        smtp_server = self._smtp_server_var.get().strip() or 'smtp.web.de'
+        smtp_server = self._smtp_server_var.get().strip() or MAIL_HOST
         smtp_port_text = self._smtp_port_var.get().strip() or '587'
         if not sender or not password:
             messagebox.showwarning(
@@ -1892,7 +1893,7 @@ class BewerbungsApp(tk.Tk):
             sent_folder = None
             try:
                 imap_conn = imaplib.IMAP4_SSL(
-                    self._imap_server_var.get().strip() or 'imap.web.de',
+                    self._imap_server_var.get().strip() or MAIL_HOST,
                     int(self._imap_port_var.get().strip() or '993'))
                 imap_conn.login(sender, password)
                 sent_folder = self._imap_find_sent_folder(imap_conn)
@@ -1987,7 +1988,7 @@ class BewerbungsApp(tk.Tk):
     def _download_all_mail_pdfs(self):
         email_addr = self._imap_email_var.get().strip()
         password = self._imap_password_var.get().strip()
-        server = self._imap_server_var.get().strip() or 'imap.web.de'
+        server = self._imap_server_var.get().strip() or MAIL_HOST
         port_text = self._imap_port_var.get().strip() or '993'
 
         if not email_addr or not password:
@@ -2028,7 +2029,7 @@ class BewerbungsApp(tk.Tk):
     def _sync_mail_statuses_core(self, scan_all=False):
         email_addr = self._imap_email_var.get().strip()
         password = self._imap_password_var.get().strip()
-        server = self._imap_server_var.get().strip() or 'imap.web.de'
+        server = self._imap_server_var.get().strip() or MAIL_HOST
         port_text = self._imap_port_var.get().strip() or '993'
 
         if not email_addr or not password:

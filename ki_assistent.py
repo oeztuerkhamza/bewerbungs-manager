@@ -19,7 +19,7 @@ HAMZA ÖZTÜRK – Fullstack Entwickler
 
 KONTAKT:
 Bissierstr. 16, 79114 Freiburg im Breisgau
-+49 155 66859378 | oeztuerk.hamza@web.de
++49 155 66859378 | ichbin@hamzaoeztuerk.de
 LinkedIn: linkedin.com/in/hamzaoeztuerk
 GitHub: github.com/oeztuerkhamza
 Geb.: 18.02.1996, Groß-Gerau
@@ -482,7 +482,7 @@ WICHTIG – Bewerbungs-E-Mail:
   Mit freundlichen Grüßen
   Hamza Öztürk
   +49 155 66859378
-  oeztuerk.hamza@web.de
+  ichbin@hamzaoeztuerk.de
 
 RÜCKGABE – EXAKT dieses JSON-Schema (keine Markdown-Codeblöcke, nur roher JSON):
 {
@@ -502,7 +502,7 @@ RÜCKGABE – EXAKT dieses JSON-Schema (keine Markdown-Codeblöcke, nur roher JS
   "absatz_5": "...",
   "anlagen": "'Anschreiben, Lebenslauf, Arbeitszeugnis,  Zeugnisse, Zertifikate'",
   "email_betreff": "Bewerbung als ...",
-  "email_text": "Sehr geehrte Damen und Herren,\n\n...\n\nMit freundlichen Grüßen\nHamza Öztürk\n+49 155 66859378\noeztuerk.hamza@web.de",
+  "email_text": "Sehr geehrte Damen und Herren,\n\n...\n\nMit freundlichen Grüßen\nHamza Öztürk\n+49 155 66859378\nichbin@hamzaoeztuerk.de",
   "warnungen": ["Firma-Adresse nicht gefunden – bitte manuell ergänzen.", "..."]
 }
 
