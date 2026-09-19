@@ -776,7 +776,7 @@ class BewerbungsApp(tk.Tk):
             'Mit freundlichen Grüßen\n'
             'Hamza Öztürk\n'
             '+49 155 66859378\n'
-            'ichbin@hamzaoeztuerk.de')
+            'hamza@hamzaoeztuerk.de')
         self._email_text_widget.pack(fill='both', expand=True, pady=(0, 10))
 
         # Buttons

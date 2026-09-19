@@ -19,7 +19,7 @@ const PROFILE = {
   bundesland: "Baden-Württemberg",
   
   // Kontakt
-  email: "ichbin@hamzaoeztuerk.de",
+  email: "hamza@hamzaoeztuerk.de",
   telefon: "+4915566859378",
   telefonFormatiert: "+49 155 66859378",
   mobil: "+4915566859378",
