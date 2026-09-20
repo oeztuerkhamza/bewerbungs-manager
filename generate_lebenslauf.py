@@ -399,16 +399,20 @@ def _draw_page(canvas, doc):
 
 # ─── DEFAULT CONFIG ──────────────────────────────────────────────────────────
 DEFAULT_KURZPROFIL = (
-    'Full-Stack-Entwickler mit Schwerpunkt auf der <b>Digitalisierung von '
-    'Geschäftsprozessen</b> — vom bisherigen Papierweg über Datenmodell, API '
-    'und Frontend bis zum laufenden Cloud-Betrieb. Technischer Kern: '
-    '<b>C#/.NET</b>, <b>Angular</b>, <b>Docker/Azure</b> und <b>CI/CD</b>. '
-    'Aktuell verantwortlich für eine selbst entwickelte Warenwirtschafts- und '
-    'Vermietungsplattform, die Vermietung, An- und Verkauf eines Handels'
-    'betriebs vollständig papierlos abwickelt; zuvor Mitarbeit an der '
-    'Migration eines ERP-Systems für den Getränke-Großhandel von WinForms in '
-    'eine Web-Architektur — mit messbaren Ergebnissen in Durchlaufzeit, '
-    'Performance und Code-Qualität.'
+    'Ich digitalisiere <b>kaufmännische Geschäftsprozesse</b> – vom Papierbeleg '
+    'über Datenmodell und API bis zum laufenden Betrieb. Als <b>Fachinformatiker '
+    'für Anwendungsentwicklung (IHK)</b> arbeite ich dabei mit klarem Fokus auf '
+    'Codequalität, saubere Architektur und stabilen Produktivbetrieb. '
+    'Bei der Dicom GmbH habe ich am '
+    'Enterprise-ERP-System <b>DI-ONE</b> eine monolithische Desktop-Anwendung '
+    'schrittweise auf <b>Clean Architecture</b> migriert und CI/CD-Pipelines mit '
+    '<b>GitHub Actions</b> und <b>Azure Pipelines</b> aufgebaut. Aktuell verantworte '
+    'ich bei Bike Haus Freiburg eine produktiv genutzte Warenwirtschafts- und '
+    'Vermietungsplattform (<b>.NET 10 / Angular 22, PostgreSQL</b>), die den '
+    'gesamten Belegfluss digital abbildet und auf einem selbst betriebenen '
+    'Docker-Stack mit <b>Zero-Downtime-Deployment</b> läuft. Mit <b>TypeScript</b> '
+    'und <b>React</b> arbeite ich ebenfalls regelmäßig – damit deckt mein Profil '
+    'sowohl den .NET- als auch den JavaScript-Stack ab.'
 )
 
 DEFAULT_CONFIG = {
@@ -644,16 +648,14 @@ def build(story, sty, W, cfg=None):
         bul(
             'Vermietung und Warenwirtschaft papierlos abgewickelt (Online-Buchung, '
             'PDF-Belege mit QR-Code, digitale Unterschrift, Kaution, automatische '
-            'E-Mails): <b>405 Mietverträge mit 35.000 € Mietumsatz</b>, 696 Ankäufe '
-            'und 990 Verkäufe '
+            'E-Mails): <b>405 Mietverträge</b>, 696 Ankäufe und 990 Verkäufe '
             '— über 2.000 Belege digital erzeugt (2026).',
             sty['bullet'],
         ),
         bul(
             'SEO-Ausbau der SSR-Homepage (12 Sprachen mit hreflang, Prerendering, '
             'IndexNow, stadtbasierte Landing-Pages): in 6 Monaten auf '
-            '<b>342.000 Impressionen und 13.000 Klicks</b> gewachsen '
-            '(CTR 3,8 %, Ø-Position 9).',
+            '<b>13.000 organische Klicks</b> im Monat gewachsen.',
             sty['bullet'],
         ),
         bul(
@@ -701,8 +703,7 @@ def build(story, sty, W, cfg=None):
         ),
         bul(
             'Aufbau von CI/CD-Pipelines (<b>GitHub Actions</b>, <b>Azure DevOps</b>): '
-            'Deployment-Zeit um <b>40 %</b> reduziert, '
-            'SonarQube-Violations um <b>99 %</b> gesenkt.',
+            'Deployment-Zeit um <b>40 %</b> reduziert.',
             sty['bullet'],
         ),
         bul(
@@ -746,27 +747,25 @@ def build(story, sty, W, cfg=None):
     # — Zerin Gold
     story.append(KeepTogether([
         Paragraph(
-            b('Zerin Gold')
-            + ' – Premium-Website für Goldhändler &amp; Juwelier'
+            b('DJ Veys')
+            + ' – Website für DJ, Live-Musiker &amp; Moderator'
             + ' <font color="#1B3764">(freiberuflich · Live)</font>'
             + '&#160;&#160;'
-            + lnk('https://zerin-gold.de', 'zerin-gold.de')
+            + lnk('https://dj-veys.de', 'dj-veys.de')
             + '&#160;&#160;<font color="#1B3764">|</font>&#160;&#160;'
-            + lnk('https://github.com/oeztuerkhamza/zerin-gold',
-                  'GitHub'),
+            + lnk('https://github.com/oeztuerkhamza/veysl-music', 'GitHub'),
             sty['entry_title'],
         ),
         bul(
-            '<b>Next.js 16</b> (App Router, Server Components/Actions), '
-            'TypeScript (strict), Tailwind 4 + shadcn/ui + Framer Motion, '
-            '<b>PostgreSQL 16</b>/Prisma 7, Redis; Auth.js v5 (Argon2 + 2FA), '
-            'getestet mit Vitest &amp; Playwright.',
+            '<b>Next.js 16</b>/React 19 mit <b>Payload CMS 3</b> (SQLite, '
+            'Migrationen), TypeScript, Tailwind 4 — redaktionell pflegbare '
+            'Inhalte, Anfragestrecke mit Zod-Validierung und Mailversand.',
             sty['bullet'],
         ),
         bul(
-            '7-sprachig inkl. RTL (Arabisch), White-Label-Architektur '
-            '(DB-gesteuerte Mandanten-Konfiguration), Live-Goldpreis-Engine mit '
-            'Margen-System und Karat-/Altgold-Rechner; Docker-Deployment.',
+            '<b>9-sprachig</b> mit hreflang-Struktur, eigene Landing-Pages je '
+            'Region und Leistung, strukturierte Daten (LocalBusiness, '
+            'MusicGroup, Service), cookiefreies Analytics.',
             sty['bullet'],
         ),
     ]))
@@ -784,9 +783,9 @@ def build(story, sty, W, cfg=None):
          'SQL Server, SQLite, PostgreSQL'),
         ('DevOps &amp; Tools',
          'Docker, GitHub Actions, Azure DevOps, Azure Cloud, '
-         'SonarQube, Git, CI/CD, Python'),
+         'Git, CI/CD, Python'),
         ('KI &amp; Analytics',
-         'OpenAI API, Claude, Prompt Engineering, Tableau, Copilot'
+         'OpenAI API, Claude, Prompt Engineering'
          ),
     ]
     rows = [[Paragraph(b(l), sty['skill_lbl']),
