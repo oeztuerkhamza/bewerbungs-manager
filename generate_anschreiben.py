@@ -8,6 +8,7 @@ Premium-Design · 10.03.2026
 import os
 import sys
 import re
+from datetime import date
 
 from reportlab.lib.pagesizes import A4
 from reportlab.lib.units import cm, mm
@@ -110,9 +111,9 @@ def make_styles():
         'betreff':   ps('betreff',   'CV-B', 10.5, NAVY, leading=14,
                         spaceBefore=2, spaceAfter=2),
         'anrede':    ps('anrede',    'CV-R',  9.5, DARK, leading=13,
-                        spaceAfter=1),
+                        spaceAfter=9),
         'body':      ps('body',      'CV-R',  9.5, DARK, leading=13,
-                        spaceAfter=3, align=TA_JUSTIFY),
+                        spaceAfter=5, align=TA_LEFT),
         'bullet':    ps('bullet',    'CV-R',  9.5, DARK, leading=13,
                         spaceAfter=1, leftIndent=14, bulletIndent=2,
                         bulletFontName='CV-R', bulletFontSize=9.5,
@@ -121,6 +122,7 @@ def make_styles():
                         spaceBefore=1),
         'footer':    ps('footer',    'CV-R',  8.5, LGRAY, leading=11,
                         spaceBefore=1),
+        'anlagen':   ps('anlagen',   'CV-R',  9.5, DARK, leading=13),
     }
 
 
@@ -178,6 +180,16 @@ class BadgePill(Flowable):
 
 
 # ─── HELPERS ─────────────────────────────────────────────────────────────────
+_MONATE = ('Januar', 'Februar', 'März', 'April', 'Mai', 'Juni', 'Juli',
+           'August', 'September', 'Oktober', 'November', 'Dezember')
+
+
+def heute_lang():
+    """Heutiges Datum als '20. September 2026' (DIN 5008 erlaubt beide Formen)."""
+    d = date.today()
+    return '{:02d}. {} {}'.format(d.day, _MONATE[d.month - 1], d.year)
+
+
 def lnk(url, label):
     return f'<a href="{url}" color="#1B3764">{label}</a>'
 
@@ -298,7 +310,7 @@ DEFAULT_CONFIG = {
     'firma_plz_ort':    '79098 Freiburg im Breisgau',
     'du_kultur':        False,
     'anrede':           'Sehr geehrte Damen und Herren,',
-    'datum':            '02. April 2026',
+    'datum':            heute_lang(),
     'betreff':          'Bewerbung als Fullstack Entwickler – C# / .NET / Angular',
     'absatz_1': (
         'mit großem Interesse habe ich Ihre Stellenausschreibung als '
@@ -317,8 +329,7 @@ DEFAULT_CONFIG = {
     'highlights': [
         'Eigene Warenwirtschafts- und Vermietungsplattform konzipiert, '
         'entwickelt und im Tagesgeschäft betrieben – <b>Vermietung, An- und '
-        'Verkauf laufen papierlos</b>, über 2.000 Belege und 35.000 € '
-        'Mietumsatz',
+        'Verkauf laufen papierlos</b>, über 2.000 Belege digital erzeugt',
         'Im Team ein ERP für den Getränke-Großhandel von WinForms auf '
         '<b>C#/.NET</b> und <b>Angular</b> migriert – Clean Architecture, '
         'produktiv im Einsatz',
@@ -344,7 +355,7 @@ DEFAULT_CONFIG = {
     'gehalt':           '',
     'eintritt':         '',
     'arbeitsmodell':    '',
-    'anlagen': '',
+    'anlagen': 'Lebenslauf, Arbeitszeugnis, Zeugnisse, Zertifikate',
 }
 
 
@@ -358,7 +369,9 @@ def build(story, sty, W, cfg=None):
     story.append(Paragraph('Hamza Öztürk', sty['name']))
     story.append(Spacer(1, 2))
     story.append(Paragraph(
-        'Bissierstr. 16, 79114 Freiburg',
+        'Bissierstr. 16, 79114 Freiburg' + SEP
+        + '+49 155 66859378' + SEP
+        + lnk('mailto:hamza@hamzaoeztuerk.de', 'hamza@hamzaoeztuerk.de'),
         sty['contact']))
 
     story.append(Spacer(1, 0.15 * cm))
@@ -398,12 +411,12 @@ def build(story, sty, W, cfg=None):
     ]))
     story.append(info_table)
 
-    story.append(Spacer(1, 0.3 * cm))
+    story.append(Spacer(1, 0.7 * cm))
 
     # ── 3  BETREFF ───────────────────────────────────────────────────────────
     story.append(Paragraph(esc(cfg['betreff']), sty['betreff']))
 
-    story.append(Spacer(1, 0.15 * cm))
+    story.append(Spacer(1, 0.62 * cm))
 
     # ── 4  ANREDE ────────────────────────────────────────────────────────────
     anrede = cfg.get('anrede', '')
@@ -457,7 +470,18 @@ def build(story, sty, W, cfg=None):
 
     story.append(Paragraph('Hamza Öztürk', sty['gruss']))
 
-    # ── 7  FOOTER (Gehalt / Eintritt / Arbeitsmodell) ──────────────────────
+    # ── 7  ANLAGENVERMERK (DIN 5008) ───────────────────────────────────────
+    # Die KI liefert das Feld, die GUI hat ein Eingabefeld dafuer - bisher
+    # wurde es nie ausgegeben. Fuehrende/abschliessende Anfuehrungszeichen
+    # aus KI-Antworten werden entfernt.
+    anlagen = (cfg.get('anlagen') or '').strip().strip('\'"').strip()
+    if anlagen:
+        anlagen = re.sub(r'\s*,\s*', ', ', anlagen)
+        story.append(Spacer(1, 0.5 * cm))
+        story.append(Paragraph('<b>Anlagen</b><br/>' + esc(anlagen),
+                               sty['anlagen']))
+
+    # ── 8  FOOTER (Gehalt / Eintritt / Arbeitsmodell) ──────────────────────
     gehalt = cfg.get('gehalt', '')
     eintritt = cfg.get('eintritt', '')
     arbeitsmodell = cfg.get('arbeitsmodell', '')
