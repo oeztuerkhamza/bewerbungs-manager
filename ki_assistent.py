@@ -25,23 +25,25 @@ GitHub: github.com/oeztuerkhamza
 Geb.: 18.02.1996, Groß-Gerau
 
 KURZPROFIL:
-Ich liefere als Full-Stack-Entwickler messbare Ergebnisse mit C#/.NET und
-Angular. Mit gezielter Weiterbildung (Bootcamp, Sprachkurs, verkürzte
-Ausbildung) und praktischer Projektarbeit habe ich mein Profil geschärft. Bei
-Dicom GmbH habe
-ich SonarQube-Violations innerhalb von 3 Wochen um ~99 % (2.100 → 30) gesenkt,
-CI/CD-Pipelines aufgebaut und eine Legacy-ERP-Anwendung auf Clean Architecture
-migriert. Seit 03/2026 verantworte ich in Festanstellung bei Bike Haus
-Freiburg eine produktiv genutzte Warenwirtschafts- und Vermietungsplattform
-(.NET 10 / Angular 22).
+Ich digitalisiere kaufmännische Geschäftsprozesse – vom Papierbeleg über
+Datenmodell und API bis zum laufenden Betrieb. Als Fachinformatiker für
+Anwendungsentwicklung (IHK) arbeite ich dabei mit klarem Fokus auf
+Codequalität, saubere Architektur und stabilen Produktivbetrieb.
+Bei der Dicom GmbH habe ich am Enterprise-ERP-System
+DI-ONE eine monolithische Desktop-Anwendung schrittweise auf Clean Architecture
+migriert und CI/CD-Pipelines mit GitHub Actions und Azure Pipelines aufgebaut.
+Aktuell verantworte ich bei Bike Haus Freiburg eine produktiv genutzte
+Warenwirtschafts- und Vermietungsplattform (.NET 10 / Angular 22, PostgreSQL),
+die den gesamten Belegfluss digital abbildet und auf einem selbst betriebenen
+Docker-Stack mit Zero-Downtime-Deployment läuft. Mit TypeScript und React
+arbeite ich ebenfalls regelmäßig.
 
 BERUFSERFAHRUNG:
 Full-Stack Entwickler (Festanstellung)
 Bike Haus Freiburg | 03/2026 – heute
 • Eigene Warenwirtschafts- und Vermietungsplattform (.NET 10, Angular 22, SSR):
   40 Controller, 46 Domain-Entities, 130+ EF-Core-Migrationen, produktiv im Einsatz.
-• Vermietung und Warenwirtschaft papierlos: 405 Mietverträge mit 35.000 €
-  Mietumsatz, 696 Ankäufe,
+• Vermietung und Warenwirtschaft papierlos: 405 Mietverträge, 696 Ankäufe,
   990 Verkäufe – über 2.000 Belege digital erzeugt (2026).
 • SEO der SSR-Homepage (12 Sprachen mit hreflang, Prerendering, IndexNow):
   342.000 Impressionen und 13.000 Klicks in 6 Monaten (CTR 3,8 %, Ø-Position 9).
@@ -56,20 +58,24 @@ Dicom GmbH, Freiburg im Breisgau | 02/2024 – 02/2026
 • Full-Stack & Architektur: Feature-Entwicklung in C#/.NET (Backend) und
   Angular (Frontend); Migration monolithischer Desktop-Apps auf Clean Architecture.
 • CI/CD & Code-Qualität: GitHub Actions-Pipelines aufgebaut – Deployment-Zeit
-  40% schneller; SonarQube-Violations innerhalb von 3 Wochen um ~99 % (2.100 → 30).
+  40% schneller; Code-Qualität durch systematisches Refactoring und ein
+  verbindliches Quality Gate abgesichert.
 • KI & API: RESTful APIs designed; KI-Tools und Prompt Engineering zur
   Code-Generierung und Fehleranalyse eingesetzt.
 
 IT-KENNTNISSE:
 Backend: C#, .NET Core, ASP.NET Core, Clean Architecture, EF Core, RESTful APIs, SQLite, SQL Server
 Frontend: Angular (19–22), TypeScript, React 19, Tailwind CSS, NgRx, Infragistics
-DevOps & Tools: Docker, GitHub Actions, Azure Pipelines, SonarQube/Cloud, Git, CI/CD, Netcup VPS
+DevOps & Tools: Docker, GitHub Actions, Azure Pipelines, Git, CI/CD, Netcup VPS
 KI & Analytics: OpenAI API, Prompt Engineering, Python, SQL, Tableau, Web-Scraping
 
 PROJEKTE:
-1) Zerin Gold (zerin-gold.de) – freiberuflich, Live
-   Next.js 16, TypeScript, PostgreSQL 16/Prisma 7, Redis, Auth.js v5 (Argon2 + 2FA).
-   7-sprachig inkl. RTL, White-Label-Architektur, Live-Goldpreis-Engine.
+1) DJ Veys (dj-veys.de) – freiberuflich, Live
+   Next.js 16, React 19, Payload CMS 3 (SQLite, Migrationen), TypeScript,
+   Tailwind 4, Zod, Nodemailer. Redaktionell pflegbare Inhalte,
+   Anfragestrecke mit Validierung und Mailversand.
+   9-sprachig mit hreflang, Landing-Pages je Region und Leistung,
+   strukturierte Daten, cookiefreies Analytics.
 
 2) Kulturplattform Freiburg e.V. (kulturplattformfreiburg.org) – ehrenamtliche Arbeit
    Vereinswebsite mit Admin-Panel, Newsletter, DE/TR-Zweisprachigkeit.
@@ -77,7 +83,7 @@ PROJEKTE:
 
 3) DI-ONE – Enterprise Getränke-ERP (Dicom GmbH)
    .NET 10, Clean Architecture, 40+ API-Controller, OpenAI Assistants v2.
-   Angular 19, NgRx. CI/CD: Azure Pipelines, SonarCloud.
+   Angular 19, NgRx. CI/CD: Azure Pipelines.
 
 4) DI-FLUX – Zeiterfassungssystem (IHK-Abschlussprojekt)
    Angular, C#/.NET, SQL Server, JWT-Authentifizierung.
@@ -430,6 +436,23 @@ DER BEWERBER bringt mit (je nach Rollen-Fokus unterschiedlich gewichten):
 
 WICHTIG – Lebenslauf-Anpassung (Feld "kurzprofil"):
 - 4–6 Sätze, professionelles Deutsch, Fließtext (KEINE Aufzählung).
+- PFLICHT-AUFBAU in genau dieser Reihenfolge (Satz 1 bis 4):
+  1) FACHLICHKEIT zuerst, dann die Qualifikation: "Ich digitalisiere ... –
+     vom Papierbeleg über Datenmodell und API bis zum laufenden Betrieb. Als
+     Fachinformatiker für Anwendungsentwicklung (IHK) arbeite ich dabei mit
+     klarem Fokus auf ..." Die Fachlichkeit und der Fokus werden aus der
+     Stellenbeschreibung abgeleitet. NICHT mit "Codequalität" oder
+     "saubere Architektur" eröffnen – das schreibt jeder Bewerber.
+  2) Beleg aus der Vergangenheit (Dicom GmbH, ERP-System DI-ONE): konkrete
+     Leistung nennen, die zur ausgeschriebenen Stelle passt.
+  3) Aktuelle Verantwortung (Bike Haus Freiburg): die Plattform und die
+     Technologien nennen, die in der Anzeige gefordert sind.
+  4) Stack-Abgleich MIT FIRMENNAMEN aus der Anzeige, nach diesem Muster:
+     "Mit <b>X</b> und <b>Y</b> arbeite ich ebenfalls regelmäßig – damit deckt
+     mein Profil den bei <FIRMA> eingesetzten Stack direkt ab."
+     X und Y sind Technologien, die BEIDES sind: in der Anzeige gefordert UND
+     oben im Profil vorhanden. Gibt es keine solche Überschneidung, lasse
+     Satz 4 ersatzlos weg – erfinde KEINEN Stack-Match.
 - Stelle die zum ROLLEN-FOKUS passenden Kompetenzen nach vorne. Bei einer
   IT-Koordinations-/Digitalisierungsstelle also z.B. IT-Infrastruktur,
   Digitalisierung, Support, Projektkoordination und die Fachinformatiker-
@@ -462,9 +485,28 @@ WICHTIG – Anschreiben-Anpassung:
 - highlights: 3–4 konkrete, WAHRE Erfolge des Bewerbers, ausgewählt passend zum
   Rollen-Fokus (z.B. Digitalisierung/Infrastruktur/Support statt nur Code-Metriken).
   Kurze Stichpunkte ohne Satzzeichen am Ende, KEINE erfundenen Zahlen.
+  Je Stichpunkt EINE Zeile, höchstens 14 Wörter. Zuerst das Ergebnis für den
+  Betrieb, danach erst die Technologie – und die nur, wenn sie in der Anzeige
+  gefordert ist.
 - absatz_3: relevante eigene Projekte/Erfahrungen mit Bezug zur Stelle.
 - absatz_4: Arbeitsweise & relevante Kompetenzen, passend zum Rollen-Fokus.
 - absatz_5: Schluss – Motivation, Gesprächswunsch.
+- absatz_3 und absatz_4 stellen den Bezug zum ARBEITGEBER her (seine Branche,
+  seine Systeme, seine Aufgaben) – keine weitere Selbstbeschreibung.
+
+VERBOTEN im Anschreiben – gilt auch für highlights und die Bewerbungs-E-Mail:
+- KEINE Umsatz-, Geld- oder Preisangaben. Kein "€", kein "EUR", kein
+  "Mietumsatz". Diese Zahlen gehören ausschließlich in den Lebenslauf.
+- KEINE Technik-Inventare in Klammern. Also nicht "(DKIM/SPF/DMARC)", nicht
+  "(40 Controller, 46 Domain-Entities, 130+ EF-Core-Migrationen)", nicht
+  "(2.100 → 30)". Ein Anschreiben ist kein Lebenslauf.
+- HÖCHSTENS EINE Zahl pro Stichpunkt und pro Satz. Zahlenstapel wie
+  "342.000 Impressionen, 13.000 Klicks in 6 Monaten" auf einen einzigen Wert
+  kürzen oder ganz weglassen.
+- Eine Zahl, die bereits in den highlights steht, darf in absatz_3 bis
+  absatz_5 NICHT erneut auftauchen.
+- Keine Aneinanderreihung von Teilsätzen mit Semikolon und Gedankenstrich –
+  ganze, ruhige Sätze schreiben.
 
 WICHTIG – Bewerbungs-E-Mail:
 - Generiere zusätzlich eine kurze, professionelle Bewerbungs-E-Mail (Plaintext, KEIN HTML).
@@ -473,9 +515,10 @@ WICHTIG – Bewerbungs-E-Mail:
   Erwähne die Stelle, verweise auf die Anhänge (Lebenslauf & Anschreiben),
   und schließe mit freundlichen Grüßen.
 - Die E-Mail MUSS mindestens ein konkretes Ergebnis mit Zahl aus dem Profil
-  nennen (z.B. papierlose Abwicklung von über 2.000 Belegen, 35.000 EUR
-  Mietumsatz, Deployment-Zeit um 40 % reduziert). Eine E-Mail, die nur
-  "ich bewerbe mich und freue mich auf Ihre Antwort" sagt, ist unbrauchbar.
+  nennen (z.B. papierlose Abwicklung von über 2.000 Belegen, Deployment-Zeit
+  um 40 % reduziert, ERP-Migration über die gesamte Prozesskette). KEINE
+  Geldbeträge. Eine E-Mail, die nur "ich bewerbe mich und freue mich auf Ihre
+  Antwort" sagt, ist unbrauchbar.
 - Stelle einen Bezug zur Firma her: was sie tut und wo dabei
   Digitalisierung oder Systembetrieb eine Rolle spielt.
   Verwende KEINE HTML-Tags. Am Ende immer:
@@ -500,7 +543,7 @@ RÜCKGABE – EXAKT dieses JSON-Schema (keine Markdown-Codeblöcke, nur roher JS
   "absatz_3": "...",
   "absatz_4": "...",
   "absatz_5": "...",
-  "anlagen": "'Anschreiben, Lebenslauf, Arbeitszeugnis,  Zeugnisse, Zertifikate'",
+  "anlagen": "Lebenslauf, Arbeitszeugnis, Zeugnisse, Zertifikate",
   "email_betreff": "Bewerbung als ...",
   "email_text": "Sehr geehrte Damen und Herren,\n\n...\n\nMit freundlichen Grüßen\nHamza Öztürk\n+49 155 66859378\nhamza@hamzaoeztuerk.de",
   "warnungen": ["Firma-Adresse nicht gefunden – bitte manuell ergänzen.", "..."]
