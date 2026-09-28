@@ -19,7 +19,7 @@ const PROFILE = {
   bundesland: "Baden-Württemberg",
   
   // Kontakt
-  email: "hamza@hamzaoeztuerk.de",
+  email: "oeztuerk.hamza@web.de",
   telefon: "+4915566859378",
   telefonFormatiert: "+49 155 66859378",
   mobil: "+4915566859378",
@@ -32,7 +32,7 @@ const PROFILE = {
   // Online-Profile
   linkedin: "https://linkedin.com/in/hamzaoeztuerk",
   github: "https://github.com/oeztuerkhamza",
-  website: "https://hamzaoeztuerk.de",
+  website: "",
   xing: "",
   
   // Berufliche Angaben

@@ -371,7 +371,7 @@ def build(story, sty, W, cfg=None):
     story.append(Paragraph(
         'Bissierstr. 16, 79114 Freiburg' + SEP
         + '+49 155 66859378' + SEP
-        + lnk('mailto:hamza@hamzaoeztuerk.de', 'hamza@hamzaoeztuerk.de'),
+        + lnk('mailto:oeztuerk.hamza@web.de', 'oeztuerk.hamza@web.de'),
         sty['contact']))
 
     story.append(Spacer(1, 0.15 * cm))

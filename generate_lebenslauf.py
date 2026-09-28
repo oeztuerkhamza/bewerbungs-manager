@@ -526,7 +526,7 @@ def build(story, sty, W, cfg=None):
     )
     c_email = (
         icon_prefix(ICON_EMAIL, '@:') + '&#160;'
-        + lnk('mailto:hamza@hamzaoeztuerk.de', 'hamza@hamzaoeztuerk.de')
+        + lnk('mailto:oeztuerk.hamza@web.de', 'oeztuerk.hamza@web.de')
     )
     c_linkedin = (
         icon_prefix(ICON_LINKEDIN, 'in:') + '&#160;'
@@ -537,11 +537,6 @@ def build(story, sty, W, cfg=None):
         icon_prefix(ICON_GITHUB, '&lt;/&gt;:') + '&#160;'
         + lnk('https://github.com/oeztuerkhamza',
               'github.com/oeztuerkhamza')
-    )
-    c_website = (
-        icon_prefix(ICON_WEBSITE, '🌐:') + '&#160;'
-        + lnk('https://hamzaoeztuerk.de',
-              'hamzaoeztuerk.de')
     )
     c_geb = (
         '<font color="#1B3764"><b>Geb.:</b></font>&#160;'
@@ -559,7 +554,7 @@ def build(story, sty, W, cfg=None):
             [Paragraph(c_ort, sty['contact']), Paragraph(c_geb, sty['contact'])],
             [Paragraph(c_email, sty['contact']), Paragraph(c_tel, sty['contact'])],
             [Paragraph(c_linkedin, sty['contact']), Paragraph(c_github, sty['contact'])],
-            [Paragraph(c_website, sty['contact']), Paragraph(c_visa, sty['contact'])],
+            [Paragraph(c_visa, sty['contact']), ''],
         ],
         colWidths=[HDR_W * 0.48, HDR_W * 0.52],
     )

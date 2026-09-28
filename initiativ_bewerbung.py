@@ -488,7 +488,7 @@ DEFAULT_TEXT = (
     'Mit freundlichen Grüßen\n'
     'Hamza Öztürk\n'
     '+49 155 66859378\n'
-    'hamza@hamzaoeztuerk.de'
+    'oeztuerk.hamza@web.de'
 )
 
 
@@ -526,12 +526,12 @@ WICHTIG – Positionierung:
   Mit freundlichen Grüßen
   Hamza Öztürk
   +49 155 66859378
-  hamza@hamzaoeztuerk.de
+  oeztuerk.hamza@web.de
 
 RÜCKGABE – nur rohes JSON, kein Markdown:
 {
   "betreff": "Initiativbewerbung – ...",
-  "text": "Sehr geehrte Damen und Herren,\\n\\n... {firma} ...\\n\\nMit freundlichen Grüßen\\nHamza Öztürk\\n+49 155 66859378\\nhamza@hamzaoeztuerk.de"
+  "text": "Sehr geehrte Damen und Herren,\\n\\n... {firma} ...\\n\\nMit freundlichen Grüßen\\nHamza Öztürk\\n+49 155 66859378\\noeztuerk.hamza@web.de"
 }
 """
 
