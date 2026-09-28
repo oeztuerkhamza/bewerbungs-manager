@@ -724,6 +724,32 @@ def build(story, sty, W, cfg=None):
     # ── 4  PROJEKTE ──────────────────────────────────────────────────────────
     story.extend(sec('PROJEKTE', sty))
 
+    # — Benlirad
+    story.append(KeepTogether([
+        Paragraph(
+            b('Benlirad')
+            + ' – Warenwirtschaft und Website für ein Fahrradgeschäft'
+            + ' <font color="#1B3764">(freiberuflich · Live)</font>'
+            + '&#160;&#160;'
+            + lnk('https://benlirad.de', 'benlirad.de')
+            + '&#160;&#160;<font color="#1B3764">|</font>&#160;&#160;'
+            + lnk('https://github.com/oeztuerkhamza/benlirad', 'GitHub'),
+            sty['entry_title'],
+        ),
+        bul(
+            '<b>.NET 9</b>-API in Clean Architecture, <b>Angular 17</b> '
+            'Admin-SPA und SSR-Website, die den Bestand live aus derselben '
+            'Datenbank zieht (EF Core, SQLite, JWT).',
+            sty['bullet'],
+        ),
+        bul(
+            '<b>Viersprachig</b> (DE/EN/FR/TR) mit hreflang und eigenen URLs; '
+            'Betrieb mit Docker und Nginx auf eigenem Server, '
+            'Chrome-Erweiterung für die Pflege der Inserate.',
+            sty['bullet'],
+        ),
+    ]))
+
     # — Kulturplattform (ehrenamtlich)
     story.append(KeepTogether([
         Paragraph(
@@ -758,15 +784,10 @@ def build(story, sty, W, cfg=None):
             sty['entry_title'],
         ),
         bul(
-            '<b>Next.js 16</b>/React 19 mit <b>Payload CMS 3</b> (SQLite, '
-            'Migrationen), TypeScript, Tailwind 4 — redaktionell pflegbare '
-            'Inhalte, Anfragestrecke mit Zod-Validierung und Mailversand.',
-            sty['bullet'],
-        ),
-        bul(
-            '<b>9-sprachig</b> mit hreflang-Struktur, eigene Landing-Pages je '
-            'Region und Leistung, strukturierte Daten (LocalBusiness, '
-            'MusicGroup, Service), cookiefreies Analytics.',
+            '<b>Next.js 16</b>/React 19 mit <b>Payload CMS 3</b>, TypeScript '
+            'und Tailwind 4 — redaktionell pflegbare Inhalte, Anfragestrecke '
+            'mit Zod-Validierung; <b>9-sprachig</b> mit hreflang, '
+            'Landing-Pages je Region und strukturierten Daten.',
             sty['bullet'],
         ),
     ]))
