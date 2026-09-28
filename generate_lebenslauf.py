@@ -408,7 +408,7 @@ DEFAULT_KURZPROFIL = (
     'schrittweise auf <b>Clean Architecture</b> migriert und CI/CD-Pipelines mit '
     '<b>GitHub Actions</b> und <b>Azure Pipelines</b> aufgebaut. Aktuell verantworte '
     'ich bei Bike Haus Freiburg eine produktiv genutzte Warenwirtschafts- und '
-    'Vermietungsplattform (<b>.NET 10 / Angular 22, PostgreSQL</b>), die den '
+    'Vermietungsplattform (<b>.NET 9 / Angular 17, SQLite</b>), die den '
     'gesamten Belegfluss digital abbildet und auf einem selbst betriebenen '
     'Docker-Stack mit <b>Zero-Downtime-Deployment</b> läuft. Mit <b>TypeScript</b> '
     'und <b>React</b> arbeite ich ebenfalls regelmäßig – damit deckt mein Profil '
@@ -630,7 +630,7 @@ def build(story, sty, W, cfg=None):
 
     # — Bike Haus Freiburg (aktuell)
     story.append(KeepTogether([
-        exp_header('Bike Haus Freiburg – Full-Stack Entwickler (Festanstellung)',
+        exp_header('Bike Haus Freiburg – Full-Stack-Entwickler (Inhouse-Software)',
                    '03/2026 – heute'),
         Paragraph(
             lnk('https://bikehausfreiburg.com', 'bikehausfreiburg.com')
@@ -640,8 +640,8 @@ def build(story, sty, W, cfg=None):
         ),
         bul(
             'Konzeption, Entwicklung und Betrieb einer eigenen Warenwirtschafts- '
-            'und Vermietungsplattform: <b>.NET 10</b>-API (40 Controller, '
-            '46 Domain-Entities, 130+ EF-Core-Migrationen), <b>Angular 22</b> '
+            'und Vermietungsplattform: <b>.NET 9</b>-API (40 Controller, '
+            '46 Domain-Entities, 130+ EF-Core-Migrationen), <b>Angular 17</b> '
             'Admin-SPA und SSR-Homepage — im täglichen Geschäftsbetrieb produktiv.',
             sty['bullet'],
         ),
@@ -654,8 +654,9 @@ def build(story, sty, W, cfg=None):
         ),
         bul(
             'SEO-Ausbau der SSR-Homepage (12 Sprachen mit hreflang, Prerendering, '
-            'IndexNow, stadtbasierte Landing-Pages): in 6 Monaten auf '
-            '<b>13.000 organische Klicks</b> im Monat gewachsen.',
+            'IndexNow, stadtbasierte Landing-Pages): <b>342.000 Impressionen '
+            'und 13.000 organische Klicks in 6 Monaten</b> (CTR 3,8 %, '
+            'Ø-Position 9).',
             sty['bullet'],
         ),
         bul(
@@ -683,7 +684,7 @@ def build(story, sty, W, cfg=None):
         bul(
             'Mitarbeit an der Migration eines kompletten ERP-Systems für den '
             '<b>Getränke-Großhandel</b> von WinForms zu einer '
-            '<b>C#/.NET 10</b> + <b>Angular 19</b> Web-Lösung; Einführung einer '
+            '<b>C#/.NET</b> + <b>Angular</b> Web-Lösung; Einführung einer '
             '<b>Clean Architecture</b> und modularen API-Struktur im Team.',
             sty['bullet'],
         ),
@@ -777,7 +778,7 @@ def build(story, sty, W, cfg=None):
          'C#, .NET Core, ASP.NET Core, Clean Architecture, EF Core, Web-Scraping, '
          'RESTful APIs, xUnit'),
         ('Frontend',
-         'Angular (19–22), TypeScript, React 19, Tailwind CSS, NgRx, HTML, '
+         'Angular (17–19), TypeScript, React 19, Tailwind CSS, NgRx, HTML, '
          'Infragistics'),
         ('Datenbanken',
          'SQL Server, SQLite, PostgreSQL'),

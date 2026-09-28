@@ -33,15 +33,15 @@ Bei der Dicom GmbH habe ich am Enterprise-ERP-System
 DI-ONE eine monolithische Desktop-Anwendung schrittweise auf Clean Architecture
 migriert und CI/CD-Pipelines mit GitHub Actions und Azure Pipelines aufgebaut.
 Aktuell verantworte ich bei Bike Haus Freiburg eine produktiv genutzte
-Warenwirtschafts- und Vermietungsplattform (.NET 10 / Angular 22, PostgreSQL),
+Warenwirtschafts- und Vermietungsplattform (.NET 9 / Angular 17, SQLite),
 die den gesamten Belegfluss digital abbildet und auf einem selbst betriebenen
 Docker-Stack mit Zero-Downtime-Deployment läuft. Mit TypeScript und React
 arbeite ich ebenfalls regelmäßig.
 
 BERUFSERFAHRUNG:
-Full-Stack Entwickler (Festanstellung)
+Full-Stack-Entwickler (Inhouse-Software)
 Bike Haus Freiburg | 03/2026 – heute
-• Eigene Warenwirtschafts- und Vermietungsplattform (.NET 10, Angular 22, SSR):
+• Eigene Warenwirtschafts- und Vermietungsplattform (.NET 9, Angular 17, SSR):
   40 Controller, 46 Domain-Entities, 130+ EF-Core-Migrationen, produktiv im Einsatz.
 • Vermietung und Warenwirtschaft papierlos: 405 Mietverträge, 696 Ankäufe,
   990 Verkäufe – über 2.000 Belege digital erzeugt (2026).
@@ -65,7 +65,7 @@ Dicom GmbH, Freiburg im Breisgau | 02/2024 – 02/2026
 
 IT-KENNTNISSE:
 Backend: C#, .NET Core, ASP.NET Core, Clean Architecture, EF Core, RESTful APIs, SQLite, SQL Server
-Frontend: Angular (19–22), TypeScript, React 19, Tailwind CSS, NgRx, Infragistics
+Frontend: Angular (17–19), TypeScript, React 19, Tailwind CSS, NgRx, Infragistics
 DevOps & Tools: Docker, GitHub Actions, Azure Pipelines, Git, CI/CD, Netcup VPS
 KI & Analytics: OpenAI API, Prompt Engineering, Python, SQL, Tableau, Web-Scraping
 
@@ -493,6 +493,16 @@ WICHTIG – Anschreiben-Anpassung:
 - absatz_5: Schluss – Motivation, Gesprächswunsch.
 - absatz_3 und absatz_4 stellen den Bezug zum ARBEITGEBER her (seine Branche,
   seine Systeme, seine Aufgaben) – keine weitere Selbstbeschreibung.
+
+ABSOLUT VERBOTEN – Zahlen und Versionen (gilt überall, auch im Lebenslauf):
+- Zahlen, Zeiträume und Versionsnummern aus den FAKTEN werden WÖRTLICH
+  übernommen. Niemals aufrunden, hochrechnen, schätzen oder "verbessern".
+- Ein Zeitraum darf NIE in eine Rate umgedeutet werden. "13.000 Klicks in
+  6 Monaten" ist NICHT "13.000 Klicks im Monat" und erst recht nicht "20.000".
+- Keine Technologie und keine Version nennen, die nicht wörtlich in den FAKTEN
+  steht. Im Zweifel die Version ganz weglassen statt eine höhere zu raten.
+- Diese Angaben sind im Vorstellungsgespräch überprüfbar. Eine erfundene Zahl
+  kostet die Stelle.
 
 VERBOTEN im Anschreiben – gilt auch für highlights und die Bewerbungs-E-Mail:
 - KEINE Umsatz-, Geld- oder Preisangaben. Kein "€", kein "EUR", kein
