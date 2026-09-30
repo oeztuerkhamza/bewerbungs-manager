@@ -475,6 +475,14 @@ STIL (immer gültig):
 - Bei der Digitalisierung immer beides betonen: Aufbau (Datenmodell, API,
   Frontend) und anschließender Betrieb (Docker, CI/CD, Server, Monitoring).
 
+WICHTIG – Sprache des Feldes "kurzprofil":
+- Ist die Stellenanzeige auf DEUTSCH, schreibe "kurzprofil" auf Deutsch.
+- Ist die Stellenanzeige auf ENGLISCH, schreibe "kurzprofil" auf ENGLISCH
+  (der Lebenslauf wird dann automatisch in der englischen Fassung erzeugt).
+  Aufbau und Regeln bleiben identisch, nur die Sprache wechselt.
+- Alle übrigen Felder (Anschreiben-Absätze, E-Mail) bleiben deutsch,
+  sofern der Bewerber nichts anderes vorgibt.
+
 WICHTIG – Anschreiben-Anpassung:
 - Beziehe dich konkret auf die Anforderungen der Stelle und den ROLLEN-FOKUS.
 - Verwende <b>HTML-Bold-Tags</b> für Hervorhebungen. Jeder Absatz 3–5 Sätze.
@@ -553,7 +561,7 @@ RÜCKGABE – EXAKT dieses JSON-Schema (keine Markdown-Codeblöcke, nur roher JS
   "absatz_3": "...",
   "absatz_4": "...",
   "absatz_5": "...",
-  "anlagen": "Lebenslauf, Arbeitszeugnis, Zeugnisse, Zertifikate",
+  "anlagen": "Anschreiben, Lebenslauf, Arbeitszeugnis, Zeugnisse, Zertifikate",
   "email_betreff": "Bewerbung als ...",
   "email_text": "Sehr geehrte Damen und Herren,\n\n...\n\nMit freundlichen Grüßen\nHamza Öztürk\n+49 155 66859378\noeztuerk.hamza@web.de",
   "warnungen": ["Firma-Adresse nicht gefunden – bitte manuell ergänzen.", "..."]

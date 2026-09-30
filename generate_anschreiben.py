@@ -122,7 +122,6 @@ def make_styles():
                         spaceBefore=1),
         'footer':    ps('footer',    'CV-R',  8.5, LGRAY, leading=11,
                         spaceBefore=1),
-        'anlagen':   ps('anlagen',   'CV-R',  9.5, DARK, leading=13),
     }
 
 
@@ -355,7 +354,6 @@ DEFAULT_CONFIG = {
     'gehalt':           '',
     'eintritt':         '',
     'arbeitsmodell':    '',
-    'anlagen': 'Lebenslauf, Arbeitszeugnis, Zeugnisse, Zertifikate',
 }
 
 
@@ -470,18 +468,9 @@ def build(story, sty, W, cfg=None):
 
     story.append(Paragraph('Hamza Öztürk', sty['gruss']))
 
-    # ── 7  ANLAGENVERMERK (DIN 5008) ───────────────────────────────────────
-    # Die KI liefert das Feld, die GUI hat ein Eingabefeld dafuer - bisher
-    # wurde es nie ausgegeben. Fuehrende/abschliessende Anfuehrungszeichen
-    # aus KI-Antworten werden entfernt.
-    anlagen = (cfg.get('anlagen') or '').strip().strip('\'"').strip()
-    if anlagen:
-        anlagen = re.sub(r'\s*,\s*', ', ', anlagen)
-        story.append(Spacer(1, 0.5 * cm))
-        story.append(Paragraph('<b>Anlagen</b><br/>' + esc(anlagen),
-                               sty['anlagen']))
-
-    # ── 8  FOOTER (Gehalt / Eintritt / Arbeitsmodell) ──────────────────────
+    # ── 7  FOOTER (Gehalt / Eintritt / Arbeitsmodell) ──────────────────────
+    # Kein Anlagenvermerk: Die Anlagen stehen auf dem Deckblatt, im
+    # Anschreiben waere die Liste eine Dopplung.
     gehalt = cfg.get('gehalt', '')
     eintritt = cfg.get('eintritt', '')
     arbeitsmodell = cfg.get('arbeitsmodell', '')

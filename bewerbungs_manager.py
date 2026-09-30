@@ -611,7 +611,13 @@ class BewerbungsApp(tk.Tk):
                 # 3) Add datum
                 cfg['datum'] = today_de()
 
-                # 4) Populate GUI
+                # 4) Lebenslauf-Variante und -Sprache aus der Anzeige
+                #    bestimmen (IT-Support vs. Entwicklung, DE vs. EN).
+                cfg['variante'] = gen_l.erkenne_variante(
+                    cfg.get('stelle'), cfg.get('betreff'), job_text)
+                cfg['sprache'] = gen_l.erkenne_sprache(job_text)
+
+                # 5) Populate GUI
                 self.after(0, lambda: self._apply_ki_result(cfg, then_pdf))
 
             except Exception as exc:
@@ -653,6 +659,17 @@ class BewerbungsApp(tk.Tk):
                 'ermittelt werden:\n\n' + '\n'.join(warn_lines) +
                 '\n\nBitte im Tab "Stelle & Firma" manuell korrigieren.')
 
+        variante = cfg.get('variante', '')
+        if variante == gen_l.VARIANTE_IT_SUPPORT:
+            self._log('✓ Lebenslauf-Variante: IT-Support / IT-Administration '
+                      '(Systembetrieb und Anwenderbetreuung im Vordergrund).')
+        elif variante:
+            self._log('✓ Lebenslauf-Variante: Entwicklung (Standard).')
+
+        if cfg.get('sprache') == gen_l.SPRACHE_EN:
+            self._log('✓ Anzeige ist englisch – Lebenslauf wird auf Englisch '
+                      'erzeugt (Anschreiben und E-Mail bleiben deutsch).')
+
         stelle = cfg.get('stelle', '?')
         firma = cfg.get('firma', '?')
         self._status(f'✓  KI fertig: {stelle} bei {firma}')
@@ -686,6 +703,8 @@ class BewerbungsApp(tk.Tk):
                           'Bewerbung als Fullstack Entwickler – C# / .NET / Angular',
                           row, width=70)
         row = self._field_card(stelle_card, 'datum', 'Datum', today_de(), row)
+        row = self._variante_card(stelle_card, row)
+        row = self._sprache_card(stelle_card, row)
 
         # ── CV-Kurzprofil Card (von KI auf die Stelle zugeschnitten) ──
         kp_outer, kp_card = self._make_card_grid(scroll_frame, '🧩  CV-KURZPROFIL', padx=16, pady=4)
@@ -713,7 +732,9 @@ class BewerbungsApp(tk.Tk):
         row = 2
         row = self._field_card(anrede_card, 'anrede', 'Anrede',
                           'Sehr geehrte Damen und Herren,', row, width=50)
-        row = self._field_card(anrede_card, 'anlagen', 'Anlagen',
+        # Die Anlagenliste erscheint nur noch auf dem Deckblatt, nicht mehr
+        # unter dem Anschreiben.
+        row = self._field_card(anrede_card, 'anlagen', 'Anlagen (Deckblatt)',
                           'Anschreiben, Lebenslauf, Arbeitszeugnis,  Zeugnisse, Zertifikate',
                           row, width=60)
 
@@ -2750,6 +2771,42 @@ class BewerbungsApp(tk.Tk):
         e.grid(row=row, column=1, sticky='w', padx=(0, 12), pady=4)
         return row + 1
 
+    def _variante_card(self, parent, row):
+        """Auswahl der Lebenslauf-Variante (Entwicklung vs. IT-Support).
+
+        'automatisch' = aus Stellenbezeichnung/Anzeige erkennen. Nach einem
+        KI-Lauf steht hier die erkannte Variante und kann überschrieben werden.
+        """
+        tk.Label(parent, text='Lebenslauf-Variante', bg=WHITE, fg=FG,
+                 font=(FONT, 10)).grid(
+            row=row, column=0, sticky='e', padx=(0, 8), pady=4)
+        var = tk.StringVar(value='automatisch')
+        self.vars['variante'] = var
+        ttk.Combobox(parent, textvariable=var, state='readonly',
+                     values=['automatisch', gen_l.VARIANTE_FULLSTACK,
+                             gen_l.VARIANTE_IT_SUPPORT],
+                     width=37, font=(FONT, 10)).grid(
+            row=row, column=1, sticky='w', padx=(0, 12), pady=4)
+        return row + 1
+
+    def _sprache_card(self, parent, row):
+        """Sprache des Lebenslaufs (deutsch oder englisch).
+
+        'automatisch' = aus der Stellenanzeige erkennen. Betrifft nur den
+        Lebenslauf; Anschreiben und Bewerbungs-E-Mail bleiben deutsch.
+        """
+        tk.Label(parent, text='Lebenslauf-Sprache', bg=WHITE, fg=FG,
+                 font=(FONT, 10)).grid(
+            row=row, column=0, sticky='e', padx=(0, 8), pady=4)
+        var = tk.StringVar(value='automatisch')
+        self.vars['sprache'] = var
+        ttk.Combobox(parent, textvariable=var, state='readonly',
+                     values=['automatisch', gen_l.SPRACHE_DE,
+                             gen_l.SPRACHE_EN],
+                     width=37, font=(FONT, 10)).grid(
+            row=row, column=1, sticky='w', padx=(0, 12), pady=4)
+        return row + 1
+
     def _textarea(self, parent, key, label, default, row, height=5):
         tk.Label(parent, text=label, bg=BG, fg=NAVY,
                  font=(FONT, 11, 'bold')).grid(
@@ -2804,6 +2861,10 @@ class BewerbungsApp(tk.Tk):
     def _set_config(self, cfg):
         for key, widget in self.vars.items():
             val = cfg.get(key, '')
+            # Fehlen Variante/Sprache (Standardwerte, altes Profil),
+            # bleiben die Auswahlfelder auf 'automatisch' statt leer zu werden.
+            if key in ('variante', 'sprache') and not str(val).strip():
+                val = 'automatisch'
             if isinstance(widget, tk.StringVar):
                 widget.set(val)
             elif isinstance(widget, tk.Text):
@@ -2813,6 +2874,8 @@ class BewerbungsApp(tk.Tk):
     def _load_defaults(self):
         """Populate with merged defaults."""
         defaults = {**gen_a.DEFAULT_CONFIG}
+        # Anlagen gehoeren zum Deckblatt – Vorgabe von dort holen.
+        defaults.setdefault('anlagen', gen_k.DEFAULT_CONFIG.get('anlagen', ''))
         defaults['datum'] = today_de()
         self._set_config(defaults)
 
@@ -2823,16 +2886,30 @@ class BewerbungsApp(tk.Tk):
         stelle = safe_filename(cfg.get('stelle', 'Stelle'))
         folder = os.path.join(OUTPUT_DIR, 'bewerbungen', f'{firma} - {stelle}')
         os.makedirs(folder, exist_ok=True)
-        if doc_type == 'Anschreiben':
-            name = 'bewerbung_software_entwickler_herr_öztürk_anschreiben.pdf'
-        elif doc_type == 'Bewerbung':
-            name = 'bewerbung_software_entwickler_herr_öztürk.pdf'
-        elif doc_type == 'Lebenslauf':
-            name = 'bewerbung_software_entwickler_herr_öztürk_lebenslauf.pdf'
-        elif doc_type == 'Kapak':
-            name = 'bewerbung_software_entwickler_herr_öztürk_deckblatt.pdf'
+        # Dateiname passend zur Lebenslauf-Variante: bei einer Support-Stelle
+        # soll im Anhang nicht "software_entwickler" stehen.
+        support = gen_l.variante_aus_cfg(cfg) == gen_l.VARIANTE_IT_SUPPORT
+        if support:
+            stamm = 'bewerbung_it_support_herr_öztürk'
         else:
-            name = f'bewerbung_software_entwickler_herr_öztürk_{doc_type.lower()}.pdf'
+            stamm = 'bewerbung_software_entwickler_herr_öztürk'
+        # Nur der Lebenslauf kann englisch sein – Anschreiben, Deckblatt und
+        # Gesamt-PDF bleiben deutsch und behalten deshalb ihren Namen.
+        if (doc_type == 'Lebenslauf'
+                and gen_l.sprache_aus_cfg(cfg) == gen_l.SPRACHE_EN):
+            name_en = ('application_it_support_mr_oeztuerk_cv.pdf' if support
+                       else 'application_software_developer_mr_oeztuerk_cv.pdf')
+            return os.path.join(folder, name_en)
+        if doc_type == 'Anschreiben':
+            name = f'{stamm}_anschreiben.pdf'
+        elif doc_type == 'Bewerbung':
+            name = f'{stamm}.pdf'
+        elif doc_type == 'Lebenslauf':
+            name = f'{stamm}_lebenslauf.pdf'
+        elif doc_type == 'Kapak':
+            name = f'{stamm}_deckblatt.pdf'
+        else:
+            name = f'{stamm}_{doc_type.lower()}.pdf'
         return os.path.join(folder, name)
 
     # ── GENERATION ───────────────────────────────────────────────────────────
