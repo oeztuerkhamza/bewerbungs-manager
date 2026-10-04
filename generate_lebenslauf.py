@@ -401,19 +401,14 @@ def _draw_page(canvas, doc):
 DEFAULT_KURZPROFIL = (
     'Ich digitalisiere <b>kaufmännische Geschäftsprozesse</b> – vom Papierbeleg '
     'über Datenmodell und API bis zum laufenden Betrieb. Als <b>Fachinformatiker '
-    'für Anwendungsentwicklung (IHK)</b> arbeite ich dabei mit klarem Fokus auf '
-    'Codequalität, saubere Architektur und stabilen Produktivbetrieb. '
-    'Bei der Dicom GmbH habe ich am '
-    'Enterprise-ERP-System <b>DI-ONE</b> eine monolithische Desktop-Anwendung '
-    'schrittweise auf <b>Clean Architecture</b> migriert und CI/CD-Pipelines mit '
-    '<b>GitHub Actions</b> und <b>Azure Pipelines</b> aufgebaut. Aktuell verantworte '
-    'ich bei Bike Haus Freiburg eine produktiv genutzte Warenwirtschafts- und '
-    'Vermietungsplattform (<b>.NET 9 / Angular 17, SQLite</b>), die den '
-    'gesamten Belegfluss digital abbildet und auf einem selbst betriebenen '
-    'Docker-Stack mit <b>Zero-Downtime-Deployment</b> läuft. Mit <b>TypeScript</b> '
-    'und <b>React</b> arbeite ich ebenfalls regelmäßig – damit deckt mein Profil '
-    'sowohl den .NET- als auch den JavaScript-Stack ab.'
+    'für Anwendungsentwicklung (IHK)</b> verantworte ich bei Bike Haus Freiburg '
+    'eine produktiv genutzte Warenwirtschafts- und Vermietungsplattform '
+    '(<b>.NET 9, Angular 17</b>) auf einem selbst betriebenen Docker-Stack. '
+    'Zuvor bei der Dicom GmbH: Migration eines ERP-Systems von WinForms auf '
+    'eine Web-Lösung in Clean Architecture. Mit TypeScript und React decke ich '
+    'auch den JavaScript-Stack ab.'
 )
+
 
 DEFAULT_CONFIG = {
     'stelle':        'Fullstack Entwickler',
@@ -440,20 +435,15 @@ SPRACHE_EN = 'en'
 
 KURZPROFIL_IT_SUPPORT = (
     'Ich halte die IT eines Betriebs am Laufen – von der Anwenderfrage am '
-    'Arbeitsplatz über Server, Mail und Netzwerk bis zur Dokumentation. '
-    'Als <b>Fachinformatiker für Anwendungsentwicklung (IHK)</b> gehe ich '
-    'dabei strukturiert auf die Fehlerursache statt auf das Symptom. '
-    'Bei der Dicom GmbH habe ich ein <b>ERP-System</b> für den '
-    'Getränke-Großhandel bis zum Rollout beim Kunden begleitet, Störungen '
-    'aus dem Fachbereich analysiert und die <b>Azure</b>-Umgebungen für '
-    'Dev, Staging und Produktion mitbetreut. Bei Bike Haus Freiburg '
-    'verantworte ich die komplette Inhouse-IT: <b>Linux-Server</b> mit '
-    '<b>Docker</b> und Nginx, TLS-Zertifikate, eigener Mailserver mit '
+    'Arbeitsplatz über Server, Mail und Netzwerk bis zur Dokumentation. Bei '
+    'Bike Haus Freiburg verantworte ich die komplette Inhouse-IT: '
+    '<b>Linux-Server</b> mit Docker und Nginx, eigener Mailserver mit '
     'DKIM/SPF/DMARC, automatisierte Backups und die tägliche Betreuung der '
-    'Mitarbeitenden. Dass ich Anwendungen selbst baue (<b>C#/.NET</b>, '
-    'Angular, SQL), hilft im Support: ich erkenne an Logs und Datenbank, '
-    'wo ein Fehler wirklich entsteht.'
+    'Mitarbeitenden. Als <b>Fachinformatiker für Anwendungsentwicklung (IHK)</b> '
+    'gehe ich dabei auf die Fehlerursache statt auf das Symptom – Logs und '
+    'Datenbank zeigen mir, wo ein Fehler wirklich entsteht.'
 )
+
 
 _LNK_BIKEHAUS = (
     lnk('https://bikehausfreiburg.com', 'bikehausfreiburg.com')
@@ -497,31 +487,25 @@ ERFAHRUNG_FULLSTACK = [
         'period': '03/2026 – heute',
         'sub':    _LNK_BIKEHAUS,
         'bullets': [
-            'Konzeption, Entwicklung und Betrieb einer eigenen Warenwirtschafts- '
-            'und Vermietungsplattform: <b>.NET 9</b>-API (40 Controller, '
-            '46 Domain-Entities, 130+ EF-Core-Migrationen), <b>Angular 17</b> '
-            'Admin-SPA und SSR-Homepage — im täglichen Geschäftsbetrieb produktiv.',
+            'Warenwirtschafts- und Vermietungsplattform konzipiert, entwickelt '
+            'und betrieben: <b>.NET 9</b>-API (40 Controller, 46 Entities), '
+            'Angular 17 Admin-SPA und SSR-Homepage — produktiv im Tagesgeschäft.',
 
-            'Vermietung und Warenwirtschaft papierlos abgewickelt (Online-Buchung, '
-            'PDF-Belege mit QR-Code, digitale Unterschrift, Kaution, automatische '
-            'E-Mails): <b>405 Mietverträge</b>, 696 Ankäufe und 990 Verkäufe '
-            '— über 2.000 Belege digital erzeugt (2026).',
+            'Beleglauf papierlos: Online-Buchung, PDF-Belege mit QR-Code, '
+            'digitale Unterschrift, Kaution — <b>über 2.000 Belege</b> und '
+            '405 Mietverträge in 2026.',
 
-            'SEO-Ausbau der SSR-Homepage (12 Sprachen mit hreflang, Prerendering, '
-            'IndexNow, stadtbasierte Landing-Pages): <b>342.000 Impressionen '
-            'und 13.000 organische Klicks in 6 Monaten</b> (CTR 3,8 %, '
-            'Ø-Position 9).',
+            'SEO-Ausbau der SSR-Homepage (12 Sprachen mit hreflang, '
+            'Prerendering, IndexNow): <b>342.000 Impressionen und 13.000 '
+            'organische Klicks in 6 Monaten</b>.',
 
-            'KI-Assistenten für Gmail, WhatsApp und Kleinanzeigen (<b>OpenAI API</b>) '
-            'mit mehrsprachigen Antwortentwürfen; Kleinanzeigen-Scraper '
-            '(<b>Playwright</b>), automatisierte Google-Reviews-Kampagne, '
-            'Newsletter- und Backup-Services.',
+            'KI-Assistenten für Gmail, WhatsApp und Kleinanzeigen '
+            '(<b>OpenAI API</b>), Kleinanzeigen-Scraper mit Playwright, '
+            'automatisierte Newsletter- und Backup-Services.',
 
-            'Betrieb &amp; DevOps: 6-Container-<b>Docker</b>-Stack auf eigenem VPS, '
-            '<b>GitHub Actions</b> CI/CD mit Change-Detection und '
-            'Zero-Downtime-Deployment, Nginx (Rate Limiting, HSTS/CSP, '
-            "Let's Encrypt), Mailcow-Mailserver (DKIM/SPF/DMARC), "
-            'Android-App via Capacitor.',
+            'Betrieb &amp; DevOps: 6-Container-Docker-Stack auf eigenem VPS, '
+            '<b>GitHub Actions</b> CI/CD mit Zero-Downtime-Deployment, Nginx, '
+            'eigener Mailserver (DKIM/SPF/DMARC).',
         ],
     },
     {
@@ -529,66 +513,56 @@ ERFAHRUNG_FULLSTACK = [
                   '(verkürzte duale Ausbildung, IHK)',
         'period': '02/2024 – 02/2026',
         'bullets': [
-            'Mitarbeit an der Migration eines kompletten ERP-Systems für den '
-            '<b>Getränke-Großhandel</b> von WinForms zu einer '
-            '<b>C#/.NET</b> + <b>Angular</b> Web-Lösung; Einführung einer '
-            '<b>Clean Architecture</b> und modularen API-Struktur im Team.',
+            'Migration eines kompletten ERP-Systems für den '
+            '<b>Getränke-Großhandel</b> von WinForms zu einer C#/.NET- und '
+            'Angular-Web-Lösung; Einführung einer Clean Architecture im Team.',
 
-            'Fachlich über die gesamte Prozesskette umgesetzt: '
-            '<b>Stammdaten, Artikelverwaltung, Einkauf, Verkauf und '
-            'Leergut-/Pfandabwicklung</b> — von der Anforderungsanalyse über '
-            'die Entwicklung bis zum Rollout beim Kunden.',
+            'Gesamte Prozesskette umgesetzt: Stammdaten, Artikelverwaltung, '
+            'Einkauf, Verkauf und Leergut-/Pfandabwicklung — von der '
+            'Anforderungsanalyse bis zum Rollout beim Kunden.',
 
-            'Neuaufbau und Optimierung der Datenbankmodelle (<b>EF Core</b>, '
-            'SQL Server); deutliche Verbesserung von API-Antwortzeiten und '
-            'Seitenladegeschwindigkeit durch gezielte Query- und '
-            'Bundle-Optimierung.',
-
-            'Aufbau von CI/CD-Pipelines (<b>GitHub Actions</b>, <b>Azure DevOps</b>): '
+            'Datenbankmodelle neu aufgebaut und optimiert (<b>EF Core</b>, '
+            'SQL Server); CI/CD mit GitHub Actions und Azure DevOps — '
             'Deployment-Zeit um <b>40 %</b> reduziert.',
 
-            'Entwicklung von <b>15+ Angular-Komponenten</b> mit <b>NgRx</b> und '
-            'Reactive Forms; Unit- und Integrationstests mit <b>xUnit</b> und '
-            '<b>Moq</b>, Testabdeckung auf über <b>60 %</b> gesteigert.',
-
-            'Mitbetreuung der <b>Azure</b>-Umgebungen (Dev/Staging/Prod); '
-            'REST-APIs inkl. KI-gestützter Tools zur Beschleunigung von '
-            'Entwicklungszyklen.',
+            '<b>15+ Angular-Komponenten</b> mit NgRx und Reactive Forms; '
+            'Unit- und Integrationstests mit xUnit und Moq, Testabdeckung '
+            'auf über <b>60 %</b> gesteigert.',
         ],
     },
 ]
+
 
 PROJEKTE_FULLSTACK = [
     {
         'head': _P_BENLIRAD,
         'bullets': [
-            '<b>.NET 9</b>-API in Clean Architecture, <b>Angular 17</b> '
-            'Admin-SPA und SSR-Website, die den Bestand live aus derselben '
-            'Datenbank zieht (EF Core, SQLite, JWT).',
+            '<b>.NET 9</b>-API in Clean Architecture, Angular 17 Admin-SPA '
+            'und SSR-Website, die den Bestand live aus derselben Datenbank '
+            'zieht (EF Core, SQLite, JWT).',
 
-            '<b>Viersprachig</b> (DE/EN/FR/TR) mit hreflang und eigenen URLs; '
-            'Betrieb mit Docker und Nginx auf eigenem Server, '
-            'Chrome-Erweiterung für die Pflege der Inserate.',
+            'Viersprachig (DE/EN/FR/TR) mit hreflang; Betrieb mit Docker und '
+            'Nginx auf eigenem Server, Chrome-Erweiterung für die Pflege der '
+            'Inserate.',
         ],
     },
     {
         'head': _P_KULTUR,
         'bullets': [
-            '<b>.NET 10</b>, <b>React 19</b>, Docker Compose — '
-            'Full-Stack-Entwicklung: Admin-Panel, Newsletter-System, '
-            'Bildverarbeitung, DE/TR-Zweisprachigkeit.',
+            '<b>.NET 10</b>, React 19, Docker Compose — Admin-Panel, '
+            'Newsletter-System, Bildverarbeitung, DE/TR-Zweisprachigkeit.',
         ],
     },
     {
         'head': _P_DJVEYS,
         'bullets': [
-            '<b>Next.js 16</b>/React 19 mit <b>Payload CMS 3</b>, TypeScript '
-            'und Tailwind 4 — redaktionell pflegbare Inhalte, Anfragestrecke '
-            'mit Zod-Validierung; <b>9-sprachig</b> mit hreflang, '
-            'Landing-Pages je Region und strukturierten Daten.',
+            '<b>Next.js 16</b>/React 19 mit Payload CMS 3, TypeScript und '
+            'Tailwind 4 — redaktionell pflegbare Inhalte, Anfragestrecke mit '
+            'Zod-Validierung; 9-sprachig mit Landing-Pages je Region.',
         ],
     },
 ]
+
 
 SKILLS_FULLSTACK = [
     ('Backend',
@@ -616,34 +590,23 @@ ERFAHRUNG_IT_SUPPORT = [
         'sub':    _LNK_BIKEHAUS,
         'bullets': [
             'Betrieb der kompletten Firmen-IT: <b>Linux-Server</b> (VPS) mit '
-            '6-Container-<b>Docker</b>-Stack, Nginx als Reverse Proxy '
-            "(TLS mit Let's Encrypt, HSTS/CSP, Rate Limiting), automatisierte "
-            'Backups und Monitoring — die Systeme werden täglich im Verkauf '
-            'und in der Vermietung genutzt.',
+            '6-Container-Docker-Stack, Nginx als Reverse Proxy (TLS, '
+            'HSTS/CSP), automatisierte Backups und Monitoring.',
 
             'Eigener <b>Mailserver</b> (Mailcow) inklusive DNS-Einrichtung mit '
-            '<b>DKIM, SPF und DMARC</b>: Postfächer, Weiterleitungen und '
-            'Spam-Filter für die Firmenadressen.',
+            'DKIM, SPF und DMARC: Postfächer, Weiterleitungen und Spam-Filter.',
 
             '<b>Anwenderbetreuung</b> im Tagesgeschäft: Einweisung der '
-            'Mitarbeitenden in Warenwirtschaft und Vermietung, Aufnahme und '
-            'Analyse von Störungen anhand von Logs und Datenbank, Umsetzung '
-            'von Änderungswünschen.',
+            'Mitarbeitenden, Störungsanalyse anhand von Logs und Datenbank, '
+            'Umsetzung von Änderungswünschen.',
 
             'Papierlose Abläufe eingeführt (Online-Buchung, PDF-Belege mit '
-            'QR-Code, digitale Unterschrift, automatische E-Mails): '
-            '<b>405 Mietverträge</b>, 696 Ankäufe und 990 Verkäufe '
-            '— über 2.000 Belege digital erzeugt (2026).',
+            'QR-Code, digitale Unterschrift): <b>über 2.000 Belege</b> digital '
+            'erzeugt (2026).',
 
-            'Wiederkehrende Aufgaben automatisiert: <b>GitHub Actions</b> '
-            'CI/CD mit Zero-Downtime-Deployment, Backup- und '
-            'Newsletter-Dienste, <b>Python</b>-Skripte, Bereitstellung der '
-            'Android-App via Capacitor.',
-
-            'Die genutzte Plattform selbst entwickelt und gewartet '
-            '(<b>.NET 9</b>, <b>Angular 17</b>, SQLite) — im Support hilft '
-            'das, einen Fehler bis zur Ursache in Konfiguration, Daten oder '
-            'Anwendung zu verfolgen.',
+            'Automatisierung und Entwicklung: <b>GitHub Actions</b> CI/CD mit '
+            'Zero-Downtime-Deployment, Python-Skripte; die genutzte Plattform '
+            '(.NET 9, Angular 17) selbst gebaut und gewartet.',
         ],
     },
     {
@@ -651,62 +614,52 @@ ERFAHRUNG_IT_SUPPORT = [
                   '(verkürzte duale Ausbildung, IHK)',
         'period': '02/2024 – 02/2026',
         'bullets': [
-            'ERP-Einführung für den <b>Getränke-Großhandel</b> von der '
-            'Anforderungsanalyse bis zum <b>Rollout beim Kunden</b> begleitet: '
-            'Rückfragen und Fehlermeldungen aus dem Fachbereich aufgenommen, '
-            'nachgestellt und behoben.',
+            'ERP-Einführung für den <b>Getränke-Großhandel</b> bis zum Rollout '
+            'beim Kunden begleitet: Fehlermeldungen aus dem Fachbereich '
+            'aufgenommen, nachgestellt und behoben.',
 
             'Mitbetreuung der <b>Azure</b>-Umgebungen für Dev, Staging und '
-            'Produktion; CI/CD-Pipelines mit <b>GitHub Actions</b> und '
-            '<b>Azure DevOps</b> aufgebaut — Deployment-Zeit um <b>40 %</b> '
-            'reduziert.',
+            'Produktion; CI/CD mit GitHub Actions und Azure DevOps — '
+            'Deployment-Zeit um <b>40 %</b> reduziert.',
 
             'Wartung und Fehleranalyse im laufenden ERP-Betrieb über die '
-            'gesamte Prozesskette (Stammdaten, Artikelverwaltung, Einkauf, '
-            'Verkauf, Leergut-/Pfandabwicklung); Datenbankmodelle und '
-            'Abfragen optimiert (<b>SQL Server</b>, EF Core).',
+            'gesamte Prozesskette; Datenbankmodelle und Abfragen optimiert '
+            '(<b>SQL Server</b>, EF Core).',
 
-            'Qualitätssicherung und Dokumentation im Team: Unit- und '
-            'Integrationstests mit <b>xUnit</b> und <b>Moq</b>, Testabdeckung '
-            'auf über <b>60 %</b> gesteigert.',
-
-            'Technische Basis: Migration einer monolithischen '
-            'Desktop-Anwendung auf eine Web-Lösung (<b>C#/.NET</b>, '
-            '<b>Angular</b>) in <b>Clean Architecture</b>.',
+            'Qualitätssicherung im Team: Unit- und Integrationstests mit xUnit '
+            'und Moq, Testabdeckung auf über <b>60 %</b> gesteigert.',
         ],
     },
 ]
+
 
 PROJEKTE_IT_SUPPORT = [
     {
         'head': _P_BENLIRAD,
         'bullets': [
             'Betrieb auf eigenem Server mit <b>Docker</b> und Nginx: '
-            'Deployment, TLS-Zertifikate, Backups und laufende Wartung für '
-            'Warenwirtschaft und Website.',
+            'Deployment, TLS-Zertifikate, Backups und laufende Wartung.',
 
-            '<b>Viersprachig</b> (DE/EN/FR/TR); .NET 9-API und Angular 17 '
-            'greifen auf dieselbe Datenbank zu, Chrome-Erweiterung für die '
-            'Pflege der Inserate.',
+            'Viersprachig (DE/EN/FR/TR); .NET 9-API und Angular 17 greifen auf '
+            'dieselbe Datenbank zu, Chrome-Erweiterung für die Inserate.',
         ],
     },
     {
         'head': _P_KULTUR,
         'bullets': [
-            '<b>.NET 10</b>, <b>React 19</b> und <b>Docker Compose</b> — '
-            'Aufbau und Betrieb inklusive Admin-Panel, Newsletter-System und '
-            'DE/TR-Zweisprachigkeit; ehrenamtlich betreut.',
+            '<b>.NET 10</b>, React 19 und Docker Compose — Aufbau und Betrieb '
+            'inklusive Admin-Panel und Newsletter-System; ehrenamtlich betreut.',
         ],
     },
     {
         'head': _P_DJVEYS,
         'bullets': [
-            '<b>Next.js 16</b> mit <b>Payload CMS 3</b>: redaktionell '
-            'pflegbare Inhalte, <b>9-sprachig</b>, Anfragestrecke mit '
-            'Mailversand — Betrieb und Updates laufend betreut.',
+            '<b>Next.js 16</b> mit Payload CMS 3: redaktionell pflegbare '
+            'Inhalte, 9-sprachig — Betrieb und Updates laufend betreut.',
         ],
     },
 ]
+
 
 SKILLS_IT_SUPPORT = [
     ('Systeme &amp; Server',
@@ -885,46 +838,32 @@ BILDUNGSWEG = [
         'title':  'Militärwissenschaften',
         'inst':   'Türkische Luftwaffenakademie, Istanbul',
     },
-    {
-        'period': '2010 – 2015',
-        'title':  'Schulabschluss (Lise-Diplom)',
-        'inst':   'Işıklar Militärgymnasium der Luftwaffe, Bursa (Türkei)',
-    },
 ]
 
 # ── Englische Fassung: Kurzprofile ──────────────────────────────────────────
 PROFILE_FULLSTACK_EN = (
     'I digitalise <b>commercial business processes</b> – from the paper '
     'document through data model and API to day-to-day operation. As a '
-    'qualified <b>IT Specialist in Application Development (IHK)</b> I work '
-    'with a clear focus on code quality, clean architecture and stable '
-    'production systems. At Dicom GmbH I migrated a monolithic desktop '
-    'application of the enterprise ERP system <b>DI-ONE</b> step by step to '
-    '<b>Clean Architecture</b> and built CI/CD pipelines with '
-    '<b>GitHub Actions</b> and <b>Azure Pipelines</b>. Today I am responsible '
-    'for a production inventory and rental platform at Bike Haus Freiburg '
-    '(<b>.NET 9 / Angular 17, SQLite</b>) that covers the entire document '
-    'flow digitally and runs on a self-hosted Docker stack with '
-    '<b>zero-downtime deployment</b>. I also work regularly with '
-    '<b>TypeScript</b> and <b>React</b> – so my profile covers both the .NET '
-    'and the JavaScript stack.'
+    'qualified <b>IT Specialist in Application Development (IHK)</b> I am '
+    'responsible for a production inventory and rental platform at Bike Haus '
+    'Freiburg (<b>.NET 9, Angular 17</b>) running on a self-hosted Docker '
+    'stack. Before that at Dicom GmbH: migration of an ERP system from '
+    'WinForms to a web solution in Clean Architecture. With TypeScript and '
+    'React I also cover the JavaScript stack.'
 )
+
 
 PROFILE_IT_SUPPORT_EN = (
     "I keep a company's IT running – from the question at the user's desk "
-    'through servers, mail and network to proper documentation. As an '
-    '<b>IT Specialist in Application Development (IHK)</b> I work towards '
-    'the root cause instead of the symptom. At Dicom GmbH I supported an '
-    '<b>ERP system</b> for beverage wholesale up to the rollout at the '
-    'customer site, analysed incidents reported by the departments and '
-    'helped maintain the <b>Azure</b> environments for dev, staging and '
-    'production. At Bike Haus Freiburg I am responsible for the entire '
-    'in-house IT: <b>Linux servers</b> with <b>Docker</b> and Nginx, TLS '
-    'certificates, an own mail server with DKIM/SPF/DMARC, automated '
-    'backups and day-to-day user support. Building applications myself '
-    '(<b>C#/.NET</b>, Angular, SQL) helps in support: logs and database show '
-    'me where an error really originates.'
+    'through servers, mail and network to proper documentation. At Bike Haus '
+    'Freiburg I am responsible for the entire in-house IT: <b>Linux servers</b> '
+    'with Docker and Nginx, an own mail server with DKIM/SPF/DMARC, automated '
+    'backups and day-to-day user support. As an <b>IT Specialist in '
+    'Application Development (IHK)</b> I work towards the root cause instead '
+    'of the symptom – logs and database show me where an error really '
+    'originates.'
 )
+
 
 
 _P_BENLIRAD_EN = _projekt_kopf(
@@ -951,31 +890,25 @@ ERFAHRUNG_FULLSTACK_EN = [
         'period': '03/2026 – present',
         'sub':    _LNK_BIKEHAUS,
         'bullets': [
-            'Design, development and operation of an in-house inventory and '
-            'rental platform: <b>.NET 9</b> API (40 controllers, 46 domain '
-            'entities, 130+ EF Core migrations), <b>Angular 17</b> admin SPA '
-            'and SSR website — in productive daily use.',
+            'Designed, built and operate an in-house inventory and rental '
+            'platform: <b>.NET 9</b> API (40 controllers, 46 entities), '
+            'Angular 17 admin SPA and SSR website — in productive daily use.',
 
-            'Rental and inventory handled paperlessly (online booking, PDF '
-            'documents with QR code, digital signature, deposit, automated '
-            'e-mails): <b>405 rental contracts</b>, 696 purchases and '
-            '990 sales — more than 2,000 documents generated digitally (2026).',
+            'Paperless document flow: online booking, PDF documents with QR '
+            'code, digital signature, deposit — <b>more than 2,000 '
+            'documents</b> and 405 rental contracts in 2026.',
 
             'SEO work on the SSR website (12 languages with hreflang, '
-            'prerendering, IndexNow, city landing pages): <b>342,000 '
-            'impressions and 13,000 organic clicks within 6 months</b> '
-            '(CTR 3.8%, average position 9).',
+            'prerendering, IndexNow): <b>342,000 impressions and 13,000 '
+            'organic clicks within 6 months</b>.',
 
             'AI assistants for Gmail, WhatsApp and Kleinanzeigen '
-            '(<b>OpenAI API</b>) with multilingual reply drafts; '
-            'Kleinanzeigen scraper (<b>Playwright</b>), automated Google '
-            'reviews campaign, newsletter and backup services.',
+            '(<b>OpenAI API</b>), Kleinanzeigen scraper with Playwright, '
+            'automated newsletter and backup services.',
 
-            'Operations &amp; DevOps: 6-container <b>Docker</b> stack on an '
-            'own VPS, <b>GitHub Actions</b> CI/CD with change detection and '
-            'zero-downtime deployment, Nginx (rate limiting, HSTS/CSP, '
-            "Let's Encrypt), Mailcow mail server (DKIM/SPF/DMARC), "
-            'Android app via Capacitor.',
+            'Operations &amp; DevOps: 6-container Docker stack on an own VPS, '
+            '<b>GitHub Actions</b> CI/CD with zero-downtime deployment, '
+            'Nginx, own mail server (DKIM/SPF/DMARC).',
         ],
     },
     {
@@ -983,65 +916,56 @@ ERFAHRUNG_FULLSTACK_EN = [
                   '(accelerated dual vocational training, IHK)',
         'period': '02/2024 – 02/2026',
         'bullets': [
-            'Contributed to migrating a complete ERP system for '
-            '<b>beverage wholesale</b> from WinForms to a <b>C#/.NET</b> + '
-            '<b>Angular</b> web solution; introduced <b>Clean Architecture</b> '
-            'and a modular API structure within the team.',
+            'Migrated a complete ERP system for <b>beverage wholesale</b> '
+            'from WinForms to a C#/.NET and Angular web solution; introduced '
+            'Clean Architecture within the team.',
 
-            'Implemented the full business process chain: <b>master data, '
-            'article management, purchasing, sales and returnable '
-            'container/deposit handling</b> — from requirements analysis '
-            'through development to rollout at the customer.',
+            'Implemented the full business process chain: master data, '
+            'article management, purchasing, sales and deposit handling — '
+            'from requirements analysis to rollout at the customer.',
 
             'Rebuilt and optimised the database models (<b>EF Core</b>, '
-            'SQL Server); clearly improved API response times and page load '
-            'speed through targeted query and bundle optimisation.',
+            'SQL Server); CI/CD with GitHub Actions and Azure DevOps — '
+            'deployment time reduced by <b>40%</b>.',
 
-            'Built CI/CD pipelines (<b>GitHub Actions</b>, '
-            '<b>Azure DevOps</b>): deployment time reduced by <b>40%</b>.',
-
-            'Developed <b>15+ Angular components</b> with <b>NgRx</b> and '
-            'reactive forms; unit and integration tests with <b>xUnit</b> and '
-            '<b>Moq</b>, test coverage raised above <b>60%</b>.',
-
-            'Co-maintained the <b>Azure</b> environments (dev/staging/prod); '
-            'REST APIs including AI-assisted tools to speed up development '
-            'cycles.',
+            '<b>15+ Angular components</b> with NgRx and reactive forms; '
+            'unit and integration tests with xUnit and Moq, test coverage '
+            'raised above <b>60%</b>.',
         ],
     },
 ]
+
 
 PROJEKTE_FULLSTACK_EN = [
     {
         'head': _P_BENLIRAD_EN,
         'bullets': [
-            '<b>.NET 9</b> API in Clean Architecture, <b>Angular 17</b> admin '
-            'SPA and SSR website that pulls the live stock from the same '
-            'database (EF Core, SQLite, JWT).',
+            '<b>.NET 9</b> API in Clean Architecture, Angular 17 admin SPA '
+            'and SSR website that pulls the live stock from the same database '
+            '(EF Core, SQLite, JWT).',
 
-            '<b>Four languages</b> (DE/EN/FR/TR) with hreflang and dedicated '
-            'URLs; operated with Docker and Nginx on an own server, Chrome '
-            'extension for maintaining the listings.',
+            'Four languages (DE/EN/FR/TR) with hreflang; operated with Docker '
+            'and Nginx on an own server, Chrome extension for maintaining the '
+            'listings.',
         ],
     },
     {
         'head': _P_KULTUR_EN,
         'bullets': [
-            '<b>.NET 10</b>, <b>React 19</b>, Docker Compose — full-stack '
-            'development: admin panel, newsletter system, image processing, '
-            'DE/TR bilingual content.',
+            '<b>.NET 10</b>, React 19, Docker Compose — admin panel, '
+            'newsletter system, image processing, DE/TR bilingual content.',
         ],
     },
     {
         'head': _P_DJVEYS_EN,
         'bullets': [
-            '<b>Next.js 16</b>/React 19 with <b>Payload CMS 3</b>, TypeScript '
-            'and Tailwind 4 — editorially maintainable content, enquiry flow '
-            'with Zod validation; <b>9 languages</b> with hreflang, landing '
-            'pages per region and structured data.',
+            '<b>Next.js 16</b>/React 19 with Payload CMS 3, TypeScript and '
+            'Tailwind 4 — editorially maintainable content, enquiry flow with '
+            'Zod validation; 9 languages with landing pages per region.',
         ],
     },
 ]
+
 
 SKILLS_FULLSTACK_EN = [
     ('Backend',
@@ -1068,31 +992,23 @@ ERFAHRUNG_IT_SUPPORT_EN = [
         'sub':    _LNK_BIKEHAUS,
         'bullets': [
             "Operating the company's entire IT: <b>Linux servers</b> (VPS) "
-            'with a 6-container <b>Docker</b> stack, Nginx as reverse proxy '
-            "(TLS via Let's Encrypt, HSTS/CSP, rate limiting), automated "
-            'backups and monitoring — the systems are in daily use in sales '
-            'and rental.',
+            'with a 6-container Docker stack, Nginx as reverse proxy (TLS, '
+            'HSTS/CSP), automated backups and monitoring.',
 
-            'Own <b>mail server</b> (Mailcow) including DNS setup with '
-            '<b>DKIM, SPF and DMARC</b>: mailboxes, forwarding rules and '
-            'spam filtering for the company addresses.',
+            'Own <b>mail server</b> (Mailcow) including DNS setup with DKIM, '
+            'SPF and DMARC: mailboxes, forwarding rules and spam filtering.',
 
             '<b>User support</b> in daily business: introducing staff to the '
-            'inventory and rental system, taking in and analysing incidents '
-            'from logs and database, implementing change requests.',
+            'systems, analysing incidents from logs and database, '
+            'implementing change requests.',
 
             'Introduced paperless workflows (online booking, PDF documents '
-            'with QR code, digital signature, automated e-mails): '
-            '<b>405 rental contracts</b>, 696 purchases and 990 sales — more '
-            'than 2,000 documents generated digitally (2026).',
+            'with QR code, digital signature): <b>more than 2,000 '
+            'documents</b> generated digitally (2026).',
 
-            'Automated recurring tasks: <b>GitHub Actions</b> CI/CD with '
-            'zero-downtime deployment, backup and newsletter services, '
-            '<b>Python</b> scripts, Android app delivery via Capacitor.',
-
-            'Built and maintain the platform in use myself (<b>.NET 9</b>, '
-            '<b>Angular 17</b>, SQLite) — in support this helps to trace a '
-            'fault to its root cause in configuration, data or application.',
+            'Automation and development: <b>GitHub Actions</b> CI/CD with '
+            'zero-downtime deployment, Python scripts; built and maintain the '
+            'platform in use myself (.NET 9, Angular 17).',
         ],
     },
     {
@@ -1100,61 +1016,54 @@ ERFAHRUNG_IT_SUPPORT_EN = [
                   '(accelerated dual vocational training, IHK)',
         'period': '02/2024 – 02/2026',
         'bullets': [
-            'Supported the ERP rollout for <b>beverage wholesale</b> from '
-            'requirements analysis to <b>go-live at the customer</b>: took in '
-            'questions and fault reports from the departments, reproduced and '
-            'fixed them.',
+            'Supported the ERP rollout for <b>beverage wholesale</b> up to '
+            'go-live at the customer: took in fault reports from the '
+            'departments, reproduced and fixed them.',
 
             'Co-maintained the <b>Azure</b> environments for dev, staging and '
-            'production; built CI/CD pipelines with <b>GitHub Actions</b> and '
-            '<b>Azure DevOps</b> — deployment time reduced by <b>40%</b>.',
+            'production; CI/CD with GitHub Actions and Azure DevOps — '
+            'deployment time reduced by <b>40%</b>.',
 
             'Maintenance and fault analysis in live ERP operation across the '
-            'whole process chain (master data, article management, '
-            'purchasing, sales, returnable container/deposit handling); '
-            'optimised data models and queries (<b>SQL Server</b>, EF Core).',
+            'whole process chain; optimised data models and queries '
+            '(<b>SQL Server</b>, EF Core).',
 
-            'Quality assurance and documentation within the team: unit and '
-            'integration tests with <b>xUnit</b> and <b>Moq</b>, test '
-            'coverage raised above <b>60%</b>.',
-
-            'Technical foundation: migration of a monolithic desktop '
-            'application to a web solution (<b>C#/.NET</b>, <b>Angular</b>) '
-            'following <b>Clean Architecture</b>.',
+            'Quality assurance within the team: unit and integration tests '
+            'with xUnit and Moq, test coverage raised above <b>60%</b>.',
         ],
     },
 ]
+
 
 PROJEKTE_IT_SUPPORT_EN = [
     {
         'head': _P_BENLIRAD_EN,
         'bullets': [
             'Operated on an own server with <b>Docker</b> and Nginx: '
-            'deployment, TLS certificates, backups and ongoing maintenance '
-            'for inventory management and website.',
+            'deployment, TLS certificates, backups and ongoing maintenance.',
 
-            '<b>Four languages</b> (DE/EN/FR/TR); .NET 9 API and Angular 17 '
-            'share one database, Chrome extension for maintaining the '
-            'listings.',
+            'Four languages (DE/EN/FR/TR); .NET 9 API and Angular 17 share '
+            'one database, Chrome extension for maintaining the listings.',
         ],
     },
     {
         'head': _P_KULTUR_EN,
         'bullets': [
-            '<b>.NET 10</b>, <b>React 19</b> and <b>Docker Compose</b> — '
-            'built and operated including admin panel, newsletter system and '
-            'DE/TR bilingual content; maintained voluntarily.',
+            '<b>.NET 10</b>, React 19 and Docker Compose — built and operated '
+            'including admin panel and newsletter system; maintained '
+            'voluntarily.',
         ],
     },
     {
         'head': _P_DJVEYS_EN,
         'bullets': [
-            '<b>Next.js 16</b> with <b>Payload CMS 3</b>: editorially '
-            'maintainable content, <b>9 languages</b>, enquiry flow with '
-            'e-mail delivery — operation and updates maintained continuously.',
+            '<b>Next.js 16</b> with Payload CMS 3: editorially maintainable '
+            'content, 9 languages — operation and updates maintained '
+            'continuously.',
         ],
     },
 ]
+
 
 SKILLS_IT_SUPPORT_EN = [
     ('Systems &amp; servers',
@@ -1232,11 +1141,6 @@ BILDUNGSWEG_EN = [
         'period': '08/2015 – 07/2019',
         'title':  'Military Sciences',
         'inst':   'Turkish Air Force Academy, Istanbul',
-    },
-    {
-        'period': '2010 – 2015',
-        'title':  'High-school diploma (Lise)',
-        'inst':   'Işıklar Air Force High School, Bursa (Turkey)',
     },
 ]
 
@@ -1464,6 +1368,10 @@ def build(story, sty, W, cfg=None):
         colWidths=[HDR_W * 0.48, HDR_W * 0.52],
     )
     contact_table.setStyle(TableStyle([
+        # Die Status-Angabe steht allein in der letzten Reihe. Ueber beide
+        # Spalten gezogen liest sie sich als eigene Zeile statt als halb
+        # leere Zelle neben einem Loch.
+        ('SPAN',         (0, 3), (1, 3)),
         ('VALIGN',       (0, 0), (-1, -1), 'TOP'),
         ('LEFTPADDING',  (0, 0), (0, -1),  0),
         ('LEFTPADDING',  (1, 0), (1, -1),  8),
@@ -1553,11 +1461,15 @@ def build(story, sty, W, cfg=None):
 
     # ── 4  PROJEKTE ──────────────────────────────────────────────────────────
     story.extend(sec(texte['h_projekte'], sty))
-    for projekt in inhalt['projekte']:
+    # Gleicher Abstand wie zwischen den Stationen der Berufserfahrung: ohne
+    # ihn laufen die drei Projekte optisch zu einem Block zusammen.
+    for idx, projekt in enumerate(inhalt['projekte']):
         story.append(KeepTogether(
             [Paragraph(projekt['head'], sty['entry_title'])]
             + [bul(t, sty['bullet']) for t in projekt['bullets']]
         ))
+        if idx < len(inhalt['projekte']) - 1:
+            story.append(Spacer(1, 2))
 
     # ── 5  IT-KENNTNISSE ─────────────────────────────────────────────────────
     story.extend(sec(texte['h_skills'], sty))

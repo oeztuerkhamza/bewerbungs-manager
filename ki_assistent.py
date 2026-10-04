@@ -435,7 +435,9 @@ DER BEWERBER bringt mit (je nach Rollen-Fokus unterschiedlich gewichten):
 - Softwareentwicklung: C#/.NET, Angular, Datenbanken (als technische Tiefe).
 
 WICHTIG – Lebenslauf-Anpassung (Feld "kurzprofil"):
-- 4–6 Sätze, professionelles Deutsch, Fließtext (KEINE Aufzählung).
+- 3–4 Sätze, höchstens 70 Wörter, professionelles Deutsch, Fließtext
+  (KEINE Aufzählung). Lieber einen Satz streichen als zusammenfassen:
+  das Kurzprofil darf im Lebenslauf nicht mehr als vier Zeilen füllen.
 - PFLICHT-AUFBAU in genau dieser Reihenfolge (Satz 1 bis 4):
   1) FACHLICHKEIT zuerst, dann die Qualifikation: "Ich digitalisiere ... –
      vom Papierbeleg über Datenmodell und API bis zum laufenden Betrieb. Als
@@ -457,7 +459,8 @@ WICHTIG – Lebenslauf-Anpassung (Feld "kurzprofil"):
   IT-Koordinations-/Digitalisierungsstelle also z.B. IT-Infrastruktur,
   Digitalisierung, Support, Projektkoordination und die Fachinformatiker-
   Qualifikation – Programmierung nur als ergänzende technische Stärke.
-- <b>HTML-Bold-Tags</b> für die 3–4 wichtigsten Stichworte der Stelle.
+- <b>HTML-Bold-Tags</b> für HÖCHSTENS 3 Stichworte der Stelle. Ist alles
+  fett, hebt sich nichts mehr ab – im Zweifel weniger auszeichnen.
 - "stelle" = exakte Bezeichnung aus der Anzeige; "betreff" dazu passend
   (NICHT automatisch "C# / .NET / Angular").
 - NUR wahrheitsgemäße Inhalte aus dem Profil; KEINE Fakten/Zahlen erfinden.
@@ -548,7 +551,7 @@ WICHTIG – Bewerbungs-E-Mail:
 RÜCKGABE – EXAKT dieses JSON-Schema (keine Markdown-Codeblöcke, nur roher JSON):
 {
   "stelle": "...",
-  "kurzprofil": "Auf die Stelle zugeschnittenes CV-Kurzprofil, 4–6 Sätze, mit <b>Bold</b>-Tags für die wichtigsten Technologien.",
+  "kurzprofil": "Auf die Stelle zugeschnittenes CV-Kurzprofil, 3–4 Sätze / max. 70 Wörter, mit höchstens 3 <b>Bold</b>-Tags.",
   "betreff": "Bewerbung als ... – ...",
   "firma": "Firmenname GmbH",
   "ansprechpartner": "Frau/Herrn Nachname",
