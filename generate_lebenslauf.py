@@ -338,15 +338,17 @@ def _draw_page(canvas, doc):
 
 
 # ─── DEFAULT CONFIG ──────────────────────────────────────────────────────────
+# Das Kurzprofil soll nicht wiederholen, was zwei Zentimeter tiefer in der
+# Berufserfahrung steht. Es nennt deshalb den Verantwortungsbogen und eine
+# Zahl als Beleg - die Technik steht ohnehin in den IT-Kenntnissen.
 DEFAULT_KURZPROFIL = (
     'Ich digitalisiere <b>kaufmännische Geschäftsprozesse</b> – vom Papierbeleg '
-    'über Datenmodell und API bis zum laufenden Betrieb. Als <b>Fachinformatiker '
-    'für Anwendungsentwicklung (IHK)</b> verantworte ich bei Bike Haus Freiburg '
-    'eine produktiv genutzte Warenwirtschafts- und Vermietungsplattform '
-    '(<b>.NET 9, Angular 17</b>) auf einem selbst betriebenen Docker-Stack. '
-    'Zuvor bei der Dicom GmbH: Migration eines ERP-Systems von WinForms auf '
-    'eine Web-Lösung in Clean Architecture. Mit TypeScript und React decke ich '
-    'auch den JavaScript-Stack ab.'
+    'über Datenmodell und API bis zu dem Server, auf dem das Ganze läuft. '
+    'Bei Bike Haus Freiburg verantworte ich die Warenwirtschafts- und '
+    'Vermietungsplattform von der Konzeption bis zum Betrieb; sie bildet den '
+    'gesamten Belegfluss ab, <b>über 2.000 Belege in 2026</b>. Als '
+    '<b>Fachinformatiker für Anwendungsentwicklung (IHK)</b> arbeite ich mit '
+    '.NET, Angular und Docker, daneben mit TypeScript und React.'
 )
 
 
@@ -768,13 +770,12 @@ BILDUNGSWEG = [
 # ── Englische Fassung: Kurzprofile ──────────────────────────────────────────
 PROFILE_FULLSTACK_EN = (
     'I digitalise <b>commercial business processes</b> – from the paper '
-    'document through data model and API to day-to-day operation. As a '
-    'qualified <b>IT Specialist in Application Development (IHK)</b> I am '
-    'responsible for a production inventory and rental platform at Bike Haus '
-    'Freiburg (<b>.NET 9, Angular 17</b>) running on a self-hosted Docker '
-    'stack. Before that at Dicom GmbH: migration of an ERP system from '
-    'WinForms to a web solution in Clean Architecture. With TypeScript and '
-    'React I also cover the JavaScript stack.'
+    'document through data model and API to the server it all runs on. At '
+    'Bike Haus Freiburg I am responsible for the inventory and rental '
+    'platform from concept to operation; it carries the entire document '
+    'flow, <b>more than 2,000 documents in 2026</b>. As a qualified '
+    '<b>IT Specialist in Application Development (IHK)</b> I work with .NET, '
+    'Angular and Docker, alongside TypeScript and React.'
 )
 
 
