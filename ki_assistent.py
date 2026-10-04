@@ -435,26 +435,39 @@ DER BEWERBER bringt mit (je nach Rollen-Fokus unterschiedlich gewichten):
 - Softwareentwicklung: C#/.NET, Angular, Datenbanken (als technische Tiefe).
 
 WICHTIG – Lebenslauf-Anpassung (Feld "kurzprofil"):
-- 3–4 Sätze, höchstens 70 Wörter, professionelles Deutsch, Fließtext
+- GENAU 3 Sätze, höchstens 70 Wörter, professionelles Deutsch, Fließtext
   (KEINE Aufzählung). Lieber einen Satz streichen als zusammenfassen:
   das Kurzprofil darf im Lebenslauf nicht mehr als vier Zeilen füllen.
-- PFLICHT-AUFBAU in genau dieser Reihenfolge (Satz 1 bis 4):
-  1) FACHLICHKEIT zuerst, dann die Qualifikation: "Ich digitalisiere ... –
-     vom Papierbeleg über Datenmodell und API bis zum laufenden Betrieb. Als
-     Fachinformatiker für Anwendungsentwicklung (IHK) arbeite ich dabei mit
-     klarem Fokus auf ..." Die Fachlichkeit und der Fokus werden aus der
-     Stellenbeschreibung abgeleitet. NICHT mit "Codequalität" oder
+- GRUNDREGEL: Das Kurzprofil darf NICHT wiederholen, was ohnehin im
+  Lebenslauf steht. Berufserfahrung, Projekte und IT-Kenntnisse stehen
+  direkt darunter. Ein Satz, der eine Station oder eine Technologieliste
+  nacherzählt, ist verschenkt. Das Kurzprofil sagt, WELCHE ART Aufgabe der
+  Bewerber übernimmt und WIE WEIT seine Verantwortung reicht.
+- PFLICHT-AUFBAU in genau dieser Reihenfolge (3 Sätze):
+  1) Was er tut, zugeschnitten auf die Stelle, und wie weit es reicht:
+     "Ich digitalisiere ... – vom Papierbeleg über Datenmodell und API bis
+     zu dem Server, auf dem das Ganze läuft." Die Fachlichkeit und das Ende
+     der Kette kommen aus der Anzeige. NICHT mit "Codequalität" oder
      "saubere Architektur" eröffnen – das schreibt jeder Bewerber.
-  2) Beleg aus der Vergangenheit (Dicom GmbH, ERP-System DI-ONE): konkrete
-     Leistung nennen, die zur ausgeschriebenen Stelle passt.
-  3) Aktuelle Verantwortung (Bike Haus Freiburg): die Plattform und die
-     Technologien nennen, die in der Anzeige gefordert sind.
-  4) Stack-Abgleich MIT FIRMENNAMEN aus der Anzeige, nach diesem Muster:
-     "Mit <b>X</b> und <b>Y</b> arbeite ich ebenfalls regelmäßig – damit deckt
-     mein Profil den bei <FIRMA> eingesetzten Stack direkt ab."
-     X und Y sind Technologien, die BEIDES sind: in der Anzeige gefordert UND
-     oben im Profil vorhanden. Gibt es keine solche Überschneidung, lasse
-     Satz 4 ersatzlos weg – erfinde KEINEN Stack-Match.
+  2) Aktuelle Verantwortung bei Bike Haus Freiburg als BOGEN (z.B. von der
+     Konzeption bis zum Betrieb), plus GENAU EINE Zahl als Beleg. Zahlen,
+     die zur Verfügung stehen: über 2.000 Belege und 405 Mietverträge
+     (2026), 342.000 Impressionen und 13.000 organische Klicks in 6
+     Monaten, 40 Controller und 46 Domain-Entities, Deployment-Zeit um
+     40 % reduziert, Testabdeckung über 60 %, 15+ Angular-Komponenten.
+     Nimm die Zahl, die zur Anzeige passt – KEINE zweite dazu, und KEINE
+     erfundene.
+  3) Qualifikation und Technik in EINEM Satz: "Als <b>Fachinformatiker für
+     Anwendungsentwicklung (IHK)</b> arbeite ich mit X, Y und Z." X, Y und Z
+     sind Technologien, die BEIDES sind: in der Anzeige gefordert UND im
+     Profil vorhanden, höchstens vier Stück. Sie stehen gleichberechtigt
+     nebeneinander. NICHT defensiv formulieren ("decke ich auch ab",
+     "arbeite ich ebenfalls regelmäßig") – das klingt nach Rechtfertigung.
+     Gibt es keine Überschneidung, nenne schlicht seinen Schwerpunkt.
+- Die Dicom GmbH gehört NICHT ins Kurzprofil: sie steht mit vier Punkten in
+  der Berufserfahrung. Ausnahme: die Anzeige verlangt ausdrücklich genau
+  das, was dort passiert ist (ERP, Großhandel, Abläufe eines Fachbereichs)
+  – dann darf Satz 2 stattdessen davon handeln.
 - Stelle die zum ROLLEN-FOKUS passenden Kompetenzen nach vorne. Bei einer
   IT-Koordinations-/Digitalisierungsstelle also z.B. IT-Infrastruktur,
   Digitalisierung, Support, Projektkoordination und die Fachinformatiker-
@@ -551,7 +564,7 @@ WICHTIG – Bewerbungs-E-Mail:
 RÜCKGABE – EXAKT dieses JSON-Schema (keine Markdown-Codeblöcke, nur roher JSON):
 {
   "stelle": "...",
-  "kurzprofil": "Auf die Stelle zugeschnittenes CV-Kurzprofil, 3–4 Sätze / max. 70 Wörter, mit höchstens 3 <b>Bold</b>-Tags.",
+  "kurzprofil": "Auf die Stelle zugeschnittenes CV-Kurzprofil, genau 3 Sätze / max. 70 Wörter, mit höchstens 3 <b>Bold</b>-Tags. Wiederholt NICHTS aus Berufserfahrung oder Projekten; Satz 2 enthält genau eine Zahl als Beleg.",
   "betreff": "Bewerbung als ... – ...",
   "firma": "Firmenname GmbH",
   "ansprechpartner": "Frau/Herrn Nachname",

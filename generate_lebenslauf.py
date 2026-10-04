@@ -377,13 +377,13 @@ SPRACHE_EN = 'en'
 
 KURZPROFIL_IT_SUPPORT = (
     'Ich halte die IT eines Betriebs am Laufen – von der Anwenderfrage am '
-    'Arbeitsplatz über Server, Mail und Netzwerk bis zur Dokumentation. Bei '
-    'Bike Haus Freiburg verantworte ich die komplette Inhouse-IT: '
-    '<b>Linux-Server</b> mit Docker und Nginx, eigener Mailserver mit '
-    'DKIM/SPF/DMARC, automatisierte Backups und die tägliche Betreuung der '
-    'Mitarbeitenden. Als <b>Fachinformatiker für Anwendungsentwicklung (IHK)</b> '
-    'gehe ich dabei auf die Fehlerursache statt auf das Symptom – Logs und '
-    'Datenbank zeigen mir, wo ein Fehler wirklich entsteht.'
+    'Arbeitsplatz über Server und Mail bis zur Dokumentation. Bei Bike Haus '
+    'Freiburg verantworte ich die <b>komplette Inhouse-IT</b> – vom '
+    'Linux-Server bis zum Arbeitsplatz – und habe das Tagesgeschäft auf '
+    'digitale Belege umgestellt: <b>über 2.000 in 2026</b>. Weil ich die '
+    'eingesetzte Software als <b>Fachinformatiker für Anwendungsentwicklung '
+    '(IHK)</b> selbst gebaut habe, verfolge ich eine Störung bis zur Ursache '
+    '– Konfiguration, Daten oder Anwendung.'
 )
 
 
@@ -781,13 +781,13 @@ PROFILE_FULLSTACK_EN = (
 
 PROFILE_IT_SUPPORT_EN = (
     "I keep a company's IT running – from the question at the user's desk "
-    'through servers, mail and network to proper documentation. At Bike Haus '
-    'Freiburg I am responsible for the entire in-house IT: <b>Linux servers</b> '
-    'with Docker and Nginx, an own mail server with DKIM/SPF/DMARC, automated '
-    'backups and day-to-day user support. As an <b>IT Specialist in '
-    'Application Development (IHK)</b> I work towards the root cause instead '
-    'of the symptom – logs and database show me where an error really '
-    'originates.'
+    'through servers and mail to proper documentation. At Bike Haus Freiburg '
+    'I am responsible for the <b>entire in-house IT</b> – from the Linux '
+    'server to the desk – and moved daily business onto digital documents: '
+    '<b>more than 2,000 in 2026</b>. Because I built the software in use '
+    'myself as an <b>IT Specialist in Application Development (IHK)</b>, I '
+    'trace a fault to where it originates – configuration, data or '
+    'application.'
 )
 
 
