@@ -28,48 +28,45 @@ BASE_DIR      = os.path.dirname(os.path.abspath(__file__))
 OUTPUT        = os.path.join(BASE_DIR, "Hamza_Oeztuerk_Lebenslauf_Fullstack_Entwickler.pdf")
 FOTO_PATH     = os.path.join(BASE_DIR, "foto_small.jpeg")
 SIGNATUR_PATH = os.path.join(BASE_DIR, "sıgnatur.png")
-ICONS_DIR     = os.path.join(BASE_DIR, "icons")
-ICON_LOCATION = os.path.join(ICONS_DIR, 'location.png')
-ICON_EMAIL    = os.path.join(ICONS_DIR, 'email.png')
-ICON_LINKEDIN = os.path.join(ICONS_DIR, 'linkedin.png')
-ICON_GITHUB   = os.path.join(ICONS_DIR, 'github.png')
-ICON_PHONE    = os.path.join(ICONS_DIR, 'phone.png')
-ICON_WEBSITE  = os.path.join(ICONS_DIR, 'website.png')
 
 # ─── LAYOUT ──────────────────────────────────────────────────────────────────
-L_MARGIN  = 1.3 * cm
-R_MARGIN  = 1.2 * cm
-T_MARGIN  = 0.7 * cm
-B_MARGIN  = 0.5 * cm
-SIDEBAR_W = 4 * mm
-SEC_GAP   = 0.07 * cm
+# Grosszuegige, gleichmaessige Raender. Ein Lebenslauf wirkt nicht dadurch
+# hochwertig, dass die Seite voll ist, sondern dadurch, dass er Luft hat.
+L_MARGIN  = 1.35 * cm
+R_MARGIN  = 1.35 * cm
+T_MARGIN  = 0.80 * cm
+B_MARGIN  = 0.60 * cm
+SEC_GAP   = 0.21 * cm
 
 # ─── COLOURS ─────────────────────────────────────────────────────────────────
-NAVY      = HexColor('#1B3764')
-ACCENT    = HexColor('#2C5AA0')
-DARK      = HexColor('#222222')
-GRAY      = HexColor('#555555')
-LGRAY     = HexColor('#888888')
-RULE_C    = HexColor('#C8CDD6')
-BG_SKILL  = HexColor('#F4F6F9')
-BG_SKILL2 = HexColor('#FAFBFD')
-HDR_BG    = HexColor('#EBF0F8')
+# Eine Akzentfarbe, zwei Grautoene, zwei Linienstaerken - mehr braucht es
+# nicht. Farbige Flaechen und bunte Icons sind bewusst entfallen.
+NAVY      = HexColor('#17355E')   # Name, Abschnitte, Labels
+ACCENT    = HexColor('#2C5AA0')   # Links
+DARK      = HexColor('#1E1E1E')   # Fliesstext
+GRAY      = HexColor('#55595F')   # Zweitzeilen, Kontaktdaten
+LGRAY     = HexColor('#8A8F97')   # Zeitraeume, Fusszeile
+BULLET_C  = HexColor('#8694AB')   # Aufzaehlungspunkte
+RULE_HD   = HexColor('#A9B6C8')   # Linie unter den Abschnittstiteln
+RULE_C    = HexColor('#DFE3E9')   # Haarlinien in Tabellen
 
 # ─── FONTS ───────────────────────────────────────────────────────────────────
 WIN_FONTS = r"C:\Windows\Fonts"
 _FONT_MAP = {
-    'CV-R':  os.path.join(WIN_FONTS, 'calibri.ttf'),
-    'CV-B':  os.path.join(WIN_FONTS, 'calibrib.ttf'),
-    'CV-I':  os.path.join(WIN_FONTS, 'calibrii.ttf'),
-    'CV-BI': os.path.join(WIN_FONTS, 'calibriz.ttf'),
+    'CV-R':  os.path.join(WIN_FONTS, 'segoeui.ttf'),
+    'CV-B':  os.path.join(WIN_FONTS, 'segoeuib.ttf'),
+    'CV-I':  os.path.join(WIN_FONTS, 'segoeuii.ttf'),
+    'CV-BI': os.path.join(WIN_FONTS, 'segoeuiz.ttf'),
 }
 
-_FALLBACK_TTF = {
-    'CV-R':  os.path.join(WIN_FONTS, 'arial.ttf'),
-    'CV-B':  os.path.join(WIN_FONTS, 'arialbd.ttf'),
-    'CV-I':  os.path.join(WIN_FONTS, 'ariali.ttf'),
-    'CV-BI': os.path.join(WIN_FONTS, 'arialbi.ttf'),
-}
+# Fehlt Segoe UI, greift Calibri; fehlt auch das, Arial.
+_FALLBACK_CHAIN = (
+    {'CV-R': 'calibri.ttf', 'CV-B': 'calibrib.ttf',
+     'CV-I': 'calibrii.ttf', 'CV-BI': 'calibriz.ttf'},
+    {'CV-R': 'arial.ttf', 'CV-B': 'arialbd.ttf',
+     'CV-I': 'ariali.ttf', 'CV-BI': 'arialbi.ttf'},
+)
+
 # Letzter Ausweg: eingebaute Standard-Schriften, damit nie eine Schrift fehlt.
 _STD_FALLBACK = {
     'CV-R':  'Helvetica',
@@ -83,14 +80,16 @@ def register_fonts():
         if os.path.exists(path):
             pdfmetrics.registerFont(TTFont(name, path))
             continue
-        fb = _FALLBACK_TTF.get(name)
-        if fb and os.path.exists(fb):
-            pdfmetrics.registerFont(TTFont(name, fb))
-            continue
-        # Weder Calibri noch Arial vorhanden -> Alias auf Standard-Font,
-        # damit kein "Can't find font"-Fehler beim ersten Paragraph auftritt.
-        pdfmetrics.registerFont(
-            pdfmetrics.Font(name, _STD_FALLBACK[name], 'WinAnsiEncoding'))
+        for stufe in _FALLBACK_CHAIN:
+            fb = os.path.join(WIN_FONTS, stufe[name])
+            if os.path.exists(fb):
+                pdfmetrics.registerFont(TTFont(name, fb))
+                break
+        else:
+            # Gar keine TTF gefunden -> Alias auf eine Standard-Schrift,
+            # damit kein "Can't find font"-Fehler beim ersten Paragraph kommt.
+            pdfmetrics.registerFont(
+                pdfmetrics.Font(name, _STD_FALLBACK[name], 'WinAnsiEncoding'))
 
     # Ohne Familie greifen <b>/<i> im Fliesstext ins Leere: ReportLab findet
     # dann keine fette/kursive Variante und setzt alles normal.
@@ -114,223 +113,167 @@ def make_styles(tighten=0.0):
             alignment=align, leftIndent=leftIndent, **kw,
         )
     return {
-        'name':        ps('name',        'CV-B', 22, NAVY, leading=24),
-        'role':        ps('role',        'CV-R', 10.5, GRAY, leading=12, spaceAfter=0.5),
-        'contact':     ps('contact',     'CV-R', 8.2, DARK, leading=10.6),
-        'section':     ps('section',     'CV-B', 10.2, NAVY, leading=12),
-        'entry_title': ps('entry_title', 'CV-B', 8.8, DARK, leading=10.8, leftIndent=8),
-        'entry_sub':   ps('entry_sub',   'CV-I', 7.8, GRAY, leading=9.0, spaceAfter=0.1, leftIndent=8),
-        'period':      ps('period',      'CV-R', 8.0, LGRAY, leading=10.0, align=TA_RIGHT),
-        'bullet':      ps('bullet',      'CV-R', 8.1, DARK, leading=8.6,
-                          spaceAfter=0.1, leftIndent=15, align=TA_LEFT,
-                          bulletIndent=6, bulletFontName='CV-R',
-                          bulletFontSize=8.1, bulletColor=NAVY),
-        'profile':     ps('profile',     'CV-R', 8.3, DARK, leading=9.8,
-                          spaceAfter=0.2, leftIndent=8, align=TA_LEFT),
-        'footer':      ps('footer',      'CV-R', 8, LGRAY, leading=10, spaceBefore=0.5),
-        'skill_lbl':   ps('skill_lbl',   'CV-B', 8.3, NAVY, leading=10.2),
-        'skill_val':   ps('skill_val',   'CV-R', 8.2, DARK, leading=10.2),
-        # Ausbildung-specific (lower indent to keep current alignment)
-        'edu_title':   ps('edu_title',   'CV-R', 8.8, DARK, leading=10.8, leftIndent=4),
-        'edu_bullet':  ps('edu_bullet',  'CV-R', 8.1, DARK, leading=9.3,
-                          spaceAfter=0.2, leftIndent=11, align=TA_LEFT,
-                          bulletIndent=3, bulletFontName='CV-R',
-                          bulletFontSize=8.1, bulletColor=NAVY),
+        'name':        ps('name',        'CV-B', 21, NAVY, leading=23),
+        'role':        ps('role',        'CV-R', 10, GRAY, leading=12),
+        'contact':     ps('contact',     'CV-R', 8.3, GRAY, leading=10.6),
+        'contact_meta': ps('contact_meta', 'CV-R', 7.9, LGRAY, leading=10.2),
+        'section':     ps('section',     'CV-B', 9.2, NAVY, leading=11),
+        'entry_title': ps('entry_title', 'CV-B', 8.9, DARK, leading=10.8),
+        'entry_sub':   ps('entry_sub',   'CV-R', 7.8, LGRAY, leading=9.4,
+                          spaceAfter=0.8),
+        'period':      ps('period',      'CV-R', 8.0, GRAY, leading=10.8,
+                          align=TA_RIGHT),
+        'bullet':      ps('bullet',      'CV-R', 8.1, DARK, leading=9.5,
+                          spaceAfter=0.2, leftIndent=9, align=TA_LEFT,
+                          bulletIndent=0, bulletFontName='CV-R',
+                          bulletFontSize=7.4, bulletColor=BULLET_C),
+        'profile':     ps('profile',     'CV-R', 8.4, DARK, leading=10.0,
+                          align=TA_LEFT),
+        'footer':      ps('footer',      'CV-R', 8, LGRAY, leading=10.4,
+                          spaceBefore=0.5),
+        'skill_lbl':   ps('skill_lbl',   'CV-B', 8.2, NAVY, leading=9.9),
+        'skill_val':   ps('skill_val',   'CV-R', 8.2, DARK, leading=9.9),
+        'edu_title':   ps('edu_title',   'CV-R', 8.7, DARK, leading=10.5),
+        'edu_bullet':  ps('edu_bullet',  'CV-R', 8.2, DARK, leading=9.7,
+                          spaceAfter=0.4, leftIndent=9, align=TA_LEFT,
+                          bulletIndent=0, bulletFontName='CV-R',
+                          bulletFontSize=7.4, bulletColor=BULLET_C),
     }
 
-
 # ─── CUSTOM FLOWABLES ───────────────────────────────────────────────────────
-class SectionHeading(Flowable):
-    """Premium heading: text + short thick navy underline + thin gray continuation."""
-    def __init__(self, text, style):
+class TrackedLine(Flowable):
+    """Eine gesperrt gesetzte Zeile – optional mit Linie darunter.
+
+    ReportLab kann Sperrung (letter-spacing) nicht im Paragraph, deshalb wird
+    die Zeile direkt auf das Canvas gezeichnet. Gesperrte Versalien sind das,
+    was Abschnittstitel ruhig und gesetzt aussehen laesst – im Gegensatz zu
+    farbigen Balken.
+    """
+
+    def __init__(self, text, font, size, color, track=1.1,
+                 rule=None, rule_width=0.7, gap=4.0, space_after=0.0):
         super().__init__()
-        self._para = Paragraph(text, style)
+        self.text = text
+        self.font = font
+        self.size = size
+        self.color = color
+        self.track = track
+        self.rule = rule
+        self.rule_width = rule_width
+        self.gap = gap
+        self.space_after = space_after
 
     def wrap(self, aw, ah):
-        pw, ph = self._para.wrap(aw, ah)
-        self.height = ph + 2.5
         self.width = aw
+        unten = (self.gap + self.rule_width) if self.rule else 0
+        self.height = self.size + unten + self.space_after
         return self.width, self.height
 
     def draw(self):
         c = self.canv
-        self._para.drawOn(c, 0, 3)
         c.saveState()
-        c.setStrokeColor(NAVY)
-        c.setLineWidth(1.5)
-        c.line(0, 0.8, self.width * 0.24, 0.8)
-        c.setStrokeColor(RULE_C)
-        c.setLineWidth(0.3)
-        c.line(self.width * 0.24, 0.8, self.width, 0.8)
+        basis = self.space_after + (self.gap + self.rule_width
+                                    if self.rule else 0)
+        # Sperrung kann nur das Textobjekt, nicht das Canvas selbst.
+        t = c.beginText(0, basis)
+        t.setFont(self.font, self.size)
+        t.setFillColor(self.color)
+        t.setCharSpace(self.track)
+        t.textOut(self.text)
+        c.drawText(t)
+        if self.rule:
+            c.setStrokeColor(self.rule)
+            c.setLineWidth(self.rule_width)
+            y = self.space_after + self.rule_width / 2
+            c.line(0, y, self.width, y)
         c.restoreState()
 
 
-class PhotoFrame(Flowable):
-    """Photo with clean thin navy border – zoom crops the image inside the frame."""
-    def __init__(self, path, w, h, border=1.2, zoom=4.0):
+class SectionHeading(TrackedLine):
+    """Abschnittstitel: gesperrte Versalien in Navy ueber einer Haarlinie."""
+
+    def __init__(self, text, style):
+        super().__init__(text, style.fontName, style.fontSize,
+                         style.textColor, track=1.25,
+                         rule=RULE_HD, rule_width=0.7, gap=4.2)
+
+
+class HRule(Flowable):
+    """Einzelne waagerechte Linie als Flowable."""
+
+    def __init__(self, color=RULE_C, width=0.7, space_before=0, space_after=0):
+        super().__init__()
+        self.color = color
+        self.lw = width
+        self.sb = space_before
+        self.sa = space_after
+
+    def wrap(self, aw, ah):
+        self.width = aw
+        self.height = self.lw + self.sb + self.sa
+        return self.width, self.height
+
+    def draw(self):
+        c = self.canv
+        c.saveState()
+        c.setStrokeColor(self.color)
+        c.setLineWidth(self.lw)
+        y = self.sa + self.lw / 2
+        c.line(0, y, self.width, y)
+        c.restoreState()
+
+
+class RectPhotoFrame(Flowable):
+    """Rechteckiges Bewerbungsfoto im Hochformat.
+
+    Deutsche Bewerbungsfotos sind rechteckig; das runde Portrait wirkte eher
+    wie ein Profilbild aus einem sozialen Netzwerk. 'focus' verschiebt den
+    Bildausschnitt nach oben, damit das Gesicht sitzt.
+    """
+
+    def __init__(self, path, w, h, focus=0.60, border=0.6):
         super().__init__()
         self.img_path = path
         self.img_w = w
         self.img_h = h
-        self.border = border
-        self.zoom = zoom
-        self.width = w + 2 * border
-        self.height = h + 2 * border
-
-    def wrap(self, aw, ah):
-        return self.width, self.height
-
-    def draw(self):
-        c = self.canv
-        b = self.border
-        z = self.zoom
-        # Bild fehlt? -> nur den Rahmen zeichnen, nicht abstürzen.
-        if os.path.isfile(self.img_path):
-            # Clip to frame area
-            c.saveState()
-            p = c.beginPath()
-            p.rect(b, b, self.img_w, self.img_h)
-            c.clipPath(p, stroke=0)
-            # "Cover"-Fit: Bild unter Beibehaltung des Seitenverhältnisses so
-            # skalieren, dass es den Rahmen voll ausfüllt; Überstand wird
-            # mittig beschnitten (kein Verzerren, kein leerer Rand).
-            try:
-                from reportlab.lib.utils import ImageReader
-                nat_w, nat_h = ImageReader(self.img_path).getSize()
-            except Exception:
-                nat_w, nat_h = self.img_w, self.img_h
-            if nat_w <= 0 or nat_h <= 0:
-                nat_w, nat_h = self.img_w, self.img_h
-            scale = max(self.img_w / nat_w, self.img_h / nat_h) * z
-            draw_w = nat_w * scale
-            draw_h = nat_h * scale
-            ox = b + (self.img_w - draw_w) / 2
-            oy = b + (self.img_h - draw_h) / 2
-            c.drawImage(self.img_path, ox, oy, draw_w, draw_h,
-                        preserveAspectRatio=True)
-            c.restoreState()
-        # Border
-        c.saveState()
-        c.setStrokeColor(NAVY)
-        c.setLineWidth(b)
-        c.rect(b / 2, b / 2, self.img_w + b, self.img_h + b,
-               fill=False, stroke=True)
-        c.restoreState()
-
-
-def make_round_photo(src_path, focus=0.62, size_px=900):
-    """Erzeugt eine quadratische PNG-Datei, in der nur der Kreis sichtbar ist.
-
-    Der Zuschnitt wird fest ins Bild gebrannt (transparente Ecken), statt ihn
-    nur per Clipping-Pfad im PDF zu setzen. Grund: manche Betrachter und vor
-    allem PDF-Editoren (LibreOffice Draw, Illustrator) ignorieren beim Import
-    den Clipping-Pfad und zeigen dann wieder das volle Rechteck.
-
-    ``focus`` steuert den vertikalen Zuschnitt: 0.5 = mittig, grössere Werte
-    zeigen mehr vom oberen Bildbereich, damit der Kopf nicht angeschnitten wird.
-    Gibt den Pfad zur erzeugten Datei zurück – oder ``None``, wenn Pillow fehlt.
-    """
-    try:
-        from PIL import Image, ImageDraw
-    except ImportError:
-        return None
-    if not os.path.isfile(src_path):
-        return None
-
-    out_path = os.path.join(BASE_DIR, '.foto_rund.png')
-    # Nur neu bauen, wenn Quelle neuer ist als der Cache.
-    if (os.path.isfile(out_path)
-            and os.path.getmtime(out_path) >= os.path.getmtime(src_path)):
-        return out_path
-
-    img = Image.open(src_path).convert('RGB')
-    side = min(img.width, img.height)
-    left = (img.width - side) // 2
-    top = int(round((img.height - side) * (1.0 - focus)))
-    top = max(0, min(top, img.height - side))
-    img = img.crop((left, top, left + side, top + side))
-    img = img.resize((size_px, size_px), Image.LANCZOS)
-
-    # Kreismaske mit 4x Supersampling -> weiche, saubere Kante.
-    ss = 4
-    mask = Image.new('L', (size_px * ss, size_px * ss), 0)
-    ImageDraw.Draw(mask).ellipse((0, 0, size_px * ss - 1, size_px * ss - 1),
-                                 fill=255)
-    mask = mask.resize((size_px, size_px), Image.LANCZOS)
-
-    img.putalpha(mask)
-    img.save(out_path, 'PNG')
-    return out_path
-
-
-class CirclePhotoFrame(Flowable):
-    """Rundes Portrait: Bild kreisförmig beschnitten, dünner Navy-Ring aussen.
-
-    ``focus`` steuert den vertikalen Bildausschnitt: 0.5 = mittig,
-    Werte darüber zeigen mehr vom oberen Bildbereich (bei Portraits sinnvoll,
-    damit der Kopf nicht angeschnitten wird).
-    """
-    def __init__(self, path, diameter, border=1.1, gap=2.2, focus=0.62):
-        super().__init__()
-        self.img_path = path
-        self.d = diameter
-        self.border = border
-        self.gap = gap          # Abstand zwischen Bildkante und Aussenring
         self.focus = focus
-        pad = border + gap
-        self.width = diameter + 2 * pad
-        self.height = diameter + 2 * pad
+        self.border = border
+        self.width = w
+        self.height = h
 
     def wrap(self, aw, ah):
         return self.width, self.height
 
     def draw(self):
         c = self.canv
-        d = self.d
-        pad = self.border + self.gap
-        cx = cy = pad + d / 2          # Kreismittelpunkt
-        r = d / 2
-
-        # Bevorzugt das fertig freigestellte Rund-PNG: dann ist der Zuschnitt
-        # Teil des Bildes und geht in keinem Betrachter/Editor verloren.
-        round_png = make_round_photo(self.img_path, focus=self.focus)
-        if round_png:
-            c.saveState()
-            c.drawImage(round_png, cx - r, cy - r, d, d,
-                        preserveAspectRatio=True, mask='auto')
-            c.restoreState()
-        elif os.path.isfile(self.img_path):
-            # Fallback ohne Pillow: Clipping-Pfad im PDF.
+        if os.path.isfile(self.img_path):
             c.saveState()
             p = c.beginPath()
-            p.circle(cx, cy, r)
+            p.rect(0, 0, self.img_w, self.img_h)
             c.clipPath(p, stroke=0)
             try:
                 from reportlab.lib.utils import ImageReader
                 nat_w, nat_h = ImageReader(self.img_path).getSize()
             except Exception:
-                nat_w, nat_h = d, d
+                nat_w, nat_h = self.img_w, self.img_h
             if nat_w <= 0 or nat_h <= 0:
-                nat_w, nat_h = d, d
-            scale = max(d / nat_w, d / nat_h)
-            draw_w = nat_w * scale
-            draw_h = nat_h * scale
-            ox = cx - draw_w / 2
-            # Überstand nach oben verschieben, damit das Gesicht sitzt.
-            oy = cy - r - (draw_h - d) * (1.0 - self.focus)
+                nat_w, nat_h = self.img_w, self.img_h
+            scale = max(self.img_w / nat_w, self.img_h / nat_h)
+            draw_w, draw_h = nat_w * scale, nat_h * scale
+            ox = (self.img_w - draw_w) / 2
+            oy = -(draw_h - self.img_h) * (1.0 - self.focus)
             c.drawImage(self.img_path, ox, oy, draw_w, draw_h,
                         preserveAspectRatio=True, mask='auto')
             c.restoreState()
+        if self.border:
+            c.saveState()
+            c.setStrokeColor(RULE_HD)
+            c.setLineWidth(self.border)
+            c.rect(self.border / 2, self.border / 2,
+                   self.img_w - self.border, self.img_h - self.border,
+                   fill=False, stroke=True)
+            c.restoreState()
 
-        # Feiner heller Aussenring + kräftiger Navy-Ring direkt am Bild.
-        c.saveState()
-        c.setStrokeColor(RULE_C)
-        c.setLineWidth(0.4)
-        c.circle(cx, cy, r + self.gap + self.border / 2, stroke=1, fill=0)
-        c.setStrokeColor(NAVY)
-        c.setLineWidth(self.border)
-        c.circle(cx, cy, r + self.border / 2, stroke=1, fill=0)
-        c.restoreState()
 
 
 # ─── HELPERS ─────────────────────────────────────────────────────────────────
@@ -340,12 +283,10 @@ def lnk(url, label):
     return f'<a href="{url}" color="#2C5AA0">{label}</a>'
 
 
-def icon_prefix(icon_path, fallback_label):
-    """Render image icon if available, else fallback to a short text symbol."""
-    if os.path.isfile(icon_path):
-        src = icon_path.replace('\\', '/')
-        return f'<img src="{src}" width="10" height="10" valign="middle"/>'
-    return f'<font color="#1B3764"><b>{fallback_label}</b></font>'
+# Trenner zwischen den Angaben einer Kontaktzeile. Die bunten PNG-Icons
+# (roter Pin, blaues LinkedIn-Badge) sind entfallen: fuenf Fremdfarben neben
+# einer Navy-Palette waren der groesste Bruch im Gesamtbild.
+SEP = '&#160;&#160;<font color="#B4BAC3">|</font>&#160;&#160;'
 
 def bul(text, sty):
     """Aufzählung mit echtem Hängeeinzug: Folgezeilen stehen unter dem
@@ -372,29 +313,21 @@ def entry_row(left, date_str, sty, cw, dw):
     return t
 
 def sec(title, sty):
-    """Section heading with accent bar + spacing."""
+    """Abschnittstitel mit Luft davor und darunter."""
     return [Spacer(1, SEC_GAP), SectionHeading(title, sty['section']),
-            Spacer(1, 1.0)]
+            Spacer(1, 2.0)]
 
 
 # ─── PAGE DECORATION ────────────────────────────────────────────────────────
 def _draw_page(canvas, doc):
-    """Clean premium: solid navy sidebar + header tint + footer."""
-    w, h = A4
-    canvas.saveState()
-    # Header background tint (full width, behind sidebar)
-    hdr_h = 3.6 * cm
-    y_hdr = h - T_MARGIN - hdr_h + 0.3 * cm
-    canvas.setFillColor(HDR_BG)
-    canvas.rect(0, y_hdr, w, hdr_h, fill=True, stroke=False)
-    # Solid navy sidebar (drawn on top of header band)
-    canvas.setFillColor(NAVY)
-    canvas.rect(0, 0, SIDEBAR_W, h, fill=True, stroke=False)
-    # Thin navy line under header
-    canvas.setStrokeColor(NAVY)
-    canvas.setLineWidth(0.5)
-    canvas.line(L_MARGIN, y_hdr, w - R_MARGIN, y_hdr)
-    canvas.restoreState()
+    """Keine Seitendekoration.
+
+    Vorher lagen hier ein Navy-Balken am linken Rand und eine eingefaerbte
+    Kopfflaeche. Beides sind Template-Merkmale; die Struktur traegt jetzt die
+    Typografie (gesperrte Abschnittstitel ueber Haarlinien).
+    """
+    return
+
 
 
 # ─── DEFAULT CONFIG ──────────────────────────────────────────────────────────
@@ -447,7 +380,7 @@ KURZPROFIL_IT_SUPPORT = (
 
 _LNK_BIKEHAUS = (
     lnk('https://bikehausfreiburg.com', 'bikehausfreiburg.com')
-    + '&#160;&#160;<font color="#1B3764">|</font>&#160;&#160;'
+    + '&#160;&#160;<font color="#B4BAC3">|</font>&#160;&#160;'
     + lnk('https://github.com/oeztuerkhamza/bikehausfreiburg', 'GitHub')
 )
 
@@ -456,9 +389,9 @@ def _projekt_kopf(name, zusatz, status, url, label, repo):
     """Projektzeile: Name – Kurzbeschreibung (Status) + Links."""
     return (
         b(name) + zusatz
-        + f' <font color="#1B3764">({status})</font>'
+        + f' <font color="#6E737B">({status})</font>'
         + '&#160;&#160;' + lnk(url, label)
-        + '&#160;&#160;<font color="#1B3764">|</font>&#160;&#160;'
+        + '&#160;&#160;<font color="#B4BAC3">|</font>&#160;&#160;'
         + lnk(repo, 'GitHub')
     )
 
@@ -1156,13 +1089,9 @@ TEXTE = {
         'h_skills':     'IT-KENNTNISSE',
         'h_ausbildung': 'AUSBILDUNG',
         'h_sprachen':   'SPRACHEN',
-        'c_geb':        '<font color="#1B3764"><b>Geb.:</b></font>&#160;'
-                        '18.02.1996, Groß-Gerau'
-                        '&#160;&#160;<font color="#1B3764">·</font>&#160;&#160;'
-                        '<font color="#1B3764"><b>Führerschein:</b></font>'
-                        '&#160;Klasse B',
-        'c_visa':       '<font color="#1B3764"><b>Status:</b></font>&#160;'
-                        'Aufenthalts- &amp; Arbeitserlaubnis',
+        'c_geb':        'Geb. 18.02.1996, Groß-Gerau' + SEP
+                        + 'Führerschein Klasse B',
+        'c_visa':       'Aufenthalts- &amp; Arbeitserlaubnis',
         'bildungsweg':  BILDUNGSWEG,
         'sprachen': [
             ('Türkisch',  'Muttersprache'),
@@ -1180,13 +1109,9 @@ TEXTE = {
         'h_skills':     'TECHNICAL SKILLS',
         'h_ausbildung': 'EDUCATION',
         'h_sprachen':   'LANGUAGES',
-        'c_geb':        '<font color="#1B3764"><b>Born:</b></font>&#160;'
-                        '18 Feb 1996, Groß-Gerau'
-                        '&#160;&#160;<font color="#1B3764">·</font>&#160;&#160;'
-                        '<font color="#1B3764"><b>Driving licence:</b></font>'
-                        '&#160;category B',
-        'c_visa':       '<font color="#1B3764"><b>Status:</b></font>&#160;'
-                        'German residence &amp; work permit',
+        'c_geb':        'Born 18 Feb 1996, Groß-Gerau' + SEP
+                        + 'Driving licence category B',
+        'c_visa':       'German residence &amp; work permit',
         'bildungsweg':  BILDUNGSWEG_EN,
         'sprachen': [
             ('Turkish',  'native speaker'),
@@ -1328,57 +1253,24 @@ def build(story, sty, W, cfg=None):
     CW_EXP = W - DW_EXP
 
     # ── 1  HEADER ────────────────────────────────────────────────────────────
-    PHOTO_D = 2.85 * cm         # Durchmesser des runden Portraits
-    PHOTO_W = PHOTO_D
-    HDR_W   = W - PHOTO_W - 1.0 * cm
+    # Name, Rolle, Kontakt links; rechts das Foto. Darunter eine Linie, die
+    # Person und Inhalt trennt - das ersetzt die frueher eingefaerbte Flaeche.
+    PHOTO_W = 2.55 * cm
+    PHOTO_H = 3.2 * cm
+    HDR_GAP = 0.8 * cm
+    TXT_W   = W - PHOTO_W - HDR_GAP
 
-    # Contact info with bold navy label prefixes – each on its own line
-    c_ort = (
-        icon_prefix(ICON_LOCATION, '⌂:') + '&#160;'
-        'Bissierstr. 16, 79114 Freiburg'
-    )
-    c_tel = (
-        icon_prefix(ICON_PHONE, '☎:') + '&#160;'
-        + lnk('https://wa.me/4915566859378', '+49 155 66859378')
-    )
-    c_email = (
-        icon_prefix(ICON_EMAIL, '@:') + '&#160;'
-        + lnk('mailto:oeztuerk.hamza@web.de', 'oeztuerk.hamza@web.de')
-    )
-    c_linkedin = (
-        icon_prefix(ICON_LINKEDIN, 'in:') + '&#160;'
-        + lnk('https://linkedin.com/in/hamzaoeztuerk',
-              'linkedin.com/in/hamzaoeztuerk')
-    )
-    c_github = (
-        icon_prefix(ICON_GITHUB, '&lt;/&gt;:') + '&#160;'
-        + lnk('https://github.com/oeztuerkhamza',
-              'github.com/oeztuerkhamza')
-    )
-    c_geb = texte['c_geb']
-    c_visa = texte['c_visa']
+    c_adresse  = 'Bissierstr. 16, 79114 Freiburg'
+    c_tel      = lnk('https://wa.me/4915566859378', '+49 155 66859378')
+    c_email    = lnk('mailto:oeztuerk.hamza@web.de', 'oeztuerk.hamza@web.de')
+    c_linkedin = lnk('https://linkedin.com/in/hamzaoeztuerk',
+                     'linkedin.com/in/hamzaoeztuerk')
+    c_github   = lnk('https://github.com/oeztuerkhamza',
+                     'github.com/oeztuerkhamza')
 
-    contact_table = Table(
-        [
-            [Paragraph(c_ort, sty['contact']), Paragraph(c_geb, sty['contact'])],
-            [Paragraph(c_email, sty['contact']), Paragraph(c_tel, sty['contact'])],
-            [Paragraph(c_linkedin, sty['contact']), Paragraph(c_github, sty['contact'])],
-            [Paragraph(c_visa, sty['contact']), ''],
-        ],
-        colWidths=[HDR_W * 0.48, HDR_W * 0.52],
-    )
-    contact_table.setStyle(TableStyle([
-        # Die Status-Angabe steht allein in der letzten Reihe. Ueber beide
-        # Spalten gezogen liest sie sich als eigene Zeile statt als halb
-        # leere Zelle neben einem Loch.
-        ('SPAN',         (0, 3), (1, 3)),
-        ('VALIGN',       (0, 0), (-1, -1), 'TOP'),
-        ('LEFTPADDING',  (0, 0), (0, -1),  0),
-        ('LEFTPADDING',  (1, 0), (1, -1),  8),
-        ('RIGHTPADDING', (0, 0), (-1, -1), 0),
-        ('TOPPADDING',   (0, 0), (-1, -1), 0.5),
-        ('BOTTOMPADDING',(0, 0), (-1, -1), 0.5),
-    ]))
+    zeile_1 = SEP.join([c_adresse, c_tel, c_email])
+    zeile_2 = SEP.join([c_linkedin, c_github])
+    zeile_3 = SEP.join([texte['c_geb'], texte['c_visa']])
 
     # Steht im Feld noch die Fullstack-Vorgabe, obwohl die Anzeige eine
     # Support-Stelle ist, greift die Bezeichnung der Support-Variante.
@@ -1390,35 +1282,37 @@ def build(story, sty, W, cfg=None):
 
     left_hdr = [
         Paragraph('Hamza Öztürk', sty['name']),
-        Spacer(1, 2),
-        Paragraph(
-            esc(stelle_titel),
-            sty['role'],
-        ),
-        Spacer(1, 2),
-        contact_table,
+        Spacer(1, 1.5),
+        # Gesperrte Versalien: gibt der Berufsbezeichnung Gewicht, ohne sie
+        # fett oder farbig setzen zu muessen.
+        TrackedLine(esc(stelle_titel).upper(), 'CV-R', 9.6, GRAY, track=1.5),
+        Spacer(1, 7),
+        Paragraph(zeile_1, sty['contact']),
+        Paragraph(zeile_2, sty['contact']),
+        Paragraph(zeile_3, sty['contact_meta']),
     ]
 
-    photo = CirclePhotoFrame(FOTO_PATH, PHOTO_D, border=1.1, gap=2.2, focus=0.62)
+    photo = RectPhotoFrame(FOTO_PATH, PHOTO_W, PHOTO_H, focus=0.62)
     hdr = Table(
         [[left_hdr, photo]],
-        colWidths=[HDR_W, PHOTO_W + 1.0 * cm],
+        colWidths=[TXT_W + HDR_GAP, PHOTO_W],
     )
     hdr.setStyle(TableStyle([
-        ('VALIGN',       (0, 0), (-1, -1), 'TOP'),
+        ('VALIGN',       (0, 0), (0, 0), 'TOP'),
+        ('VALIGN',       (1, 0), (1, 0), 'TOP'),
         ('LEFTPADDING',  (0, 0), (-1, -1), 0),
-        ('RIGHTPADDING', (0, 0), (-1, -1), 0),
+        ('RIGHTPADDING', (0, 0), (0, 0), HDR_GAP),
+        ('RIGHTPADDING', (1, 0), (1, 0), 0),
         ('TOPPADDING',   (0, 0), (-1, -1), 0),
         ('BOTTOMPADDING',(0, 0), (-1, -1), 0),
     ]))
     story.append(hdr)
-    story.append(Spacer(1, 0.01 * cm))
+    story.append(HRule(NAVY, 0.9, space_after=0.26 * cm))
 
     # ── 2  KURZPROFIL ────────────────────────────────────────────────────────
     story.extend([
-        Spacer(1, 0.02 * cm),
         SectionHeading(texte['h_profil'], sty['section']),
-        Spacer(1, 1.0),
+        Spacer(1, 2.0),
     ])
     # Gleiche Logik wie beim Stellentitel: unveraendertes Standard-Kurzprofil
     # wird fuer die Support-Variante durch deren Kurzprofil ersetzt.
@@ -1457,7 +1351,7 @@ def build(story, sty, W, cfg=None):
         block.extend(bul(t, sty['bullet']) for t in job['bullets'])
         story.append(KeepTogether(block))
         if idx < len(inhalt['erfahrung']) - 1:
-            story.append(Spacer(1, 2))
+            story.append(Spacer(1, 4))
 
     # ── 4  PROJEKTE ──────────────────────────────────────────────────────────
     story.extend(sec(texte['h_projekte'], sty))
@@ -1469,30 +1363,25 @@ def build(story, sty, W, cfg=None):
             + [bul(t, sty['bullet']) for t in projekt['bullets']]
         ))
         if idx < len(inhalt['projekte']) - 1:
-            story.append(Spacer(1, 2))
+            story.append(Spacer(1, 3))
 
     # ── 5  IT-KENNTNISSE ─────────────────────────────────────────────────────
     story.extend(sec(texte['h_skills'], sty))
     rows = [[Paragraph(b(l), sty['skill_lbl']),
              Paragraph(v, sty['skill_val'])] for l, v in inhalt['skills']]
-    # Keine feste rowHeights: lange Skill-Werte dürfen umbrechen statt
-    # abgeschnitten zu werden (Tabelle wächst automatisch mit dem Inhalt).
-    sk = Table(rows, colWidths=[W * 0.21, W * 0.78])
-    sk_style = [
+    # Keine feste rowHeights: lange Skill-Werte duerfen umbrechen.
+    sk = Table(rows, colWidths=[W * 0.19, W * 0.81])
+    # Frueher abwechselnd grau hinterlegt. Gefuellte Zeilen ziehen den Blick
+    # auf die Tabelle statt auf den Inhalt; eine Haarlinie je Zeile reicht.
+    sk.setStyle(TableStyle([
         ('VALIGN',       (0, 0), (-1, -1), 'TOP'),
-        ('LEFTPADDING',  (0, 0), (0, -1),  8),
-        ('LEFTPADDING',  (1, 0), (1, -1),  8),
+        ('LEFTPADDING',  (0, 0), (0, -1),  0),
+        ('LEFTPADDING',  (1, 0), (1, -1),  4),
         ('RIGHTPADDING', (0, 0), (-1, -1), 0),
-        ('TOPPADDING',   (0, 0), (-1, -1), 1.2),
-        ('BOTTOMPADDING',(0, 0), (-1, -1), 1.2),
-        ('LINEBELOW',    (0, 0), (-1, -1), 0.25, RULE_C),
-    ]
-    # Zebra-Streifen für beliebig viele Zeilen – die Support-Variante hat
-    # eine Kategorie mehr als die Fullstack-Variante.
-    for i in range(len(rows)):
-        sk_style.append(('BACKGROUND', (0, i), (-1, i),
-                         BG_SKILL if i % 2 == 0 else BG_SKILL2))
-    sk.setStyle(TableStyle(sk_style))
+        ('TOPPADDING',   (0, 0), (-1, -1), 2.0),
+        ('BOTTOMPADDING',(0, 0), (-1, -1), 2.0),
+        ('LINEBELOW',    (0, 0), (-1, -2), 0.4, RULE_C),
+    ]))
     story.append(sk)
 
     # ── 6  AUSBILDUNG ──────────────────────────────────────────────
@@ -1507,42 +1396,38 @@ def build(story, sty, W, cfg=None):
             left.append(bul(e['detail'], sty['edu_bullet']))
         story.append(KeepTogether(entry_row(left, e['period'], sty, CW, DW)))
         if idx < len(bildungsweg) - 1:
-            story.append(Spacer(1, 0.1))
+            story.append(Spacer(1, 2))
 
 
     # ── 7  SPRACHEN ─────────────────────────────────────────────────────────
     story.extend([
-        Spacer(1, 0.02 * cm),
+        Spacer(1, SEC_GAP),
         SectionHeading(texte['h_sprachen'], sty['section']),
-        Spacer(1, 1.0),
+        Spacer(1, 2.0),
     ])
     lang_rows = texte['sprachen']
     lang_data = [[Paragraph(b(l), sty['skill_lbl']),
                   Paragraph(v, sty['skill_val'])] for l, v in lang_rows]
-    lang_tbl = Table(lang_data, colWidths=[W * 0.21, W * 0.78])
+    lang_tbl = Table(lang_data, colWidths=[W * 0.19, W * 0.81])
     lang_tbl.setStyle(TableStyle([
         ('VALIGN',       (0, 0), (-1, -1), 'TOP'),
-        ('LEFTPADDING',  (0, 0), (0, -1),  8),
-        ('LEFTPADDING',  (1, 0), (1, -1),  8),
+        ('LEFTPADDING',  (0, 0), (0, -1),  0),
+        ('LEFTPADDING',  (1, 0), (1, -1),  4),
         ('RIGHTPADDING', (0, 0), (-1, -1), 0),
-        ('TOPPADDING',   (0, 0), (-1, -1), 1.2),
-        ('BOTTOMPADDING',(0, 0), (-1, -1), 1.2),
-        ('LINEBELOW',    (0, 0), (-1, -1), 0.25, RULE_C),
-        ('BACKGROUND',   (0, 0), (-1, 0), BG_SKILL),
-        ('BACKGROUND',   (0, 1), (-1, 1), BG_SKILL2),
-        ('BACKGROUND',   (0, 2), (-1, 2), BG_SKILL),
+        ('TOPPADDING',   (0, 0), (-1, -1), 2.0),
+        ('BOTTOMPADDING',(0, 0), (-1, -1), 2.0),
+        ('LINEBELOW',    (0, 0), (-1, -2), 0.4, RULE_C),
     ]))
     story.append(lang_tbl)
 
     # ── 8  UNTERSCHRIFT ─────────────────────────────────────────────────────
-    story.append(Spacer(1, 0.04 * cm))
-    if os.path.isfile(SIGNATUR_PATH):
-        story.append(Image(SIGNATUR_PATH, width=2.5*cm, height=0.85*cm,
-                           hAlign='LEFT'))
+    story.append(Spacer(1, 0.34 * cm))
     datum_txt = (cfg['datum'] if sprache == SPRACHE_DE
                  else _datum_englisch(cfg['datum']))
     story.append(Paragraph(f'Freiburg, {esc(datum_txt)}', sty['footer']))
-    story.append(Paragraph('Hamza Öztürk', sty['footer']))
+    if os.path.isfile(SIGNATUR_PATH):
+        story.append(Image(SIGNATUR_PATH, width=2.3*cm, height=0.78*cm,
+                           hAlign='LEFT'))
 
 
 # ─── SEITENANPASSUNG ─────────────────────────────────────────────────────────
