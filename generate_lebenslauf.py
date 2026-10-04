@@ -12,8 +12,8 @@ from datetime import datetime
 from reportlab.lib.pagesizes import A4
 from reportlab.lib.units import cm, mm
 from reportlab.platypus import (
-    SimpleDocTemplate, Paragraph, Spacer,
-    Table, TableStyle, KeepTogether, Image, Flowable,
+    BaseDocTemplate, PageTemplate, Frame, FrameBreak,
+    Paragraph, Spacer, KeepTogether, Image, Flowable,
 )
 from reportlab.lib.styles import ParagraphStyle
 from reportlab.lib.colors import HexColor, white
@@ -32,11 +32,21 @@ SIGNATUR_PATH = os.path.join(BASE_DIR, "sıgnatur.png")
 # ─── LAYOUT ──────────────────────────────────────────────────────────────────
 # Grosszuegige, gleichmaessige Raender. Ein Lebenslauf wirkt nicht dadurch
 # hochwertig, dass die Seite voll ist, sondern dadurch, dass er Luft hat.
-L_MARGIN  = 1.35 * cm
-R_MARGIN  = 1.35 * cm
-T_MARGIN  = 0.80 * cm
-B_MARGIN  = 0.60 * cm
-SEC_GAP   = 0.21 * cm
+L_MARGIN  = 1.30 * cm
+R_MARGIN  = 1.30 * cm
+T_MARGIN  = 0.95 * cm
+B_MARGIN  = 0.75 * cm
+SEC_GAP   = 0.27 * cm
+
+# Zweispaltig: links eine schmale Seitenspalte, rechts der Lauftext. Die
+# kurzen Listen (Kenntnisse, Sprachen, Kontakt) stehen in der schmalen
+# Spalte richtig; im Seitenformat liefen sie vorher quer ueber die Breite.
+# 4,9 cm entsprechen zugleich dem ueblichen Seitenverhaeltnis eines
+# Bewerbungsfotos (4,5 x 6 cm), wenn das Foto die Spaltenbreite fuellt.
+RAIL_W    = 4.90 * cm
+GUTTER    = 0.75 * cm
+MAIN_W    = A4[0] - L_MARGIN - R_MARGIN - RAIL_W - GUTTER
+PHOTO_H   = 6.50 * cm
 
 # ─── COLOURS ─────────────────────────────────────────────────────────────────
 # Eine Akzentfarbe, zwei Grautoene, zwei Linienstaerken - mehr braucht es
@@ -113,31 +123,29 @@ def make_styles(tighten=0.0):
             alignment=align, leftIndent=leftIndent, **kw,
         )
     return {
-        'name':        ps('name',        'CV-B', 21, NAVY, leading=23),
-        'role':        ps('role',        'CV-R', 10, GRAY, leading=12),
-        'contact':     ps('contact',     'CV-R', 8.3, GRAY, leading=10.6),
-        'contact_meta': ps('contact_meta', 'CV-R', 7.9, LGRAY, leading=10.2),
-        'section':     ps('section',     'CV-B', 9.2, NAVY, leading=11),
-        'entry_title': ps('entry_title', 'CV-B', 8.9, DARK, leading=10.8),
-        'entry_sub':   ps('entry_sub',   'CV-R', 7.8, LGRAY, leading=9.4,
-                          spaceAfter=0.8),
-        'period':      ps('period',      'CV-R', 8.0, GRAY, leading=10.8,
-                          align=TA_RIGHT),
-        'bullet':      ps('bullet',      'CV-R', 8.1, DARK, leading=9.5,
-                          spaceAfter=0.2, leftIndent=9, align=TA_LEFT,
-                          bulletIndent=0, bulletFontName='CV-R',
-                          bulletFontSize=7.4, bulletColor=BULLET_C),
-        'profile':     ps('profile',     'CV-R', 8.4, DARK, leading=10.0,
+        'name':        ps('name',        'CV-B', 22, NAVY, leading=24),
+        'section':     ps('section',     'CV-B', 9.0, NAVY, leading=11),
+        'section_rail': ps('section_rail', 'CV-B', 8.2, NAVY, leading=10),
+        # Hauptspalte
+        'profile':     ps('profile',     'CV-R', 8.5, DARK, leading=10.6,
                           align=TA_LEFT),
-        'footer':      ps('footer',      'CV-R', 8, LGRAY, leading=10.4,
-                          spaceBefore=0.5),
-        'skill_lbl':   ps('skill_lbl',   'CV-B', 8.2, NAVY, leading=9.9),
-        'skill_val':   ps('skill_val',   'CV-R', 8.2, DARK, leading=9.9),
-        'edu_title':   ps('edu_title',   'CV-R', 8.7, DARK, leading=10.5),
-        'edu_bullet':  ps('edu_bullet',  'CV-R', 8.2, DARK, leading=9.7,
+        'entry_title': ps('entry_title', 'CV-B', 9.0, DARK, leading=11.0),
+        'entry_meta':  ps('entry_meta',  'CV-R', 7.9, LGRAY, leading=10.0,
+                          spaceAfter=1.5),
+        'bullet':      ps('bullet',      'CV-R', 8.4, DARK, leading=10.2,
                           spaceAfter=0.4, leftIndent=9, align=TA_LEFT,
                           bulletIndent=0, bulletFontName='CV-R',
                           bulletFontSize=7.4, bulletColor=BULLET_C),
+        'edu_title':   ps('edu_title',   'CV-B', 8.8, DARK, leading=10.8),
+        'edu_bullet':  ps('edu_bullet',  'CV-R', 8.3, DARK, leading=10.0,
+                          spaceAfter=0.4, leftIndent=9, align=TA_LEFT,
+                          bulletIndent=0, bulletFontName='CV-R',
+                          bulletFontSize=7.4, bulletColor=BULLET_C),
+        'footer':      ps('footer',      'CV-R', 8, LGRAY, leading=10.4),
+        # Seitenspalte
+        'rail_txt':    ps('rail_txt',    'CV-R', 7.9, GRAY, leading=10.4),
+        'rail_lbl':    ps('rail_lbl',    'CV-B', 8.0, NAVY, leading=10.4),
+        'rail_val':    ps('rail_val',    'CV-R', 7.9, DARK, leading=9.9),
     }
 
 # ─── CUSTOM FLOWABLES ───────────────────────────────────────────────────────
@@ -189,12 +197,20 @@ class TrackedLine(Flowable):
         c.restoreState()
 
 
+# Ab etwa 0,14 Punkt Sperrung je Punkt Schriftgrad schieben PDF-Leser
+# Leerzeichen zwischen die Buchstaben: aus "IT-KENNTNISSE" wird dann
+# "I T - K E N N T N I S S E". Bewerbungsportale lesen den Lebenslauf so
+# aus, deshalb bleibt die Sperrung mit 0,10 klar darunter.
+TRACK_RATIO = 0.10
+
+
 class SectionHeading(TrackedLine):
     """Abschnittstitel: gesperrte Versalien in Navy ueber einer Haarlinie."""
 
     def __init__(self, text, style):
         super().__init__(text, style.fontName, style.fontSize,
-                         style.textColor, track=1.25,
+                         style.textColor,
+                         track=round(style.fontSize * TRACK_RATIO, 2),
                          rule=RULE_HD, rule_width=0.7, gap=4.2)
 
 
@@ -293,29 +309,35 @@ def bul(text, sty):
     Text, nicht unter dem Punkt."""
     return Paragraph(text, sty, bulletText=chr(0x2022))
 
-# Two-column entry table style
-_ENTRY_TS = TableStyle([
-    ('VALIGN',        (0, 0), (-1, -1), 'TOP'),
-    ('LEFTPADDING',   (0, 0), (0, -1),  0),
-    ('LEFTPADDING',   (1, 0), (1, -1),  0),
-    ('RIGHTPADDING',  (0, 0), (0, -1),  2),
-    ('RIGHTPADDING',  (1, 0), (1, -1),  0),
-    ('TOPPADDING',    (0, 0), (-1, -1), 0),
-    ('BOTTOMPADDING', (0, 0), (-1, -1), 1),
-])
 
-def entry_row(left, date_str, sty, cw, dw):
-    # Keep period text on one visual line for consistent top alignment.
-    safe_date = str(date_str).replace(' – ', '&nbsp;–&nbsp;').replace(' - ', '&nbsp;-&nbsp;')
-    t = Table([[left, Paragraph(safe_date, sty['period'])]], colWidths=[cw, dw])
-    t.hAlign = 'LEFT'
-    t.setStyle(_ENTRY_TS)
-    return t
-
-def sec(title, sty):
+def sec(title, sty, key='section'):
     """Abschnittstitel mit Luft davor und darunter."""
-    return [Spacer(1, SEC_GAP), SectionHeading(title, sty['section']),
-            Spacer(1, 2.0)]
+    return [Spacer(1, SEC_GAP), SectionHeading(title, sty[key]),
+            Spacer(1, 2.5)]
+
+
+def rail_block(titel, sty, zeilen, gap=0.62 * cm):
+    """Ein Block der Seitenspalte: Titel, darunter einzeilige Angaben."""
+    out = sec(titel, sty, 'section_rail')
+    out += [Paragraph(z, sty['rail_txt']) for z in zeilen]
+    out.append(Spacer(1, gap))
+    return out
+
+
+def rail_paare(titel, sty, paare, gap=0.62 * cm):
+    """Ein Block der Seitenspalte aus Label/Wert-Paaren (Kenntnisse, Sprachen).
+
+    Label ueber dem Wert statt daneben: in 5,4 cm Breite waere eine
+    zweispaltige Tabelle nicht lesbar.
+    """
+    out = sec(titel, sty, 'section_rail')
+    for i, (label, wert) in enumerate(paare):
+        if i:
+            out.append(Spacer(1, 3))
+        out.append(Paragraph(b(label), sty['rail_lbl']))
+        out.append(Paragraph(wert, sty['rail_val']))
+    out.append(Spacer(1, gap))
+    return out
 
 
 # ─── PAGE DECORATION ────────────────────────────────────────────────────────
@@ -386,14 +408,14 @@ _LNK_BIKEHAUS = (
 
 
 def _projekt_kopf(name, zusatz, status, url, label, repo):
-    """Projektzeile: Name – Kurzbeschreibung (Status) + Links."""
-    return (
-        b(name) + zusatz
-        + f' <font color="#6E737B">({status})</font>'
-        + '&#160;&#160;' + lnk(url, label)
-        + '&#160;&#160;<font color="#B4BAC3">|</font>&#160;&#160;'
-        + lnk(repo, 'GitHub')
-    )
+    """(Titelzeile, Metazeile) eines Projekts.
+
+    In der schmalen Hauptspalte passt nicht alles in eine Zeile: Name und
+    Kurzbeschreibung stehen oben, Status und Links in einer ruhigen
+    zweiten Zeile darunter.
+    """
+    return (b(name) + zusatz,
+            status + SEP + lnk(url, label) + SEP + lnk(repo, 'GitHub'))
 
 
 _P_BENLIRAD = _projekt_kopf(
@@ -745,7 +767,7 @@ BILDUNGSWEG = [
         'period': '02/2024 – 02/2026',
         'title':  'Fachinformatiker für Anwendungsentwicklung (IHK) – '
                   'verkürzte duale Ausbildung',
-        'inst':   'Walther-Rathenau-Gewerbeschule, Freiburg · '
+        'inst':   'Walther-Rathenau-Gewerbeschule · '
                   'Ausbildungsbetrieb: Dicom GmbH',
         'detail': b('Abschlussprojekt DI-Flux:')
                   + ' Enterprise-Web-Zeiterfassung mit Angular, JWT-Auth, '
@@ -1049,7 +1071,7 @@ BILDUNGSWEG_EN = [
         'period': '02/2024 – 02/2026',
         'title':  'IT Specialist in Application Development (IHK) – '
                   'accelerated dual vocational training',
-        'inst':   'Walther-Rathenau-Gewerbeschule, Freiburg · '
+        'inst':   'Walther-Rathenau-Gewerbeschule · '
                   'Training company: Dicom GmbH',
         'detail': b('Final project DI-Flux:')
                   + ' enterprise web time tracking with Angular, JWT auth, '
@@ -1089,9 +1111,13 @@ TEXTE = {
         'h_skills':     'IT-KENNTNISSE',
         'h_ausbildung': 'AUSBILDUNG',
         'h_sprachen':   'SPRACHEN',
-        'c_geb':        'Geb. 18.02.1996, Groß-Gerau' + SEP
-                        + 'Führerschein Klasse B',
-        'c_visa':       'Aufenthalts- &amp; Arbeitserlaubnis',
+        'h_kontakt':    'KONTAKT',
+        'h_person':     'PERSÖNLICH',
+        'person': [
+            'Geb. 18.02.1996, Groß-Gerau',
+            'Führerschein Klasse B',
+            'Aufenthalts- &amp; Arbeitserlaubnis',
+        ],
         'bildungsweg':  BILDUNGSWEG,
         'sprachen': [
             ('Türkisch',  'Muttersprache'),
@@ -1109,9 +1135,13 @@ TEXTE = {
         'h_skills':     'TECHNICAL SKILLS',
         'h_ausbildung': 'EDUCATION',
         'h_sprachen':   'LANGUAGES',
-        'c_geb':        'Born 18 Feb 1996, Groß-Gerau' + SEP
-                        + 'Driving licence category B',
-        'c_visa':       'German residence &amp; work permit',
+        'h_kontakt':    'CONTACT',
+        'h_person':     'PERSONAL',
+        'person': [
+            'Born 18 Feb 1996, Groß-Gerau',
+            'Driving licence category B',
+            'German residence &amp; work permit',
+        ],
         'bildungsweg':  BILDUNGSWEG_EN,
         'sprachen': [
             ('Turkish',  'native speaker'),
@@ -1241,36 +1271,13 @@ def warne_offene_punkte():
 
 
 # ─── BUILD STORY ─────────────────────────────────────────────────────────────
-def build(story, sty, W, cfg=None):
+def baue_spalten(sty, cfg=None):
+    """Liefert (Seitenspalte, Hauptspalte) als zwei Flowable-Listen."""
     cfg = {**DEFAULT_CONFIG, **(cfg or {})}
     variante = variante_aus_cfg(cfg)
     sprache = sprache_aus_cfg(cfg)
     inhalt = INHALT[sprache][variante]
     texte = TEXTE[sprache]
-    DW = W * 0.20
-    CW = W - DW - 0.3 * cm
-    DW_EXP = W * 0.13
-    CW_EXP = W - DW_EXP
-
-    # ── 1  HEADER ────────────────────────────────────────────────────────────
-    # Name, Rolle, Kontakt links; rechts das Foto. Darunter eine Linie, die
-    # Person und Inhalt trennt - das ersetzt die frueher eingefaerbte Flaeche.
-    PHOTO_W = 2.55 * cm
-    PHOTO_H = 3.2 * cm
-    HDR_GAP = 0.8 * cm
-    TXT_W   = W - PHOTO_W - HDR_GAP
-
-    c_adresse  = 'Bissierstr. 16, 79114 Freiburg'
-    c_tel      = lnk('https://wa.me/4915566859378', '+49 155 66859378')
-    c_email    = lnk('mailto:oeztuerk.hamza@web.de', 'oeztuerk.hamza@web.de')
-    c_linkedin = lnk('https://linkedin.com/in/hamzaoeztuerk',
-                     'linkedin.com/in/hamzaoeztuerk')
-    c_github   = lnk('https://github.com/oeztuerkhamza',
-                     'github.com/oeztuerkhamza')
-
-    zeile_1 = SEP.join([c_adresse, c_tel, c_email])
-    zeile_2 = SEP.join([c_linkedin, c_github])
-    zeile_3 = SEP.join([texte['c_geb'], texte['c_visa']])
 
     # Steht im Feld noch die Fullstack-Vorgabe, obwohl die Anzeige eine
     # Support-Stelle ist, greift die Bezeichnung der Support-Variante.
@@ -1280,154 +1287,96 @@ def build(story, sty, W, cfg=None):
                             and stelle_titel == DEFAULT_CONFIG['stelle']):
         stelle_titel = inhalt['stelle']
 
-    left_hdr = [
-        Paragraph('Hamza Öztürk', sty['name']),
-        Spacer(1, 1.5),
-        # Gesperrte Versalien: gibt der Berufsbezeichnung Gewicht, ohne sie
-        # fett oder farbig setzen zu muessen.
-        TrackedLine(esc(stelle_titel).upper(), 'CV-R', 9.6, GRAY, track=1.5),
-        Spacer(1, 7),
-        Paragraph(zeile_1, sty['contact']),
-        Paragraph(zeile_2, sty['contact']),
-        Paragraph(zeile_3, sty['contact_meta']),
-    ]
-
-    photo = RectPhotoFrame(FOTO_PATH, PHOTO_W, PHOTO_H, focus=0.62)
-    hdr = Table(
-        [[left_hdr, photo]],
-        colWidths=[TXT_W + HDR_GAP, PHOTO_W],
-    )
-    hdr.setStyle(TableStyle([
-        ('VALIGN',       (0, 0), (0, 0), 'TOP'),
-        ('VALIGN',       (1, 0), (1, 0), 'TOP'),
-        ('LEFTPADDING',  (0, 0), (-1, -1), 0),
-        ('RIGHTPADDING', (0, 0), (0, 0), HDR_GAP),
-        ('RIGHTPADDING', (1, 0), (1, 0), 0),
-        ('TOPPADDING',   (0, 0), (-1, -1), 0),
-        ('BOTTOMPADDING',(0, 0), (-1, -1), 0),
-    ]))
-    story.append(hdr)
-    story.append(HRule(NAVY, 0.9, space_after=0.26 * cm))
-
-    # ── 2  KURZPROFIL ────────────────────────────────────────────────────────
-    story.extend([
-        SectionHeading(texte['h_profil'], sty['section']),
-        Spacer(1, 2.0),
-    ])
-    # Gleiche Logik wie beim Stellentitel: unveraendertes Standard-Kurzprofil
-    # wird fuer die Support-Variante durch deren Kurzprofil ersetzt.
+    # Gleiche Logik beim Kurzprofil: unveraenderter Standardtext wird durch
+    # den der jeweiligen Variante ersetzt.
     kurzprofil = (cfg.get('kurzprofil') or '').strip()
     if not kurzprofil or kurzprofil == DEFAULT_KURZPROFIL.strip():
         kurzprofil = inhalt['kurzprofil']
     elif sprache == SPRACHE_EN and erkenne_sprache(kurzprofil) == SPRACHE_DE:
-        # Deutscher KI-Text im englischen Lebenslauf waere ein Sprachmix –
-        # dann lieber das englische Standardprofil der Variante.
+        # Deutscher KI-Text im englischen Lebenslauf waere ein Sprachmix.
         kurzprofil = inhalt['kurzprofil']
-    story.append(Paragraph(esc_rich(kurzprofil), sty['profile']))
 
-    # ── 3  BERUFSERFAHRUNG ───────────────────────────────────────────────────
-    story.extend(sec(texte['h_erfahrung'], sty))
+    # ══ SEITENSPALTE ════════════════════════════════════════════════════
+    rail = [RectPhotoFrame(FOTO_PATH, RAIL_W, PHOTO_H, focus=0.60),
+            Spacer(1, 0.45 * cm)]
 
-    def exp_header(title, period):
-        """Company/role left, period right – same line."""
-        t = Table(
-            [[Paragraph(b(title), sty['entry_title']),
-              Paragraph(period.replace(' – ', '&nbsp;–&nbsp;'), sty['period'])]],
-            colWidths=[W * 0.79, W * 0.18],
-        )
-        t.setStyle(TableStyle([
-            ('VALIGN',       (0, 0), (-1, -1), 'TOP'),
-            ('LEFTPADDING',  (0, 0), (-1, -1), 0),
-            ('RIGHTPADDING', (0, 0), (-1, -1), 0),
-            ('TOPPADDING',   (0, 0), (-1, -1), 0),
-            ('BOTTOMPADDING',(0, 0), (-1, -1), 0),
-        ]))
-        return t
+    rail += rail_block(texte['h_kontakt'], sty, [
+        'Bissierstr. 16, 79114 Freiburg',
+        lnk('https://wa.me/4915566859378', '+49 155 66859378'),
+        lnk('mailto:oeztuerk.hamza@web.de', 'oeztuerk.hamza@web.de'),
+        lnk('https://linkedin.com/in/hamzaoeztuerk',
+            'linkedin.com/in/hamzaoeztuerk'),
+        lnk('https://github.com/oeztuerkhamza', 'github.com/oeztuerkhamza'),
+    ])
+    rail += rail_block(texte['h_person'], sty, texte['person'])
+    rail += rail_paare(texte['h_skills'], sty, inhalt['skills'])
+    rail += rail_paare(texte['h_sprachen'], sty, texte['sprachen'], gap=0)
 
+    # ══ HAUPTSPALTE ═════════════════════════════════════════════════════
+    main = [
+        Paragraph('Hamza Öztürk', sty['name']),
+        Spacer(1, 1.5),
+        # Gesperrte Versalien geben der Berufsbezeichnung Gewicht, ohne sie
+        # fett oder farbig setzen zu muessen.
+        TrackedLine(esc(stelle_titel).upper(), 'CV-R', 9.8, GRAY,
+                    track=round(9.8 * TRACK_RATIO, 2)),
+        Spacer(1, 5),
+        HRule(NAVY, 0.9, space_after=0.26 * cm),
+        SectionHeading(texte['h_profil'], sty['section']),
+        Spacer(1, 2.5),
+        Paragraph(esc_rich(kurzprofil), sty['profile']),
+    ]
+
+    def eintrag(titel, meta, bullets, titel_stil='entry_title',
+                bullet_stil='bullet'):
+        """Titelzeile, graue Metazeile (Zeitraum, Links), dann die Punkte."""
+        teile = [Paragraph(titel, sty[titel_stil])]
+        if meta:
+            teile.append(Paragraph(meta, sty['entry_meta']))
+        teile += [bul(t, sty[bullet_stil]) for t in bullets]
+        return KeepTogether(teile)
+
+    # ── Berufserfahrung ──────────────────────────────────────────────────
+    main += sec(texte['h_erfahrung'], sty)
     for idx, job in enumerate(inhalt['erfahrung']):
-        block = [exp_header(job['title'], job['period'])]
+        meta = job['period']
         if job.get('sub'):
-            block.append(Paragraph(job['sub'], sty['entry_sub']))
-        block.extend(bul(t, sty['bullet']) for t in job['bullets'])
-        story.append(KeepTogether(block))
+            meta += SEP + job['sub']
+        main.append(eintrag(b(job['title']), meta, job['bullets']))
         if idx < len(inhalt['erfahrung']) - 1:
-            story.append(Spacer(1, 4))
+            main.append(Spacer(1, 5))
 
-    # ── 4  PROJEKTE ──────────────────────────────────────────────────────────
-    story.extend(sec(texte['h_projekte'], sty))
-    # Gleicher Abstand wie zwischen den Stationen der Berufserfahrung: ohne
-    # ihn laufen die drei Projekte optisch zu einem Block zusammen.
+    # ── Projekte ─────────────────────────────────────────────────────────
+    main += sec(texte['h_projekte'], sty)
     for idx, projekt in enumerate(inhalt['projekte']):
-        story.append(KeepTogether(
-            [Paragraph(projekt['head'], sty['entry_title'])]
-            + [bul(t, sty['bullet']) for t in projekt['bullets']]
-        ))
+        titel, meta = projekt['head']
+        main.append(eintrag(titel, meta, projekt['bullets']))
         if idx < len(inhalt['projekte']) - 1:
-            story.append(Spacer(1, 3))
+            main.append(Spacer(1, 4))
 
-    # ── 5  IT-KENNTNISSE ─────────────────────────────────────────────────────
-    story.extend(sec(texte['h_skills'], sty))
-    rows = [[Paragraph(b(l), sty['skill_lbl']),
-             Paragraph(v, sty['skill_val'])] for l, v in inhalt['skills']]
-    # Keine feste rowHeights: lange Skill-Werte duerfen umbrechen.
-    sk = Table(rows, colWidths=[W * 0.19, W * 0.81])
-    # Frueher abwechselnd grau hinterlegt. Gefuellte Zeilen ziehen den Blick
-    # auf die Tabelle statt auf den Inhalt; eine Haarlinie je Zeile reicht.
-    sk.setStyle(TableStyle([
-        ('VALIGN',       (0, 0), (-1, -1), 'TOP'),
-        ('LEFTPADDING',  (0, 0), (0, -1),  0),
-        ('LEFTPADDING',  (1, 0), (1, -1),  4),
-        ('RIGHTPADDING', (0, 0), (-1, -1), 0),
-        ('TOPPADDING',   (0, 0), (-1, -1), 2.0),
-        ('BOTTOMPADDING',(0, 0), (-1, -1), 2.0),
-        ('LINEBELOW',    (0, 0), (-1, -2), 0.4, RULE_C),
-    ]))
-    story.append(sk)
-
-    # ── 6  AUSBILDUNG ──────────────────────────────────────────────
-    story.extend(sec(texte['h_ausbildung'], sty))
+    # ── Ausbildung ───────────────────────────────────────────────────────
+    main += sec(texte['h_ausbildung'], sty)
     bildungsweg = texte['bildungsweg']
     for idx, e in enumerate(bildungsweg):
-        head = b(e['title'])
+        meta = e['period']
         if e.get('inst'):
-            head += ' — ' + e['inst']
-        left = [Paragraph(head, sty['edu_title'])]
-        if e.get('detail'):
-            left.append(bul(e['detail'], sty['edu_bullet']))
-        story.append(KeepTogether(entry_row(left, e['period'], sty, CW, DW)))
+            meta += SEP + e['inst']
+        detail = [e['detail']] if e.get('detail') else []
+        main.append(eintrag(b(e['title']), meta, detail,
+                            titel_stil='edu_title', bullet_stil='edu_bullet'))
         if idx < len(bildungsweg) - 1:
-            story.append(Spacer(1, 2))
+            main.append(Spacer(1, 3))
 
-
-    # ── 7  SPRACHEN ─────────────────────────────────────────────────────────
-    story.extend([
-        Spacer(1, SEC_GAP),
-        SectionHeading(texte['h_sprachen'], sty['section']),
-        Spacer(1, 2.0),
-    ])
-    lang_rows = texte['sprachen']
-    lang_data = [[Paragraph(b(l), sty['skill_lbl']),
-                  Paragraph(v, sty['skill_val'])] for l, v in lang_rows]
-    lang_tbl = Table(lang_data, colWidths=[W * 0.19, W * 0.81])
-    lang_tbl.setStyle(TableStyle([
-        ('VALIGN',       (0, 0), (-1, -1), 'TOP'),
-        ('LEFTPADDING',  (0, 0), (0, -1),  0),
-        ('LEFTPADDING',  (1, 0), (1, -1),  4),
-        ('RIGHTPADDING', (0, 0), (-1, -1), 0),
-        ('TOPPADDING',   (0, 0), (-1, -1), 2.0),
-        ('BOTTOMPADDING',(0, 0), (-1, -1), 2.0),
-        ('LINEBELOW',    (0, 0), (-1, -2), 0.4, RULE_C),
-    ]))
-    story.append(lang_tbl)
-
-    # ── 8  UNTERSCHRIFT ─────────────────────────────────────────────────────
-    story.append(Spacer(1, 0.34 * cm))
+    # ── Ort, Datum, Unterschrift ─────────────────────────────────────────
+    main.append(Spacer(1, 0.34 * cm))
     datum_txt = (cfg['datum'] if sprache == SPRACHE_DE
                  else _datum_englisch(cfg['datum']))
-    story.append(Paragraph(f'Freiburg, {esc(datum_txt)}', sty['footer']))
+    main.append(Paragraph(f'Freiburg, {esc(datum_txt)}', sty['footer']))
     if os.path.isfile(SIGNATUR_PATH):
-        story.append(Image(SIGNATUR_PATH, width=2.3*cm, height=0.78*cm,
-                           hAlign='LEFT'))
+        main.append(Image(SIGNATUR_PATH, width=2.3 * cm, height=0.78 * cm,
+                          hAlign='LEFT'))
+
+    return rail, main
 
 
 # ─── SEITENANPASSUNG ─────────────────────────────────────────────────────────
@@ -1438,17 +1387,32 @@ _FIT_STUFEN = (0.0, 0.2, 0.4, 0.6, 0.8, 1.0)
 
 
 def _baue_pdf(out, cfg, tighten, subject):
-    """Baut das PDF einmal und gibt die Seitenzahl zurück."""
-    doc = SimpleDocTemplate(
+    """Baut das PDF einmal und gibt die Seitenzahl zurück.
+
+    Zwei Frames nebeneinander. Die Seitenspalte wird zuerst gefuellt, dann
+    schickt ein FrameBreak den Rest in die Hauptspalte. Dadurch steht der
+    Text auch im PDF in dieser Reihenfolge - wichtig, damit Bewerbungs-
+    portale beim Auslesen nicht zwischen den Spalten hin und her springen.
+    """
+    hoehe = A4[1] - T_MARGIN - B_MARGIN
+    rand = dict(leftPadding=0, rightPadding=0, topPadding=0, bottomPadding=0)
+    f_rail = Frame(L_MARGIN, B_MARGIN, RAIL_W, hoehe, id='rail', **rand)
+    f_main = Frame(L_MARGIN + RAIL_W + GUTTER, B_MARGIN, MAIN_W, hoehe,
+                   id='main', **rand)
+
+    doc = BaseDocTemplate(
         out, pagesize=A4,
         leftMargin=L_MARGIN, rightMargin=R_MARGIN,
         topMargin=T_MARGIN, bottomMargin=B_MARGIN,
         title=TEXTE[sprache_aus_cfg(cfg)]['pdf_titel'], author='Hamza Öztürk',
         subject=subject, creator='Python / ReportLab',
     )
-    story = []
-    build(story, make_styles(tighten), doc.width, cfg)
-    doc.build(story, onFirstPage=_draw_page, onLaterPages=_draw_page)
+    doc.addPageTemplates([
+        PageTemplate(id='cv', frames=[f_rail, f_main], onPage=_draw_page),
+    ])
+
+    rail, main = baue_spalten(make_styles(tighten), cfg)
+    doc.build(rail + [FrameBreak()] + main)
     return doc.page
 
 
