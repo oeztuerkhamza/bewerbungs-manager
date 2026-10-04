@@ -1074,10 +1074,12 @@ TEXTE = {
             'Aufenthalts- &amp; Arbeitserlaubnis',
         ],
         'bildungsweg':  BILDUNGSWEG,
+        # Stufe plus kurze Einordnung. Der Klammerzusatz dahinter stand
+        # ohnehin doppelt: die IHK-Ausbildung auf Deutsch steht in der
+        # Ausbildung.
         'sprachen': [
             ('Türkisch',  'Muttersprache'),
-            ('Deutsch',   'C1 – verhandlungssicher (Sprachausbildung und '
-                          'IHK-Ausbildung auf Deutsch abgeschlossen)'),
+            ('Deutsch',   'C1 – verhandlungssicher'),
             ('Englisch',  'B2 – sicher in Wort und Schrift'),
         ],
         'pdf_titel':    'Lebenslauf – Hamza Öztürk',
@@ -1100,9 +1102,7 @@ TEXTE = {
         'bildungsweg':  BILDUNGSWEG_EN,
         'sprachen': [
             ('Turkish',  'native speaker'),
-            ('German',   'C1 – full professional proficiency (language '
-                         'training and IHK vocational training completed '
-                         'in German)'),
+            ('German',   'C1 – full professional proficiency'),
             ('English',  'B2 – confident in speech and writing'),
         ],
         'pdf_titel':    'Curriculum Vitae – Hamza Öztürk',
