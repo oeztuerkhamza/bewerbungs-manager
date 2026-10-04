@@ -30,35 +30,40 @@ FOTO_PATH     = os.path.join(BASE_DIR, "foto_small.jpeg")
 SIGNATUR_PATH = os.path.join(BASE_DIR, "sıgnatur.png")
 
 # ─── LAYOUT ──────────────────────────────────────────────────────────────────
-# Grosszuegige, gleichmaessige Raender. Ein Lebenslauf wirkt nicht dadurch
-# hochwertig, dass die Seite voll ist, sondern dadurch, dass er Luft hat.
 L_MARGIN  = 1.30 * cm
 R_MARGIN  = 1.30 * cm
 T_MARGIN  = 0.95 * cm
 B_MARGIN  = 0.75 * cm
-SEC_GAP   = 0.27 * cm
+SEC_GAP   = 0.38 * cm
 
-# Zweispaltig: links eine schmale Seitenspalte, rechts der Lauftext. Die
-# kurzen Listen (Kenntnisse, Sprachen, Kontakt) stehen in der schmalen
-# Spalte richtig; im Seitenformat liefen sie vorher quer ueber die Breite.
-# 4,9 cm entsprechen zugleich dem ueblichen Seitenverhaeltnis eines
-# Bewerbungsfotos (4,5 x 6 cm), wenn das Foto die Spaltenbreite fuellt.
-RAIL_W    = 4.90 * cm
-GUTTER    = 0.75 * cm
-MAIN_W    = A4[0] - L_MARGIN - R_MARGIN - RAIL_W - GUTTER
-PHOTO_H   = 6.50 * cm
+# Die dunkle Spalte laeuft randabfallend von x=0 bis RAIL_BG_W ueber die
+# ganze Seitenhoehe; das Foto sitzt oben darin, ebenfalls randabfallend.
+RAIL_BG_W = 6.10 * cm          # Breite der Farbflaeche
+RAIL_X    = 0.95 * cm          # linker Satzspiegel innerhalb der Flaeche
+RAIL_W    = 4.45 * cm          # Textbreite in der Spalte
+FOTO_H    = 6.60 * cm          # Hoehe des randabfallenden Fotos
+FOTO_GAP  = 0.70 * cm          # Abstand Foto -> erster Block
+MAIN_X    = RAIL_BG_W + 0.75 * cm
+MAIN_W    = A4[0] - MAIN_X - R_MARGIN
 
 # ─── COLOURS ─────────────────────────────────────────────────────────────────
-# Eine Akzentfarbe, zwei Grautoene, zwei Linienstaerken - mehr braucht es
-# nicht. Farbige Flaechen und bunte Icons sind bewusst entfallen.
-NAVY      = HexColor('#17355E')   # Name, Abschnitte, Labels
-ACCENT    = HexColor('#2C5AA0')   # Links
+# Ein Navy traegt das Dokument: als Flaeche links, als Schriftfarbe rechts.
+NAVY      = HexColor('#15314F')   # Flaeche der Seitenspalte, Abschnitte
+ACCENT    = HexColor('#2C5AA0')   # Links in der Hauptspalte
 DARK      = HexColor('#1E1E1E')   # Fliesstext
-GRAY      = HexColor('#55595F')   # Zweitzeilen, Kontaktdaten
+GRAY      = HexColor('#55595F')   # Zweitzeilen
 LGRAY     = HexColor('#8A8F97')   # Zeitraeume, Fusszeile
 BULLET_C  = HexColor('#8694AB')   # Aufzaehlungspunkte
-RULE_HD   = HexColor('#A9B6C8')   # Linie unter den Abschnittstiteln
-RULE_C    = HexColor('#DFE3E9')   # Haarlinien in Tabellen
+RULE_HD   = HexColor('#A9B6C8')   # Linie unter Abschnittstiteln (hell)
+RULE_C    = HexColor('#DFE3E9')   # Haarlinien
+
+# Auf der dunklen Flaeche gelten eigene Werte: reines Weiss nur fuer das,
+# was wirklich zuerst gelesen werden soll.
+RAIL_HEAD = HexColor('#FFFFFF')
+RAIL_LBL  = HexColor('#FFFFFF')
+RAIL_TXT  = HexColor('#C9D4E3')
+RAIL_LINK = HexColor('#9FC3EC')
+RAIL_RULE = HexColor('#3E5F86')
 
 # ─── FONTS ───────────────────────────────────────────────────────────────────
 WIN_FONTS = r"C:\Windows\Fonts"
@@ -123,29 +128,29 @@ def make_styles(tighten=0.0):
             alignment=align, leftIndent=leftIndent, **kw,
         )
     return {
-        'name':        ps('name',        'CV-B', 22, NAVY, leading=24),
-        'section':     ps('section',     'CV-B', 9.0, NAVY, leading=11),
-        'section_rail': ps('section_rail', 'CV-B', 8.2, NAVY, leading=10),
+        'name':        ps('name',        'CV-B', 22, NAVY, leading=23.5),
+        'section':     ps('section',     'CV-B', 9.6, NAVY, leading=11.4),
+        'section_rail': ps('section_rail', 'CV-B', 8.5, RAIL_HEAD, leading=10.4),
         # Hauptspalte
-        'profile':     ps('profile',     'CV-R', 8.5, DARK, leading=10.6,
+        'profile':     ps('profile',     'CV-R', 8.5, DARK, leading=11.4,
                           align=TA_LEFT),
-        'entry_title': ps('entry_title', 'CV-B', 9.0, DARK, leading=11.0),
-        'entry_meta':  ps('entry_meta',  'CV-R', 7.9, LGRAY, leading=10.0,
-                          spaceAfter=1.5),
-        'bullet':      ps('bullet',      'CV-R', 8.4, DARK, leading=10.2,
+        'entry_title': ps('entry_title', 'CV-B', 9.2, DARK, leading=11.2),
+        'entry_meta':  ps('entry_meta',  'CV-R', 7.8, LGRAY, leading=10.0,
+                          spaceAfter=2.5),
+        'bullet':      ps('bullet',      'CV-R', 8.5, DARK, leading=11.2,
                           spaceAfter=0.4, leftIndent=9, align=TA_LEFT,
                           bulletIndent=0, bulletFontName='CV-R',
                           bulletFontSize=7.4, bulletColor=BULLET_C),
-        'edu_title':   ps('edu_title',   'CV-B', 8.8, DARK, leading=10.8),
-        'edu_bullet':  ps('edu_bullet',  'CV-R', 8.3, DARK, leading=10.0,
+        'edu_title':   ps('edu_title',   'CV-B', 9.2, DARK, leading=11.2),
+        'edu_bullet':  ps('edu_bullet',  'CV-R', 8.5, DARK, leading=11.2,
                           spaceAfter=0.4, leftIndent=9, align=TA_LEFT,
                           bulletIndent=0, bulletFontName='CV-R',
                           bulletFontSize=7.4, bulletColor=BULLET_C),
-        'footer':      ps('footer',      'CV-R', 8, LGRAY, leading=10.4),
-        # Seitenspalte
-        'rail_txt':    ps('rail_txt',    'CV-R', 7.9, GRAY, leading=10.4),
-        'rail_lbl':    ps('rail_lbl',    'CV-B', 8.0, NAVY, leading=10.4),
-        'rail_val':    ps('rail_val',    'CV-R', 7.9, DARK, leading=9.9),
+        'footer':      ps('footer',      'CV-R', 7.8, LGRAY, leading=10.2),
+        # Seitenspalte: heller Text auf dunkler Flaeche
+        'rail_txt':    ps('rail_txt',    'CV-R', 7.8, RAIL_TXT, leading=10.4),
+        'rail_lbl':    ps('rail_lbl',    'CV-B', 8.0, RAIL_LBL, leading=10.4),
+        'rail_val':    ps('rail_val',    'CV-R', 7.8, RAIL_TXT, leading=9.6),
     }
 
 # ─── CUSTOM FLOWABLES ───────────────────────────────────────────────────────
@@ -205,13 +210,13 @@ TRACK_RATIO = 0.10
 
 
 class SectionHeading(TrackedLine):
-    """Abschnittstitel: gesperrte Versalien in Navy ueber einer Haarlinie."""
+    """Abschnittstitel: gesperrte Versalien ueber einer Haarlinie."""
 
-    def __init__(self, text, style):
+    def __init__(self, text, style, rule=None):
         super().__init__(text, style.fontName, style.fontSize,
                          style.textColor,
                          track=round(style.fontSize * TRACK_RATIO, 2),
-                         rule=RULE_HD, rule_width=0.7, gap=4.2)
+                         rule=rule or RULE_HD, rule_width=0.7, gap=4.2)
 
 
 class HRule(Flowable):
@@ -239,64 +244,36 @@ class HRule(Flowable):
         c.restoreState()
 
 
-class RectPhotoFrame(Flowable):
-    """Rechteckiges Bewerbungsfoto im Hochformat.
+def foto_zeichnen(c, pfad, x, y, w, h, focus=0.60):
+    """Foto formatfuellend in ein Rechteck zeichnen (Ueberstand beschnitten).
 
-    Deutsche Bewerbungsfotos sind rechteckig; das runde Portrait wirkte eher
-    wie ein Profilbild aus einem sozialen Netzwerk. 'focus' verschiebt den
-    Bildausschnitt nach oben, damit das Gesicht sitzt.
+    'focus' verschiebt den Ausschnitt nach oben, damit das Gesicht sitzt.
     """
-
-    def __init__(self, path, w, h, focus=0.60, border=0.6):
-        super().__init__()
-        self.img_path = path
-        self.img_w = w
-        self.img_h = h
-        self.focus = focus
-        self.border = border
-        self.width = w
-        self.height = h
-
-    def wrap(self, aw, ah):
-        return self.width, self.height
-
-    def draw(self):
-        c = self.canv
-        if os.path.isfile(self.img_path):
-            c.saveState()
-            p = c.beginPath()
-            p.rect(0, 0, self.img_w, self.img_h)
-            c.clipPath(p, stroke=0)
-            try:
-                from reportlab.lib.utils import ImageReader
-                nat_w, nat_h = ImageReader(self.img_path).getSize()
-            except Exception:
-                nat_w, nat_h = self.img_w, self.img_h
-            if nat_w <= 0 or nat_h <= 0:
-                nat_w, nat_h = self.img_w, self.img_h
-            scale = max(self.img_w / nat_w, self.img_h / nat_h)
-            draw_w, draw_h = nat_w * scale, nat_h * scale
-            ox = (self.img_w - draw_w) / 2
-            oy = -(draw_h - self.img_h) * (1.0 - self.focus)
-            c.drawImage(self.img_path, ox, oy, draw_w, draw_h,
-                        preserveAspectRatio=True, mask='auto')
-            c.restoreState()
-        if self.border:
-            c.saveState()
-            c.setStrokeColor(RULE_HD)
-            c.setLineWidth(self.border)
-            c.rect(self.border / 2, self.border / 2,
-                   self.img_w - self.border, self.img_h - self.border,
-                   fill=False, stroke=True)
-            c.restoreState()
-
+    if not os.path.isfile(pfad):
+        return
+    c.saveState()
+    p = c.beginPath()
+    p.rect(x, y, w, h)
+    c.clipPath(p, stroke=0)
+    try:
+        from reportlab.lib.utils import ImageReader
+        nat_w, nat_h = ImageReader(pfad).getSize()
+    except Exception:
+        nat_w, nat_h = w, h
+    if nat_w <= 0 or nat_h <= 0:
+        nat_w, nat_h = w, h
+    skal = max(w / nat_w, h / nat_h)
+    bw, bh = nat_w * skal, nat_h * skal
+    c.drawImage(pfad, x + (w - bw) / 2, y - (bh - h) * (1.0 - focus),
+                bw, bh, preserveAspectRatio=True, mask='auto')
+    c.restoreState()
 
 
 # ─── HELPERS ─────────────────────────────────────────────────────────────────
 def b(t):   return f'<b>{t}</b>'
 def it(t):  return f'<i>{t}</i>'
-def lnk(url, label):
-    return f'<a href="{url}" color="#2C5AA0">{label}</a>'
+def lnk(url, label, farbe='#2C5AA0'):
+    return f'<a href="{url}" color="{farbe}">{label}</a>'
 
 
 # Trenner zwischen den Angaben einer Kontaktzeile. Die bunten PNG-Icons
@@ -310,30 +287,32 @@ def bul(text, sty):
     return Paragraph(text, sty, bulletText=chr(0x2022))
 
 
-def sec(title, sty, key='section'):
+def sec(title, sty, key='section', rule=None, gap=None, nach=3.5):
     """Abschnittstitel mit Luft davor und darunter."""
-    return [Spacer(1, SEC_GAP), SectionHeading(title, sty[key]),
-            Spacer(1, 2.5)]
+    return [Spacer(1, SEC_GAP if gap is None else gap),
+            SectionHeading(title, sty[key], rule=rule), Spacer(1, nach)]
 
 
-def rail_block(titel, sty, zeilen, gap=0.62 * cm):
+def rail_block(titel, sty, zeilen, gap=0.45 * cm):
     """Ein Block der Seitenspalte: Titel, darunter einzeilige Angaben."""
-    out = sec(titel, sty, 'section_rail')
+    out = sec(titel, sty, 'section_rail', rule=RAIL_RULE,
+              gap=0.24 * cm, nach=2.5)
     out += [Paragraph(z, sty['rail_txt']) for z in zeilen]
     out.append(Spacer(1, gap))
     return out
 
 
-def rail_paare(titel, sty, paare, gap=0.62 * cm):
+def rail_paare(titel, sty, paare, gap=0.45 * cm):
     """Ein Block der Seitenspalte aus Label/Wert-Paaren (Kenntnisse, Sprachen).
 
     Label ueber dem Wert statt daneben: in 5,4 cm Breite waere eine
     zweispaltige Tabelle nicht lesbar.
     """
-    out = sec(titel, sty, 'section_rail')
+    out = sec(titel, sty, 'section_rail', rule=RAIL_RULE,
+              gap=0.24 * cm, nach=2.5)
     for i, (label, wert) in enumerate(paare):
         if i:
-            out.append(Spacer(1, 3))
+            out.append(Spacer(1, 2))
         out.append(Paragraph(b(label), sty['rail_lbl']))
         out.append(Paragraph(wert, sty['rail_val']))
     out.append(Spacer(1, gap))
@@ -342,13 +321,19 @@ def rail_paare(titel, sty, paare, gap=0.62 * cm):
 
 # ─── PAGE DECORATION ────────────────────────────────────────────────────────
 def _draw_page(canvas, doc):
-    """Keine Seitendekoration.
+    """Dunkle Spalte ueber die volle Seitenhoehe, Foto randabfallend oben.
 
-    Vorher lagen hier ein Navy-Balken am linken Rand und eine eingefaerbte
-    Kopfflaeche. Beides sind Template-Merkmale; die Struktur traegt jetzt die
-    Typografie (gesperrte Abschnittstitel ueber Haarlinien).
+    Das Foto ist eine dunkle Studioaufnahme; auf weissem Grund war es ein
+    schwarzer Block. In der Farbflaeche gehen Anzug und Hintergrund in die
+    Flaeche ueber, sichtbar bleibt das Gesicht.
     """
-    return
+    w, h = A4
+    canvas.saveState()
+    canvas.setFillColor(NAVY)
+    canvas.rect(0, 0, RAIL_BG_W, h, fill=True, stroke=False)
+    canvas.restoreState()
+    foto_zeichnen(canvas, FOTO_PATH, 0, h - FOTO_H, RAIL_BG_W, FOTO_H,
+                  focus=0.60)
 
 
 
@@ -774,24 +759,9 @@ BILDUNGSWEG = [
                     'C#/.NET und SQL Server.',
     },
     {
-        'period': '02/2023 – 12/2023',
-        'title':  'Deutsch-Sprachausbildung – Abschluss C1',
-        'inst':   'Deutschkolleg Stuttgart',
-    },
-    {
         'period': '05/2022 – 03/2023',
         'title':  'Zertifikat: Data Analytics &amp; Visualization (260 Std.)',
         'inst':   'Clarusway IT School',
-    },
-    {
-        'period': '10/2019 – 08/2022',
-        'title':  'Wirtschaftsingenieurwesen',
-        'inst':   'Technische Universität Istanbul (İTÜ)',
-    },
-    {
-        'period': '08/2015 – 07/2019',
-        'title':  'Militärwissenschaften',
-        'inst':   'Türkische Luftwaffenakademie, Istanbul',
     },
 ]
 
@@ -1078,24 +1048,9 @@ BILDUNGSWEG_EN = [
                     'C#/.NET and SQL Server.',
     },
     {
-        'period': '02/2023 – 12/2023',
-        'title':  'German language training – C1 certificate',
-        'inst':   'Deutschkolleg Stuttgart',
-    },
-    {
         'period': '05/2022 – 03/2023',
         'title':  'Certificate: Data Analytics &amp; Visualization (260 hours)',
         'inst':   'Clarusway IT School',
-    },
-    {
-        'period': '10/2019 – 08/2022',
-        'title':  'Industrial Engineering',
-        'inst':   'Istanbul Technical University (İTÜ)',
-    },
-    {
-        'period': '08/2015 – 07/2019',
-        'title':  'Military Sciences',
-        'inst':   'Turkish Air Force Academy, Istanbul',
     },
 ]
 
@@ -1297,16 +1252,16 @@ def baue_spalten(sty, cfg=None):
         kurzprofil = inhalt['kurzprofil']
 
     # ══ SEITENSPALTE ════════════════════════════════════════════════════
-    rail = [RectPhotoFrame(FOTO_PATH, RAIL_W, PHOTO_H, focus=0.60),
-            Spacer(1, 0.45 * cm)]
-
-    rail += rail_block(texte['h_kontakt'], sty, [
+    # Das Foto zeichnet _draw_page randabfallend; der Fluss beginnt darunter.
+    hell = '#9FC3EC'
+    rail = rail_block(texte['h_kontakt'], sty, [
         'Bissierstr. 16, 79114 Freiburg',
-        lnk('https://wa.me/4915566859378', '+49 155 66859378'),
-        lnk('mailto:oeztuerk.hamza@web.de', 'oeztuerk.hamza@web.de'),
+        lnk('https://wa.me/4915566859378', '+49 155 66859378', hell),
+        lnk('mailto:oeztuerk.hamza@web.de', 'oeztuerk.hamza@web.de', hell),
         lnk('https://linkedin.com/in/hamzaoeztuerk',
-            'linkedin.com/in/hamzaoeztuerk'),
-        lnk('https://github.com/oeztuerkhamza', 'github.com/oeztuerkhamza'),
+            'linkedin.com/in/hamzaoeztuerk', hell),
+        lnk('https://github.com/oeztuerkhamza', 'github.com/oeztuerkhamza',
+            hell),
     ])
     rail += rail_block(texte['h_person'], sty, texte['person'])
     rail += rail_paare(texte['h_skills'], sty, inhalt['skills'])
@@ -1344,7 +1299,7 @@ def baue_spalten(sty, cfg=None):
             meta += SEP + job['sub']
         main.append(eintrag(b(job['title']), meta, job['bullets']))
         if idx < len(inhalt['erfahrung']) - 1:
-            main.append(Spacer(1, 5))
+            main.append(Spacer(1, 7))
 
     # ── Projekte ─────────────────────────────────────────────────────────
     main += sec(texte['h_projekte'], sty)
@@ -1352,7 +1307,7 @@ def baue_spalten(sty, cfg=None):
         titel, meta = projekt['head']
         main.append(eintrag(titel, meta, projekt['bullets']))
         if idx < len(inhalt['projekte']) - 1:
-            main.append(Spacer(1, 4))
+            main.append(Spacer(1, 6))
 
     # ── Ausbildung ───────────────────────────────────────────────────────
     main += sec(texte['h_ausbildung'], sty)
@@ -1365,7 +1320,7 @@ def baue_spalten(sty, cfg=None):
         main.append(eintrag(b(e['title']), meta, detail,
                             titel_stil='edu_title', bullet_stil='edu_bullet'))
         if idx < len(bildungsweg) - 1:
-            main.append(Spacer(1, 3))
+            main.append(Spacer(1, 5))
 
     # ── Ort, Datum, Unterschrift ─────────────────────────────────────────
     main.append(Spacer(1, 0.34 * cm))
@@ -1394,10 +1349,13 @@ def _baue_pdf(out, cfg, tighten, subject):
     Text auch im PDF in dieser Reihenfolge - wichtig, damit Bewerbungs-
     portale beim Auslesen nicht zwischen den Spalten hin und her springen.
     """
-    hoehe = A4[1] - T_MARGIN - B_MARGIN
+    H = A4[1]
     rand = dict(leftPadding=0, rightPadding=0, topPadding=0, bottomPadding=0)
-    f_rail = Frame(L_MARGIN, B_MARGIN, RAIL_W, hoehe, id='rail', **rand)
-    f_main = Frame(L_MARGIN + RAIL_W + GUTTER, B_MARGIN, MAIN_W, hoehe,
+    # Die Spalte beginnt unter dem randabfallenden Foto, die Hauptspalte
+    # nutzt die volle Seitenhoehe - deshalb kostet die Spalte sie nichts.
+    rail_h = H - FOTO_H - FOTO_GAP - B_MARGIN
+    f_rail = Frame(RAIL_X, B_MARGIN, RAIL_W, rail_h, id='rail', **rand)
+    f_main = Frame(MAIN_X, B_MARGIN, MAIN_W, H - T_MARGIN - B_MARGIN,
                    id='main', **rand)
 
     doc = BaseDocTemplate(
