@@ -429,9 +429,9 @@ ERFAHRUNG_FULLSTACK = [
         'period': '03/2026 – heute',
         'sub':    _LNK_BIKEHAUS,
         'bullets': [
-            'Warenwirtschafts- und Vermietungsplattform konzipiert, entwickelt '
-            'und betrieben: <b>.NET 9</b>-API (40 Controller, 46 Entities), '
-            'Angular 17 Admin-SPA und SSR-Homepage — produktiv im Tagesgeschäft.',
+            'Warenwirtschafts- und Vermietungsplattform von der Konzeption '
+            'bis zum Betrieb verantwortet: <b>.NET 9</b>-API, Angular 17 '
+            'Admin-SPA und SSR-Homepage — der Betrieb arbeitet täglich damit.',
 
             'Beleglauf papierlos: Online-Buchung, PDF-Belege mit QR-Code, '
             'digitale Unterschrift, Kaution — <b>über 2.000 Belege</b> und '
@@ -441,13 +441,14 @@ ERFAHRUNG_FULLSTACK = [
             'Prerendering, IndexNow): <b>342.000 Impressionen und 13.000 '
             'organische Klicks in 6 Monaten</b>.',
 
-            'KI-Assistenten für Gmail, WhatsApp und Kleinanzeigen '
-            '(<b>OpenAI API</b>), Kleinanzeigen-Scraper mit Playwright, '
-            'automatisierte Newsletter- und Backup-Services.',
+            '<b>KI-Features im Produktivbetrieb</b>: Assistenten für Gmail, '
+            'WhatsApp und Kleinanzeigen auf OpenAI API mit mehrsprachigen '
+            'Antwortentwürfen, Kleinanzeigen-Scraper mit Playwright.',
 
-            'Betrieb &amp; DevOps: 6-Container-Docker-Stack auf eigenem VPS, '
-            '<b>GitHub Actions</b> CI/CD mit Zero-Downtime-Deployment, Nginx, '
-            'eigener Mailserver (DKIM/SPF/DMARC).',
+            'Den gesamten Betrieb selbst in der Hand: 6-Container-<b>Docker</b>'
+            '-Stack auf eigenem VPS, GitHub Actions CI/CD mit '
+            'Zero-Downtime-Deployment, Nginx mit TLS und HSTS/CSP, eigener '
+            'Mailserver mit DKIM/SPF/DMARC.',
         ],
     },
     {
@@ -467,9 +468,9 @@ ERFAHRUNG_FULLSTACK = [
             'SQL Server); CI/CD mit GitHub Actions und Azure DevOps — '
             'Deployment-Zeit um <b>40 %</b> reduziert.',
 
-            '<b>15+ Angular-Komponenten</b> mit NgRx und Reactive Forms; '
-            'Unit- und Integrationstests mit xUnit und Moq, Testabdeckung '
-            'auf über <b>60 %</b> gesteigert.',
+            'Frontend-Module mit <b>Angular</b>, NgRx und Reactive Forms; '
+            'Unit- und Integrationstests mit xUnit und Moq fest in der '
+            'Pipeline, Testabdeckung auf über <b>60 %</b> gesteigert.',
         ],
     },
 ]
@@ -816,9 +817,9 @@ ERFAHRUNG_FULLSTACK_EN = [
         'period': '03/2026 – present',
         'sub':    _LNK_BIKEHAUS,
         'bullets': [
-            'Designed, built and operate an in-house inventory and rental '
-            'platform: <b>.NET 9</b> API (40 controllers, 46 entities), '
-            'Angular 17 admin SPA and SSR website — in productive daily use.',
+            'Owned an in-house inventory and rental platform from concept to '
+            'operation: <b>.NET 9</b> API, Angular 17 admin SPA and SSR '
+            'website — the business runs on it every day.',
 
             'Paperless document flow: online booking, PDF documents with QR '
             'code, digital signature, deposit — <b>more than 2,000 '
@@ -828,13 +829,14 @@ ERFAHRUNG_FULLSTACK_EN = [
             'prerendering, IndexNow): <b>342,000 impressions and 13,000 '
             'organic clicks within 6 months</b>.',
 
-            'AI assistants for Gmail, WhatsApp and Kleinanzeigen '
-            '(<b>OpenAI API</b>), Kleinanzeigen scraper with Playwright, '
-            'automated newsletter and backup services.',
+            '<b>AI features in production</b>: assistants for Gmail, WhatsApp '
+            'and Kleinanzeigen on the OpenAI API with multilingual reply '
+            'drafts, Kleinanzeigen scraper with Playwright.',
 
-            'Operations &amp; DevOps: 6-container Docker stack on an own VPS, '
-            '<b>GitHub Actions</b> CI/CD with zero-downtime deployment, '
-            'Nginx, own mail server (DKIM/SPF/DMARC).',
+            'Run the whole operation myself: 6-container <b>Docker</b> stack '
+            'on an own VPS, GitHub Actions CI/CD with zero-downtime '
+            'deployment, Nginx with TLS and HSTS/CSP, own mail server with '
+            'DKIM/SPF/DMARC.',
         ],
     },
     {
@@ -854,9 +856,9 @@ ERFAHRUNG_FULLSTACK_EN = [
             'SQL Server); CI/CD with GitHub Actions and Azure DevOps — '
             'deployment time reduced by <b>40%</b>.',
 
-            '<b>15+ Angular components</b> with NgRx and reactive forms; '
-            'unit and integration tests with xUnit and Moq, test coverage '
-            'raised above <b>60%</b>.',
+            'Frontend modules with <b>Angular</b>, NgRx and reactive forms; '
+            'unit and integration tests with xUnit and Moq wired into the '
+            'pipeline, test coverage raised above <b>60%</b>.',
         ],
     },
 ]
