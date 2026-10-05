@@ -616,6 +616,15 @@ class BewerbungsApp(tk.Tk):
                 cfg['variante'] = gen_l.erkenne_variante(
                     cfg.get('stelle'), cfg.get('betreff'), job_text)
                 cfg['sprache'] = gen_l.erkenne_sprache(job_text)
+                # Der Anzeigentext bleibt in der Konfiguration: der
+                # Lebenslauf sortiert die IT-Kenntnisse danach.
+                cfg['stellentext'] = job_text
+                try:
+                    import stellen_abgleich
+                    self._log('')
+                    self._log(stellen_abgleich.bericht(job_text))
+                except Exception as fehler:
+                    self._log(f'Abgleich uebersprungen: {fehler}')
 
                 # 5) Populate GUI
                 self.after(0, lambda: self._apply_ki_result(cfg, then_pdf))

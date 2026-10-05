@@ -23,6 +23,12 @@ from reportlab.pdfbase.ttfonts import TTFont
 
 from pdf_text_utils import esc, esc_rich
 
+try:
+    from stellen_abgleich import sortiere_skills
+except ImportError:          # Modul fehlt -> Lebenslauf bleibt unsortiert
+    def sortiere_skills(skills, stellentext):
+        return list(skills)
+
 # ─── PATHS ────────────────────────────────────────────────────────────────────
 BASE_DIR      = os.path.dirname(os.path.abspath(__file__))
 OUTPUT        = os.path.join(BASE_DIR, "Hamza_Oeztuerk_Lebenslauf_Fullstack_Entwickler.pdf")
@@ -1267,7 +1273,11 @@ def baue_spalten(sty, cfg=None):
             hell),
     ])
     rail += rail_block(texte['h_person'], sty, texte['person'])
-    rail += rail_paare(texte['h_skills'], sty, inhalt['skills'])
+    # Liegt der Text der Anzeige vor, wandern die dort geforderten
+    # Kenntnisse nach vorne. Es kommt nichts dazu - nur die Reihenfolge
+    # aendert sich, damit der Leser seine eigenen Stichworte zuerst sieht.
+    skills = sortiere_skills(inhalt['skills'], cfg.get('stellentext'))
+    rail += rail_paare(texte['h_skills'], sty, skills)
     rail += rail_paare(texte['h_sprachen'], sty, texte['sprachen'], gap=0)
 
     # ══ HAUPTSPALTE ═════════════════════════════════════════════════════
