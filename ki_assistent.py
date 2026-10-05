@@ -6,6 +6,7 @@ Liest Stellenanzeigen und erstellt maßgeschneiderte Bewerbungsunterlagen.
 """
 
 import json
+import os
 import re
 import time
 import urllib.request
@@ -328,9 +329,19 @@ def _parse_claude_json(text):
     return json.loads(candidate)
 
 
+# Modell fuer alle Claude-Aufrufe: Lebenslauf-Zuschnitt, Anschreiben und
+# Initiativbewerbung laufen ueber _request_claude. Opus ist das staerkste
+# Modell der Reihe. Je Bewerbung fallen ein bis zwei Aufrufe an, der
+# Preisunterschied ist also gering - die Textqualitaet entscheidet dagegen
+# mit darueber, ob die Bewerbung gelesen wird.
+# Schneller und guenstiger waere "claude-sonnet-5-5"; zum Ausprobieren ohne
+# Codeaenderung: Umgebungsvariable CLAUDE_MODELL setzen.
+MODELL = os.environ.get('CLAUDE_MODELL', 'claude-opus-5-5')
+
+
 def _request_claude(api_key, system_prompt, user_msg, max_tokens=8192):
     body = json.dumps({
-        "model": "claude-sonnet-4-6",
+        "model": MODELL,
         "max_tokens": max_tokens,
         "system": system_prompt,
         "messages": [{"role": "user", "content": user_msg}],
