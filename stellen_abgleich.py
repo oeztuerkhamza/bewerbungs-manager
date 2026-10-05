@@ -513,6 +513,38 @@ def mit_vergleichen(skills, stellentext, hoechstens=2):
     return ergebnis
 
 
+def fakten_fuer_ki(stellentext):
+    """Faktenblock fuer die Anschreiben-Erzeugung.
+
+    Zwei Listen, die das Modell unterschiedlich behandeln muss: was nur
+    anders heisst, und was wirklich fehlt. Ohne die zweite Liste wuerde ein
+    Sprachmodell die Luecken irgendwann weichzeichnen.
+    """
+    _, luecken, _ = abgleich(stellentext)
+    nah = verwandte(luecken, naehe='nah')
+    zeilen = []
+
+    if nah:
+        gruppen = {}
+        for _, e in nah:
+            gruppen.setdefault((e['gemeinsam'], tuple(e['habe'])), []).append(e['name'])
+        zeilen.append('WERKZEUG-ENTSPRECHUNGEN (automatischer Abgleich mit '
+                      'dieser Anzeige):')
+        for (gemeinsam, habe), namen in gruppen.items():
+            zeilen.append('- Die Anzeige nennt %s. Der Bewerber loest %s mit %s.'
+                          % (_und(namen), gemeinsam, _und(habe)))
+
+    offen_echt = [n for n in luecken if n not in dict(nah)]
+    if offen_echt:
+        if zeilen:
+            zeilen.append('')
+        zeilen.append('ECHTE LUECKEN – nicht behaupten, nicht umschreiben, '
+                      'nicht als vorhanden andeuten:')
+        zeilen.append('- ' + ', '.join(offen_echt))
+
+    return '\n'.join(zeilen)
+
+
 # ─── BERICHT ─────────────────────────────────────────────────────────────────
 def bericht(stellentext):
     """Mehrzeiliger Text zum Mitlesen - fuer die Oberflaeche oder das Terminal."""

@@ -525,6 +525,14 @@ WICHTIG – Anschreiben-Anpassung:
   gefordert ist.
 - absatz_3: relevante eigene Projekte/Erfahrungen mit Bezug zur Stelle.
 - absatz_4: Arbeitsweise & relevante Kompetenzen, passend zum Rollen-Fokus.
+  Liegen WERKZEUG-ENTSPRECHUNGEN bei und verlangt die Anzeige das Werkzeug
+  ausdrücklich, gehört HIER ein Satz dazu – höchstens einer, auch wenn es
+  mehrere Entsprechungen gibt. Aufbau: erst ehrlich das fehlende Werkzeug
+  nennen, dann das eigene für dieselbe Aufgabe. Niemals so formulieren, als
+  sei das geforderte Werkzeug vorhanden, und niemals ein Werkzeug aus
+  "ECHTE LÜCKEN" beschönigen oder andeuten. Wird das Werkzeug in der Anzeige
+  nur beiläufig erwähnt, lass den Satz weg – er kostet sonst Platz und
+  klingt nach Rechtfertigung.
 - absatz_5: Schluss – Motivation, Gesprächswunsch.
 - absatz_3 und absatz_4 stellen den Bezug zum ARBEITGEBER her (seine Branche,
   seine Systeme, seine Aufgaben) – keine weitere Selbstbeschreibung.
@@ -611,6 +619,16 @@ def call_claude(api_key, job_text, extra_instructions=""):
         f"BEWERBER-PROFIL:\n{MEIN_PROFIL}\n\n"
         f"STELLENANZEIGE:\n{job_text}"
     )
+    # Werkzeuge, die in der Anzeige anders heissen als im Profil, werden
+    # vorab bestimmt und als Fakten uebergeben - nicht als fertiger Satz,
+    # damit die Formulierung zum Rest des Briefs passt.
+    try:
+        import stellen_abgleich
+        fakten = stellen_abgleich.fakten_fuer_ki(job_text)
+        if fakten:
+            user_msg += f"\n\n{fakten}"
+    except Exception:
+        pass        # Abgleich ist Kuer - ohne ihn laeuft alles wie bisher
     if extra_instructions.strip():
         user_msg += f"\n\nZUSÄTZLICHE HINWEISE DES BEWERBERS:\n{extra_instructions}"
 
