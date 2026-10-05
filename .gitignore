@@ -49,3 +49,6 @@ GitHub-Profile/
 
 # Generierte Stellenliste (py jobsuche.py)
 junior_stellen.html
+
+# Zwischenspeicher der geholten Anzeigentexte (py jobsuche.py --bewerten)
+.anzeigen_cache.json

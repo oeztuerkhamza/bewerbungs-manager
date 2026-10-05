@@ -259,6 +259,85 @@ def aufbereiten(rohdaten, beworbene):
     return zeilen
 
 
+# ─── BEWERTUNG GEGEN DAS EIGENE PROFIL ───────────────────────────────────────
+# Die Trefferliste allein hilft wenig, wenn 259 Anzeigen darin stehen. Mit
+# dem Volltext laesst sich je Anzeige sagen, wie viel von dem Geforderten
+# im Profil belegt ist - und danach kann sortiert werden.
+CACHE_DATEI = os.path.join(BASE_DIR, '.anzeigen_cache.json')
+
+
+def _cache_laden():
+    try:
+        with io.open(CACHE_DATEI, encoding='utf-8') as f:
+            return json.load(f)
+    except (OSError, ValueError):
+        return {}
+
+
+def _cache_speichern(cache):
+    try:
+        with io.open(CACHE_DATEI, 'w', encoding='utf-8') as f:
+            json.dump(cache, f, ensure_ascii=False)
+    except OSError:
+        pass        # Cache ist Beschleunigung, kein Muss
+
+
+def bewerte(zeilen, nur_unbeworbene=True, hoechstens=0):
+    """Holt den Anzeigentext und vergleicht ihn mit dem eigenen Profil.
+
+    Gibt die Anzahl bewerteter Anzeigen zurueck. Texte werden zwischen zwei
+    Laeufen gespeichert, ein zweiter Durchgang ist deshalb sofort fertig.
+    """
+    try:
+        import stellen_abgleich
+        import ki_assistent
+    except ImportError as fehler:
+        print('Bewertung nicht moeglich: %s' % fehler)
+        return 0
+
+    offen = [z for z in zeilen if not (nur_unbeworbene and z['beworben'])]
+    if hoechstens:
+        offen = offen[:hoechstens]
+
+    cache = _cache_laden()
+    geholt = 0
+    for nr, z in enumerate(offen, 1):
+        text = cache.get(z['url'])
+        if text is None:
+            try:
+                text = ki_assistent.fetch_job_text(z['url'])
+            except Exception:
+                text = ''
+            cache[z['url']] = text
+            geholt += 1
+            time.sleep(PAUSE)
+            if geholt % 25 == 0:
+                print('  %d von %d geladen ...' % (nr, len(offen)))
+                _cache_speichern(cache)
+        if not text:
+            continue
+
+        treffer, luecken, _ = stellen_abgleich.abgleich(text)
+        nah = [n for n, _e in stellen_abgleich.verwandte(luecken, naehe='nah')]
+        echte = [n for n in luecken if n not in nah]
+        gefordert = len(treffer) + len(nah) + len(echte)
+        z['n_treffer'] = len(treffer)
+        z['treffer'] = sorted(treffer)[:8]
+        z['nah'] = nah
+        z['luecken'] = echte
+        # Unter drei erkannten Anforderungen sagt eine Quote nichts aus -
+        # dann lieber keine Zahl als eine, die Sicherheit vortaeuscht.
+        z['gefordert'] = gefordert
+        z['passung'] = (round(100.0 * (len(treffer) + 0.5 * len(nah))
+                              / gefordert) if gefordert >= 4 else None)
+
+    _cache_speichern(cache)
+    bewertet = sum(1 for z in zeilen if z.get('passung') is not None)
+    print('%d Anzeigen bewertet (%d neu geladen, Rest aus dem Zwischenspeicher).'
+          % (bewertet, geholt))
+    return bewertet
+
+
 # ─── HTML ────────────────────────────────────────────────────────────────────
 HTML_KOPF = """<!doctype html>
 <meta charset="utf-8">
@@ -365,11 +444,15 @@ def baue_html(zeilen, veroeffentlicht_seit):
                  'ohne bereits beworbene</label>')
     teile.append('<label><input type="checkbox" id="nurgehalt"> '
                  'nur mit Gehaltsangabe</label>')
+    teile.append('<label>ab Passung <input type="number" id="minpassung" '
+                 'min="0" max="100" step="10" style="width:76px" '
+                 'placeholder="beliebig"> %</label>')
     teile.append('</div>')
 
     teile.append('<div id="status"></div>')
     teile.append('<div class="wrap"><table><thead><tr>')
-    spalten = [('titel', 'Stelle'), ('firma', 'Firma'), ('ort', 'Ort'),
+    spalten = [('passung', 'Passung'), ('titel', 'Stelle'),
+               ('firma', 'Firma'), ('ort', 'Ort'),
                ('km', 'km'), ('gehalt_von', 'Gehalt'),
                ('eintritt', 'Eintritt'), ('veroeffentlicht', 'Ver&ouml;ff.')]
     for feld, kopf in spalten:
@@ -393,6 +476,21 @@ let sortFeld = null, sortAuf = true;
 
 
 function euro(n){ return n ? n.toLocaleString('de-DE') + ' \\u20ac' : ''; }
+
+function passungText(z){
+  if (z.passung === undefined || z.passung === null)
+    return '<span class="leise">&ndash;</span>';
+  // Gruen ab zwei Dritteln, rot unter der Haelfte, dazwischen neutral.
+  const f = z.passung >= 67 ? '#1b7a3d' : (z.passung < 50 ? '#9a3412' : '#555');
+  const hinweis = ['belegt: ' + (z.treffer || []).join(', ')]
+    .concat((z.nah || []).length ? ['anderes Werkzeug: ' + z.nah.join(', ')] : [])
+    .concat((z.luecken || []).length ? ['fehlt: ' + z.luecken.join(', ')] : [])
+    .join(' | ').replace(/"/g, '');
+  // Die Zahl der erkannten Anforderungen steht daneben: 100 % aus vier
+  // Treffern sagen weniger als 85 % aus fuenfzehn.
+  return '<b style="color:' + f + '" title="' + hinweis + '">'
+    + z.passung + '%</b><div class="leise">' + (z.gefordert || 0) + ' Anf.</div>';
+}
 
 function gehaltText(z){
   if (!z.gehalt_von && !z.gehalt_bis) return '<span class="leise">&ndash;</span>';
@@ -422,11 +520,23 @@ function passt(z){
   if ($('nureinstieg').checked && !z.einstieg) return false;
   if ($('ohnebeworben').checked && z.beworben) return false;
   if ($('nurgehalt').checked && !z.gehalt_von && !z.gehalt_bis) return false;
+  const minp = parseFloat($('minpassung').value);
+  if (!isNaN(minp) && (z.passung === undefined || z.passung === null
+                       || z.passung < minp)) return false;
   return true;
 }
 
 function sortiere(liste){
-  if (!sortFeld) return liste;
+  if (!sortFeld){
+    // Ohne eigene Sortierung: beste Passung nach oben, Unbewertetes ans Ende.
+    if (liste.some((z) => z.passung !== undefined && z.passung !== null))
+      return liste.slice().sort((a, b) => {
+        const pa = (a.passung === null || a.passung === undefined) ? -1 : a.passung;
+        const pb = (b.passung === null || b.passung === undefined) ? -1 : b.passung;
+        return pb - pa || (b.gefordert || 0) - (a.gefordert || 0);
+      });
+    return liste;
+  }
   const richtung = sortAuf ? 1 : -1;
   return liste.slice().sort((a, b) => {
     let x = a[sortFeld], y = b[sortFeld];
@@ -445,6 +555,7 @@ function zeichne(){
       + (z.unbefristet ? '' : '<span class="tag">befristet</span>')
       + (z.vollzeit ? '' : '<span class="tag">Teilzeit</span>');
     return '<tr>'
+      + '<td class="zahl">' + passungText(z) + '</td>'
       + '<td><a href="' + z.url + '" target="_blank" rel="noopener">'
         + z.titel + '</a>' + tags
         + (z.beruf ? '<div class="leise">' + z.beruf + '</div>' : '') + '</td>'
@@ -473,7 +584,8 @@ document.querySelectorAll('th[data-feld]').forEach((th) => {
     zeichne();
   });
 });
-['q', 'land', 'maxkm', 'mingehalt', 'nureinstieg', 'ohnebeworben', 'nurgehalt']
+['q', 'land', 'maxkm', 'mingehalt', 'nureinstieg', 'ohnebeworben',
+ 'nurgehalt', 'minpassung']
   .forEach((id) => {
     $(id).addEventListener('input', zeichne);
     $(id).addEventListener('change', zeichne);
@@ -484,12 +596,14 @@ zeichne();
 
 # ─── MAIN ────────────────────────────────────────────────────────────────────
 def main():
+    args = [a for a in sys.argv[1:] if not a.startswith('--')]
+    bewerten = '--bewerten' in sys.argv
     seit = None
-    if len(sys.argv) > 1:
+    if args:
         try:
-            seit = int(sys.argv[1])
+            seit = int(args[0])
         except ValueError:
-            print('Nutzung: py jobsuche.py [Tage]')
+            print('Nutzung: py jobsuche.py [Tage] [--bewerten]')
             return 2
 
     print('Suche Stellenanzeigen (%s) ...'
@@ -506,11 +620,18 @@ def main():
               % len(beworbene))
 
     zeilen = aufbereiten(roh, beworbene)
+    if bewerten:
+        print('')
+        print('Bewerte Anzeigen gegen das eigene Profil ...')
+        bewerte(zeilen)
     io.open(OUTPUT, 'w', encoding='utf-8', newline='\n').write(
         baue_html(zeilen, seit))
 
     print('\n%d Anzeigen nach Filter (von %d Rohtreffern).'
           % (len(zeilen), len(roh)))
+    if not bewerten:
+        print('Tipp: py jobsuche.py --bewerten vergleicht jede Anzeige mit '
+              'deinem Profil und sortiert danach.')
     print('Seite geschrieben:\n  %s' % OUTPUT)
     return 0
 
