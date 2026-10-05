@@ -24,12 +24,16 @@ from reportlab.pdfbase.ttfonts import TTFont
 from pdf_text_utils import esc, esc_rich
 
 try:
-    from stellen_abgleich import sortiere_skills, mit_eigenen
+    from stellen_abgleich import (sortiere_skills, mit_eigenen,
+                                  mit_vergleichen)
 except ImportError:          # Modul fehlt -> Lebenslauf bleibt wie er ist
     def sortiere_skills(skills, stellentext):
         return list(skills)
 
     def mit_eigenen(skills, variante, sprache='de', kategorien_de=None):
+        return list(skills)
+
+    def mit_vergleichen(skills, stellentext, hoechstens=2):
         return list(skills)
 
 # ─── PATHS ────────────────────────────────────────────────────────────────────
@@ -1284,6 +1288,11 @@ def baue_spalten(sty, cfg=None):
     skills = mit_eigenen(inhalt['skills'], variante, sprache,
                          [l for l, _ in INHALT[SPRACHE_DE][variante]['skills']])
     skills = sortiere_skills(skills, cfg.get('stellentext'))
+    # Nur auf Wunsch: "(vergleichbar: Jenkins)" hinter dem eigenen Werkzeug.
+    # Standardmaessig aus - der Hinweis gehoert eher ins Anschreiben, wo ein
+    # ganzer Satz Platz hat, als in eine Aufzaehlung.
+    if cfg.get('vergleiche'):
+        skills = mit_vergleichen(skills, cfg.get('stellentext'))
     rail += rail_paare(texte['h_skills'], sty, skills)
     rail += rail_paare(texte['h_sprachen'], sty, texte['sprachen'], gap=0)
 

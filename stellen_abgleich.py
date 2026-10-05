@@ -103,6 +103,7 @@ KANN_NICHT = {
     'AWS':              r'\baws\b|amazon\s*web\s*services',
     'Google Cloud':     r'\bgcp\b|google\s*cloud',
     'Jenkins':          r'\bjenkins\b',
+    'GitLab CI':        r'gitlab\s*ci|gitlab-ci',
     'Ansible':          r'\bansible\b|\bpuppet\b|\bchef\b',
     'MongoDB':          r'\bmongo',
     'Redis':            r'\bredis\b',
@@ -121,6 +122,96 @@ KANN_NICHT = {
     'Scrum/Agile':      r'\bscrum\b|\bkanban\b|agil|safe\b',
     'Firewall/VPN':     r'firewall|\bvpn\b|fortigate|sophos|\bpfsense\b',
     'Netzwerk (LAN/WAN)': r'\blan\b|\bwan\b|\bvlan\b|switch|router|netzwerkinfrastruktur',
+}
+
+
+# ─── VERWANDTE WERKZEUGE ─────────────────────────────────────────────────────
+# Eine Anzeige nennt ein Werkzeug, der Bewerber benutzt ein anderes fuer
+# dieselbe Aufgabe. Das ist keine Luecke, sondern eine andere Beschriftung -
+# und genau daran scheitern Bewerbungen, die nur nach Stichworten gefiltert
+# werden.
+#
+# 'naehe' trennt zwei Faelle sauber:
+#   nah      – gleiche Aufgabe, Umstieg ist eine Frage von Tagen. Taugt als
+#              Satz im Anschreiben.
+#   entfernt – verwandtes Feld, aber erkennbar etwas anderes. Wird nur
+#              gemeldet; wer das als gleichwertig verkauft, fliegt auf.
+VERWANDT = {
+    'Jira/Confluence': {
+        'name': 'Jira', 'naehe': 'nah',
+        'habe': ['Azure DevOps'],
+        'gemeinsam': 'Tickets und Backlog im Team',
+    },
+    'Jenkins': {
+        'name': 'Jenkins', 'naehe': 'nah',
+        'habe': ['GitHub Actions', 'Azure DevOps'],
+        'gemeinsam': 'CI/CD-Pipelines',
+    },
+    'GitLab CI': {
+        'name': 'GitLab CI', 'naehe': 'nah',
+        'habe': ['GitHub Actions', 'Azure DevOps'],
+        'gemeinsam': 'CI/CD-Pipelines',
+    },
+    'AWS': {
+        'name': 'AWS', 'naehe': 'nah',
+        'habe': ['Azure'],
+        'gemeinsam': 'den Betrieb in der Public Cloud',
+    },
+    'Google Cloud': {
+        'name': 'Google Cloud', 'naehe': 'nah',
+        'habe': ['Azure'],
+        'gemeinsam': 'den Betrieb in der Public Cloud',
+    },
+    'Vue': {
+        'name': 'Vue', 'naehe': 'nah',
+        'habe': ['Angular', 'React'],
+        'gemeinsam': 'komponentenbasiertes Frontend mit TypeScript',
+    },
+    'Spring': {
+        'name': 'Spring Boot', 'naehe': 'nah',
+        'habe': ['ASP.NET Core'],
+        'gemeinsam': 'ein Backend mit Dependency Injection und ORM',
+    },
+    'Java': {
+        'name': 'Java', 'naehe': 'nah',
+        'habe': ['C#', '.NET'],
+        'gemeinsam': 'objektorientierte Backend-Entwicklung',
+    },
+    'GraphQL': {
+        'name': 'GraphQL', 'naehe': 'entfernt',
+        'habe': ['REST-APIs'],
+        'gemeinsam': 'API-Entwurf und Datenmodellierung',
+    },
+    'Kubernetes': {
+        'name': 'Kubernetes', 'naehe': 'entfernt',
+        'habe': ['Docker', 'Docker Compose'],
+        'gemeinsam': 'das Bauen und Betreiben von Containern',
+    },
+    'Terraform': {
+        'name': 'Terraform', 'naehe': 'entfernt',
+        'habe': ['Docker Compose', 'GitHub Actions'],
+        'gemeinsam': 'das Aufsetzen von Umgebungen aus Dateien',
+    },
+    'Ansible': {
+        'name': 'Ansible', 'naehe': 'entfernt',
+        'habe': ['Bash', 'Python'],
+        'gemeinsam': 'das Automatisieren wiederkehrender Systemaufgaben',
+    },
+    'Exchange': {
+        'name': 'Exchange', 'naehe': 'entfernt',
+        'habe': ['Mailcow (Postfix/Dovecot)'],
+        'gemeinsam': 'den Mailserver mit Postfaechern, SPF, DKIM und DMARC',
+    },
+    'MongoDB': {
+        'name': 'MongoDB', 'naehe': 'entfernt',
+        'habe': ['PostgreSQL', 'SQL Server'],
+        'gemeinsam': 'Datenmodellierung und Abfrageoptimierung',
+    },
+    'VMware/Hyper-V': {
+        'name': 'VMware', 'naehe': 'entfernt',
+        'habe': ['Docker', 'Linux (VPS)'],
+        'gemeinsam': 'das Bereitstellen isolierter Umgebungen',
+    },
 }
 
 
@@ -309,6 +400,13 @@ def frage_offene(stellentext, kategorien_je_variante):
     geaendert = False
     for name in offen:
         print('─' * 60)
+        # Gibt es ein eigenes Werkzeug fuer dieselbe Aufgabe, steht es
+        # hier - das beantwortet oft schon, ob die Frage eine ist.
+        e = VERWANDT.get(name)
+        if e:
+            print('  Du hast %s fuer %s%s.'
+                  % (_und(e['habe']), e['gemeinsam'],
+                     '' if e['naehe'] == 'nah' else ' (nur verwandt)'))
         antwort = _frage('%s – wo hast du damit gearbeitet? '
                          '(leer = spaeter, "nein" = kann ich nicht)\n> ' % name)
         if not antwort:
@@ -346,6 +444,75 @@ def frage_offene(stellentext, kategorien_je_variante):
     return eigene
 
 
+# ─── VERWANDTES NUTZBAR MACHEN ───────────────────────────────────────────────
+def _und(teile):
+    """['a', 'b', 'c'] -> 'a, b und c'"""
+    teile = list(teile)
+    if len(teile) < 2:
+        return ''.join(teile)
+    return ', '.join(teile[:-1]) + ' und ' + teile[-1]
+
+
+def verwandte(luecken, naehe=None):
+    """Zu welchen Luecken gibt es ein Werkzeug im Profil, das dasselbe tut?"""
+    gefunden = []
+    for name in luecken:
+        eintrag = VERWANDT.get(name)
+        if not eintrag:
+            continue
+        if naehe and eintrag['naehe'] != naehe:
+            continue
+        gefunden.append((name, eintrag))
+    return gefunden
+
+
+def brueckensaetze(stellentext):
+    """Fertige Saetze fuers Anschreiben - nur fuer nahe Verwandtschaft.
+
+    Der Satz nennt zuerst ehrlich, was fehlt, und dann das Eigene. So steht
+    im Anschreiben, was ein Stichwortfilter im Lebenslauf nicht findet, ohne
+    dass irgendwo etwas Falsches behauptet wird.
+    """
+    _, luecken, _ = abgleich(stellentext)
+    # Nennt die Anzeige Jenkins UND GitLab CI, waere das zweimal derselbe
+    # Satz. Gleiche Aufgabe und gleiche eigene Werkzeuge -> ein Satz.
+    gruppen = {}
+    for name, e in verwandte(luecken, naehe='nah'):
+        gruppen.setdefault((e['gemeinsam'], tuple(e['habe'])), []).append(e['name'])
+    return ['%s habe ich nicht im Einsatz; %s loese ich mit %s.'
+            % (_und(namen), gemeinsam, _und(habe))
+            for (gemeinsam, habe), namen in gruppen.items()]
+
+
+def mit_vergleichen(skills, stellentext, hoechstens=2):
+    """Haengt "(vergleichbar: X)" an die Kategorie mit dem eigenen Werkzeug.
+
+    Ausdruecklich als Vergleich gekennzeichnet: im Lebenslauf steht weiter,
+    womit tatsaechlich gearbeitet wird. Bewusst auf zwei begrenzt - mehr
+    liest sich wie eine Rechtfertigung.
+    """
+    if not (stellentext or '').strip():
+        return list(skills)
+
+    offen = verwandte(abgleich(stellentext)[1], naehe='nah')[:hoechstens]
+    if not offen:
+        return list(skills)
+
+    ergebnis, vergeben = [], set()
+    for label, wert in skills:
+        klein = wert.lower()
+        passend = [e['name'] for name, e in offen
+                   if name not in vergeben
+                   and any(h.lower() in klein for h in e['habe'])]
+        for name, e in offen:
+            if e['name'] in passend:
+                vergeben.add(name)
+        if passend:
+            wert = '%s (vergleichbar: %s)' % (wert, ', '.join(passend))
+        ergebnis.append((label, wert))
+    return ergebnis
+
+
 # ─── BERICHT ─────────────────────────────────────────────────────────────────
 def bericht(stellentext):
     """Mehrzeiliger Text zum Mitlesen - fuer die Oberflaeche oder das Terminal."""
@@ -357,6 +524,26 @@ def bericht(stellentext):
     zeilen.append('LÜCKEN – in der Anzeige gefordert, bei dir nicht belegt (%d)'
                   % len(luecken))
     zeilen.append('  ' + (', '.join(luecken) if luecken else '–'))
+    nah = verwandte(luecken, naehe='nah')
+    fern = verwandte(luecken, naehe='entfernt')
+    if nah:
+        zeilen.append('')
+        zeilen.append('ANDERES WERKZEUG, GLEICHE AUFGABE (%d)' % len(nah))
+        for name, e in nah:
+            zeilen.append('  %s – du hast %s (%s)'
+                          % (e['name'], _und(e['habe']), e['gemeinsam']))
+        zeilen.append('')
+        zeilen.append('  Das ist keine Luecke, nur eine andere Beschriftung.')
+        zeilen.append('  Saetze fuers Anschreiben:')
+        for satz in brueckensaetze(stellentext):
+            zeilen.append('      ' + satz)
+    if fern:
+        zeilen.append('')
+        zeilen.append('VERWANDT, ABER NICHT DASSELBE (%d)' % len(fern))
+        for name, e in fern:
+            zeilen.append('  %s – am naechsten dran: %s (%s)'
+                          % (e['name'], _und(e['habe']), e['gemeinsam']))
+        zeilen.append('  Nicht als gleichwertig verkaufen - das faellt auf.')
     if luecken:
         zeilen.append('')
         zeilen.append('  Nichts davon kommt automatisch in den Lebenslauf.')
