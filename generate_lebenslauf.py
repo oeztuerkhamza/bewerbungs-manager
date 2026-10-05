@@ -24,9 +24,12 @@ from reportlab.pdfbase.ttfonts import TTFont
 from pdf_text_utils import esc, esc_rich
 
 try:
-    from stellen_abgleich import sortiere_skills
-except ImportError:          # Modul fehlt -> Lebenslauf bleibt unsortiert
+    from stellen_abgleich import sortiere_skills, mit_eigenen
+except ImportError:          # Modul fehlt -> Lebenslauf bleibt wie er ist
     def sortiere_skills(skills, stellentext):
+        return list(skills)
+
+    def mit_eigenen(skills, variante, sprache='de', kategorien_de=None):
         return list(skills)
 
 # ─── PATHS ────────────────────────────────────────────────────────────────────
@@ -1276,7 +1279,11 @@ def baue_spalten(sty, cfg=None):
     # Liegt der Text der Anzeige vor, wandern die dort geforderten
     # Kenntnisse nach vorne. Es kommt nichts dazu - nur die Reihenfolge
     # aendert sich, damit der Leser seine eigenen Stichworte zuerst sieht.
-    skills = sortiere_skills(inhalt['skills'], cfg.get('stellentext'))
+    # Die deutschen Kategorienamen dienen als Schluessel, damit eine
+    # bestaetigte Kenntnis auch in der englischen Fassung richtig landet.
+    skills = mit_eigenen(inhalt['skills'], variante, sprache,
+                         [l for l, _ in INHALT[SPRACHE_DE][variante]['skills']])
+    skills = sortiere_skills(skills, cfg.get('stellentext'))
     rail += rail_paare(texte['h_skills'], sty, skills)
     rail += rail_paare(texte['h_sprachen'], sty, texte['sprachen'], gap=0)
 
