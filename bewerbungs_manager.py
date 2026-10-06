@@ -891,6 +891,109 @@ class BewerbungsApp(tk.Tk):
                       'Bewerbung läuft über die Anzeige oder die Firmenseite.')
         return cfg
 
+    # ── FEHLENDE STICHWORTE NACHFRAGEN ───────────────────────────────────
+    def _frage_fehlende_begriffe(self, begriffe, variante):
+        """Fragt, welche der geforderten Begriffe doch belegt sind.
+
+        Bewusst nicht nur ein Haken: zu jedem Begriff gehoert die Angabe,
+        wo damit gearbeitet wurde. Wer die nicht hat, kann die Kenntnis auch
+        im Vorstellungsgespraech nicht belegen - dann gehoert sie nicht in
+        den Lebenslauf. Nur Zeilen mit Haken UND Beleg werden uebernommen.
+        """
+        try:
+            import stellen_abgleich as sa
+        except ImportError:
+            return 0
+
+        eigene = sa.lade_eigene()
+        offen = [b for b in begriffe
+                 if b and b not in eigene.get('bestaetigt', {})
+                 and b not in eigene.get('abgelehnt', {})]
+        if not offen:
+            return 0
+
+        kategorien = [l.replace('&amp;', '&')
+                      for l, _ in gen_l.INHALT['de'][variante]['skills']]
+
+        dlg = tk.Toplevel(self)
+        dlg.title('Fehlende Stichworte')
+        dlg.configure(bg=BG)
+        dlg.transient(self)
+        dlg.grab_set()
+
+        tk.Label(dlg, text='Die Anzeige verlangt das hier – steht aber nicht '
+                           'im Profil', bg=BG, fg=NAVY,
+                 font=(FONT, 12, 'bold')).pack(anchor='w', padx=16, pady=(14, 2))
+        tk.Label(dlg, text=('Was du wirklich kannst, nimm auf – mit der Angabe, '
+                            'wo du damit gearbeitet hast.\nOhne diese Angabe '
+                            'wird nichts übernommen. Einmal beantwortet, gilt es '
+                            'für alle weiteren Bewerbungen.'),
+                 bg=BG, fg=FG_LIGHT, font=(FONT, 9), justify='left').pack(
+            anchor='w', padx=16, pady=(0, 10))
+
+        rahmen = tk.Frame(dlg, bg=WHITE, highlightbackground=CARD_BD,
+                          highlightthickness=1)
+        rahmen.pack(fill='both', expand=True, padx=16, pady=(0, 10))
+
+        for spalte, titel, breite in ((1, 'Stichwort', 22),
+                                      (2, 'Wo hast du damit gearbeitet?', 34),
+                                      (3, 'Kategorie im Lebenslauf', 22)):
+            tk.Label(rahmen, text=titel, bg=WHITE, fg=NAVY,
+                     font=(FONT, 9, 'bold')).grid(row=0, column=spalte,
+                                                  sticky='w', padx=6, pady=(8, 4))
+
+        zeilen = []
+        for nr, begriff in enumerate(offen, start=1):
+            an = tk.BooleanVar(value=False)
+            tk.Checkbutton(rahmen, variable=an, bg=WHITE,
+                           activebackground=WHITE).grid(row=nr, column=0,
+                                                        padx=(8, 0))
+            tk.Label(rahmen, text=begriff, bg=WHITE, fg=FG,
+                     font=(FONT, 10)).grid(row=nr, column=1, sticky='w',
+                                           padx=6, pady=2)
+            beleg = tk.StringVar(value='')
+            ttk.Entry(rahmen, textvariable=beleg, width=34).grid(
+                row=nr, column=2, sticky='w', padx=6, pady=2)
+            kat = tk.StringVar(value=kategorien[0] if kategorien else '')
+            ttk.Combobox(rahmen, textvariable=kat, values=kategorien,
+                         state='readonly', width=22).grid(
+                row=nr, column=3, sticky='w', padx=6, pady=2)
+            zeilen.append((begriff, an, beleg, kat))
+
+        ergebnis = {'anzahl': 0}
+
+        def uebernehmen():
+            from datetime import date
+            heute = date.today().isoformat()
+            for begriff, an, beleg, kat in zeilen:
+                text = beleg.get().strip()
+                if an.get() and text:
+                    eigene['bestaetigt'][begriff] = {
+                        'label': begriff, 'label_en': begriff,
+                        'kategorie': {variante: kat.get()},
+                        'beleg': text, 'seit': heute,
+                    }
+                    ergebnis['anzahl'] += 1
+                elif an.get() and not text:
+                    # Haken ohne Beleg: nicht uebernehmen, aber auch nicht
+                    # als Luecke abhaken - beim naechsten Mal erneut fragen.
+                    continue
+                else:
+                    eigene['abgelehnt'][begriff] = {'seit': heute}
+            sa.speichere_eigene(eigene)
+            dlg.destroy()
+
+        knopf = tk.Frame(dlg, bg=BG)
+        knopf.pack(fill='x', padx=16, pady=(0, 14))
+        ttk.Button(knopf, text='Übernehmen', style='Accent.TButton',
+                   command=uebernehmen).pack(side='right', padx=4)
+        ttk.Button(knopf, text='Später', style='Ghost.TButton',
+                   command=dlg.destroy).pack(side='right', padx=4)
+
+        dlg.update_idletasks()
+        dlg.wait_window()
+        return ergebnis['anzahl']
+
     def _apply_ki_result(self, cfg, then_pdf=False, then_send=False):
         cfg = self._empfaenger_nachtragen(cfg)
         self._stash_extra_cfg(cfg)
@@ -921,6 +1024,18 @@ class BewerbungsApp(tk.Tk):
                 'Folgende Punkte konnten nicht automatisch '
                 'ermittelt werden:\n\n' + '\n'.join(warn_lines) +
                 '\n\nBitte im Tab "Stelle & Firma" manuell korrigieren.')
+
+        begriffe = cfg.get('fehlende_begriffe') or []
+        if isinstance(begriffe, list) and begriffe:
+            self._log('')
+            self._log('Die Anzeige verlangt %d Stichwort(e), die nicht im '
+                      'Profil stehen.' % len(begriffe))
+            uebernommen = self._frage_fehlende_begriffe(
+                [str(b).strip() for b in begriffe if str(b).strip()],
+                gen_l.variante_aus_cfg(cfg))
+            if uebernommen:
+                self._log('✓ %d davon ins Profil übernommen – sie stehen ab '
+                          'jetzt in jedem Lebenslauf.' % uebernommen)
 
         variante = cfg.get('variante', '')
         if variante == gen_l.VARIANTE_IT_SUPPORT:

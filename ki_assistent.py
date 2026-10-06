@@ -487,6 +487,13 @@ WICHTIG – Lebenslauf-Anpassung (Feld "kurzprofil"):
   fett, hebt sich nichts mehr ab – im Zweifel weniger auszeichnen.
 - "stelle" = exakte Bezeichnung aus der Anzeige; "betreff" dazu passend
   (NICHT automatisch "C# / .NET / Angular").
+- "fehlende_begriffe": die Technologien und Werkzeuge, die die Anzeige
+  ausdrücklich verlangt und die im Profil NICHT belegt sind – als Liste
+  einzelner Begriffe, nicht als Satz. Jeder Begriff so, wie er in einem
+  Lebenslauf stehen würde ("Visual Studio", nicht "Erfahrung mit Visual
+  Studio"). Keine allgemeinen Anforderungen wie "Teamfähigkeit" oder
+  "Englischkenntnisse", nur Technisches. Nichts hineinschreiben, was im
+  Profil schon steht. Ist alles belegt, eine leere Liste.
 - "bewerbung_email": die Adresse, an die die Bewerbung laut Anzeige geht.
   Steht keine da, LEER lassen – niemals eine Adresse raten oder aus der
   Firmenwebsite ableiten. Datenschutz-, Impressums- und No-Reply-Adressen
@@ -607,6 +614,7 @@ RÜCKGABE – EXAKT dieses JSON-Schema (keine Markdown-Codeblöcke, nur roher JS
   "anlagen": "Anschreiben, Lebenslauf",
   "email_betreff": "Bewerbung als ...",
   "email_text": "Sehr geehrte Damen und Herren,\n\n...\n\nMit freundlichen Grüßen\nHamza Öztürk\n+49 155 66859378\noeztuerk.hamza@web.de",
+  "fehlende_begriffe": ["Visual Studio", "ReSharper"],
   "warnungen": ["Firma-Adresse nicht gefunden – bitte manuell ergänzen.", "..."]
 }
 
