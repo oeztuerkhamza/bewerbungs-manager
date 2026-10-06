@@ -1,7 +1,7 @@
 #!/usr/bin/env python3
 # -*- coding: utf-8 -*-
 """
-Junior-Developer-Stellenanzeigen – Jobsuche der Bundesagentur für Arbeit
+Stellenanzeigen – Jobsuche der Bundesagentur für Arbeit
 
 Fragt mehrere Suchbegriffe deutschlandweit ab, entfernt Duplikate, filtert
 Einstiegspositionen heraus und schreibt eine eigenständige HTML-Seite.
@@ -36,6 +36,13 @@ USER_AGENT = ('Mozilla/5.0 (Windows NT 10.0; Win64; x64) AppleWebKit/537.36 '
               '(KHTML, like Gecko) Chrome/120.0.0.0 Safari/537.36')
 PAUSE = 0.5          # Sekunden zwischen zwei Anfragen, um höflich zu bleiben
 
+# Die Jobsuche der BA kennt nur diese Werte für "veröffentlicht seit". Jeder
+# andere Wert wird stillschweigend ignoriert und liefert ALLE Anzeigen -
+# "py jobsuche.py 3" brachte deshalb mehr Treffer als "py jobsuche.py 7".
+# Geprüft: 1 → 115, 7 → 461, 14 → 835, 28 → 1358 Treffer; 2, 3, 5, 21, 30
+# und 100 liefern unverändert 3015, also die ungefilterte Gesamtmenge.
+ERLAUBTE_TAGE = (1, 7, 14, 28)
+
 # Wohnort als Bezugspunkt für die Entfernungsspalte
 HEIMAT = ('Freiburg im Breisgau', 47.9990, 7.8421)
 
@@ -65,24 +72,34 @@ REGION_NAMEN = {
 }
 
 # Begriffe, bei denen "Junior" meist im Titel steht -> tief paginieren.
-TITEL_BEGRIFFE = [
-    'Junior Softwareentwickler',
-    'Junior Entwickler',
-    'Junior Fullstack Entwickler',
-    'Junior Webentwickler',
-    'Junior Frontend Entwickler',
-    'Junior Backend Entwickler',
-    'Junior .NET Entwickler',
+# Suchbegriffe: (Begriff, Seitenbudget, Bereich).
+# Das Budget bremst breite Begriffe - "Softwareentwickler" liefert sonst
+# tausende Treffer, von denen die hinteren Seiten nichts mehr beitragen.
+# Der Bereich entscheidet spaeter, welche Lebenslauf-Variante passt.
+BEGRIFFE = [
+    # ── Entwicklung ────────────────────────────────────────────────────
+    ('Softwareentwickler',                   10, 'Entwicklung'),
+    ('Fullstack Entwickler',                  8, 'Entwicklung'),
+    ('Anwendungsentwickler',                  6, 'Entwicklung'),
+    ('Webentwickler',                         5, 'Entwicklung'),
+    ('Softwareentwickler C#',                 5, 'Entwicklung'),
+    ('.NET Entwickler',                       5, 'Entwicklung'),
+    ('Angular Entwickler',                    4, 'Entwicklung'),
+    ('Frontend Entwickler',                   4, 'Entwicklung'),
+    ('Backend Entwickler',                    4, 'Entwicklung'),
+    ('DevOps Engineer',                       4, 'Entwicklung'),
+    ('Fachinformatiker Anwendungsentwicklung', 5, 'Entwicklung'),
+    ('Softwareentwickler Berufseinsteiger',   3, 'Entwicklung'),
+    # ── IT-Support und Administration ──────────────────────────────────
+    ('IT-Support',                            8, 'IT-Support'),
+    ('IT-Systemadministrator',                6, 'IT-Support'),
+    ('Systemadministrator',                   6, 'IT-Support'),
+    ('IT-Administrator',                      5, 'IT-Support'),
+    ('Fachinformatiker Systemintegration',    5, 'IT-Support'),
+    ('IT-Mitarbeiter',                        4, 'IT-Support'),
+    ('Anwendungsbetreuer',                    3, 'IT-Support'),
+    ('IT-Techniker',                          3, 'IT-Support'),
 ]
-# Begriffe, die eher im Anzeigentext auftauchen -> nur die relevantesten Seiten.
-KONTEXT_BEGRIFFE = [
-    'Softwareentwickler Berufseinsteiger',
-    'Softwareentwickler Absolvent',
-    'Einsteiger Softwareentwicklung',
-    'Fachinformatiker Anwendungsentwicklung',
-]
-MAX_SEITEN_TITEL = 10
-MAX_SEITEN_KONTEXT = 3
 
 # Signale im Titel. Reihenfolge egal, alles wird kleingeschrieben verglichen.
 EINSTIEG_SIGNALE = (
@@ -119,10 +136,7 @@ def hole_seite(was, page, veroeffentlicht_seit=None):
 def sammle(veroeffentlicht_seit=None):
     """Alle Suchbegriffe abklappern und nach Referenznummer entduplizieren."""
     gefunden = {}
-    begriffe = ([(b, MAX_SEITEN_TITEL) for b in TITEL_BEGRIFFE]
-                + [(b, MAX_SEITEN_KONTEXT) for b in KONTEXT_BEGRIFFE])
-
-    for was, max_seiten in begriffe:
+    for was, max_seiten, bereich in BEGRIFFE:
         neu_fuer_begriff = 0
         for page in range(1, max_seiten + 1):
             try:
@@ -139,6 +153,7 @@ def sammle(veroeffentlicht_seit=None):
                 refnr = eintrag.get('referenznummer')
                 if refnr and refnr not in gefunden:
                     eintrag['_begriff'] = was
+                    eintrag['_bereich'] = bereich
                     gefunden[refnr] = eintrag
                     neu_fuer_begriff += 1
 
@@ -251,6 +266,7 @@ def aufbereiten(rohdaten, beworbene):
             'einstieg': hat_einstieg_signal(titel),
             'beworben': normalisiere_firma(firma) in beworbene if firma else False,
             'begriff': e.get('_begriff') or '',
+            'bereich': e.get('_bereich') or '',
         })
 
     # Explizite Einstiegsstellen zuerst, danach die neuesten Anzeigen.
@@ -264,6 +280,11 @@ def aufbereiten(rohdaten, beworbene):
 # dem Volltext laesst sich je Anzeige sagen, wie viel von dem Geforderten
 # im Profil belegt ist - und danach kann sortiert werden.
 CACHE_DATEI = os.path.join(BASE_DIR, '.anzeigen_cache.json')
+
+# Jede Bewertung holt den Anzeigentext einzeln. Bei ueber tausend Treffern
+# waere der erste Lauf eine Viertelstunde beschaeftigt, deshalb eine Grenze.
+# Die Texte bleiben gespeichert, ein zweiter Lauf geht also deutlich weiter.
+STANDARD_GRENZE = 300
 
 
 def _cache_laden():
@@ -296,8 +317,16 @@ def bewerte(zeilen, nur_unbeworbene=True, hoechstens=0):
         return 0
 
     offen = [z for z in zeilen if not (nur_unbeworbene and z['beworben'])]
-    if hoechstens:
-        offen = offen[:hoechstens]
+    # Bereits zwischengespeicherte Anzeigen kosten nichts und zaehlen daher
+    # nicht gegen die Grenze - so waechst die Abdeckung mit jedem Lauf.
+    cache_vorab = _cache_laden()
+    frisch = [z for z in offen if z['url'] not in cache_vorab]
+    if hoechstens and len(frisch) > hoechstens:
+        behalten = set(id(z) for z in frisch[:hoechstens])
+        offen = [z for z in offen
+                 if z['url'] in cache_vorab or id(z) in behalten]
+        print('  %d von %d noch nicht geladen – diesmal %d; erneut aufrufen '
+              'holt die naechsten.' % (len(frisch), len(zeilen), hoechstens))
 
     cache = _cache_laden()
     geholt = 0
@@ -342,7 +371,7 @@ def bewerte(zeilen, nur_unbeworbene=True, hoechstens=0):
 HTML_KOPF = """<!doctype html>
 <meta charset="utf-8">
 <meta name="viewport" content="width=device-width, initial-scale=1">
-<title>Junior-Developer-Stellen</title>
+<title>Passende Stellen</title>
 <style>
 :root{
   --bg:#f5f6f8; --karte:#ffffff; --text:#1c1f26; --leise:#666c78;
@@ -410,24 +439,32 @@ def baue_html(zeilen, veroeffentlicht_seit):
     zeitraum = ('Anzeigen der letzten %d Tage' % veroeffentlicht_seit
                 if veroeffentlicht_seit else 'alle aktuellen Anzeigen')
     einstieg_n = sum(1 for z in zeilen if z['einstieg'])
+    je_bereich = ', '.join(
+        '%d %s' % (sum(1 for z in zeilen if z.get('bereich') == b), b)
+        for b in sorted({z['bereich'] for z in zeilen if z.get('bereich')}))
     beworben_n = sum(1 for z in zeilen if z['beworben'])
     laender = sorted({z['land'] for z in zeilen if z['land']})
 
     teile = [HTML_KOPF]
     teile.append('<header>')
-    teile.append('<h1>Junior-Developer-Stellen in Deutschland</h1>')
+    teile.append('<h1>Passende Stellen in Deutschland</h1>')
     teile.append(
-        '<div class="meta">%d Anzeigen &middot; davon %d mit Junior-/'
+        '<div class="meta">%d Anzeigen (%s) &middot; davon %d mit Junior-/'
         'Einsteiger-Signal im Titel &middot; %d bei Firmen, bei denen du dich '
         'schon beworben hast<br>Stand %s &middot; %s &middot; Quelle: '
         'Jobsuche der Bundesagentur f&uuml;r Arbeit &middot; '
-        'neu laden mit <code>py jobsuche.py</code></div>'
-        % (len(zeilen), einstieg_n, beworben_n, stand, zeitraum))
+        'neu laden mit <code>py jobsuche.py --bewerten</code></div>'
+        % (len(zeilen), je_bereich, einstieg_n, beworben_n, stand, zeitraum))
     teile.append('</header>')
 
     teile.append('<div class="filter">')
     teile.append('<input type="text" id="q" placeholder="Titel, Firma oder Ort '
                  'suchen &hellip;">')
+    teile.append('<select id="bereich"><option value="">Beide Bereiche'
+                 '</option>')
+    for bereich in sorted({z['bereich'] for z in zeilen if z.get('bereich')}):
+        teile.append('<option>%s</option>' % bereich)
+    teile.append('</select>')
     teile.append('<select id="land"><option value="">Alle Bundesl&auml;nder'
                  '</option>')
     for land in laender:
@@ -438,7 +475,7 @@ def baue_html(zeilen, veroeffentlicht_seit):
     teile.append('<label>ab &euro; <input type="number" id="mingehalt" min="0" '
                  'step="5000" style="width:104px" placeholder="beliebig">'
                  '</label>')
-    teile.append('<label><input type="checkbox" id="nureinstieg" checked> '
+    teile.append('<label><input type="checkbox" id="nureinstieg"> '
                  'nur Junior/Einsteiger</label>')
     teile.append('<label><input type="checkbox" id="ohnebeworben"> '
                  'ohne bereits beworbene</label>')
@@ -510,6 +547,7 @@ function passt(z){
   if (q && !(z.titel + ' ' + z.firma + ' ' + z.ort + ' ' + z.beruf)
             .toLowerCase().includes(q)) return false;
   if ($('land').value && z.land !== $('land').value) return false;
+  if ($('bereich').value && z.bereich !== $('bereich').value) return false;
   const maxkm = parseFloat($('maxkm').value);
   if (!isNaN(maxkm) && (z.km === null || z.km > maxkm)) return false;
   const ming = parseFloat($('mingehalt').value);
@@ -558,7 +596,8 @@ function zeichne(){
       + '<td class="zahl">' + passungText(z) + '</td>'
       + '<td><a href="' + z.url + '" target="_blank" rel="noopener">'
         + z.titel + '</a>' + tags
-        + (z.beruf ? '<div class="leise">' + z.beruf + '</div>' : '') + '</td>'
+        + '<div class="leise">' + [z.bereich, z.beruf].filter(Boolean).join(' \u00b7 ')
+        + '</div></td>'
       + '<td>' + (z.firma || '<span class="leise">&ndash;</span>') + '</td>'
       + '<td>' + (z.plz ? z.plz + ' ' : '') + z.ort
         + (z.land ? '<div class="leise">' + z.land + '</div>' : '') + '</td>'
@@ -584,8 +623,8 @@ document.querySelectorAll('th[data-feld]').forEach((th) => {
     zeichne();
   });
 });
-['q', 'land', 'maxkm', 'mingehalt', 'nureinstieg', 'ohnebeworben',
- 'nurgehalt', 'minpassung']
+['q', 'land', 'bereich', 'maxkm', 'mingehalt', 'nureinstieg',
+ 'ohnebeworben', 'nurgehalt', 'minpassung']
   .forEach((id) => {
     $(id).addEventListener('input', zeichne);
     $(id).addEventListener('change', zeichne);
@@ -598,13 +637,24 @@ zeichne();
 def main():
     args = [a for a in sys.argv[1:] if not a.startswith('--')]
     bewerten = '--bewerten' in sys.argv
+    grenze = STANDARD_GRENZE
+    for a in sys.argv[1:]:
+        if a.startswith('--max='):
+            grenze = int(a.split('=', 1)[1] or 0)      # --max=0 = ohne Grenze
     seit = None
     if args:
         try:
             seit = int(args[0])
         except ValueError:
-            print('Nutzung: py jobsuche.py [Tage] [--bewerten]')
+            print('Nutzung: py jobsuche.py [Tage] [--bewerten] [--max=N]')
             return 2
+
+    if seit and seit not in ERLAUBTE_TAGE:
+        passend = min(ERLAUBTE_TAGE, key=lambda t: abs(t - seit))
+        print('Die Jobsuche kennt nur %s Tage; %d wird still ignoriert. '
+              'Nutze stattdessen %d.'
+              % ('/'.join(str(t) for t in ERLAUBTE_TAGE), seit, passend))
+        seit = passend
 
     print('Suche Stellenanzeigen (%s) ...'
           % ('letzte %d Tage' % seit if seit else 'alle'))
@@ -623,7 +673,7 @@ def main():
     if bewerten:
         print('')
         print('Bewerte Anzeigen gegen das eigene Profil ...')
-        bewerte(zeilen)
+        bewerte(zeilen, hoechstens=grenze)
     io.open(OUTPUT, 'w', encoding='utf-8', newline='\n').write(
         baue_html(zeilen, seit))
 
