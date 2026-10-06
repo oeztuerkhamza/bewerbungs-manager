@@ -52,3 +52,6 @@ junior_stellen.html
 
 # Zwischenspeicher der geholten Anzeigentexte (py jobsuche.py --bewerten)
 .anzeigen_cache.json
+
+# Maschinenlesbare Trefferliste (py jobsuche.py)
+stellen.json

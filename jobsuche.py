@@ -28,6 +28,8 @@ from datetime import datetime
 
 BASE_DIR = os.path.dirname(os.path.abspath(__file__))
 OUTPUT = os.path.join(BASE_DIR, 'junior_stellen.html')
+# Dieselbe Liste maschinenlesbar - davon lebt bewerbung_pipeline.py.
+OUTPUT_JSON = os.path.join(BASE_DIR, 'stellen.json')
 BEWERBUNGEN_CSV = os.path.join(BASE_DIR, 'Bewerbungen.csv')
 
 SUCHE_URL = 'https://www.arbeitsagentur.de/jobsuche/suche'
@@ -676,6 +678,8 @@ def main():
         bewerte(zeilen, hoechstens=grenze)
     io.open(OUTPUT, 'w', encoding='utf-8', newline='\n').write(
         baue_html(zeilen, seit))
+    with io.open(OUTPUT_JSON, 'w', encoding='utf-8') as f:
+        json.dump(zeilen, f, ensure_ascii=False, indent=1)
 
     print('\n%d Anzeigen nach Filter (von %d Rohtreffern).'
           % (len(zeilen), len(roh)))
