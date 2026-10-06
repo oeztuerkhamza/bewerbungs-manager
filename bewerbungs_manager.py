@@ -939,6 +939,9 @@ class BewerbungsApp(tk.Tk):
 
         # Switch to Stelle tab so user sees the result
         self._nb.select(self._tab_stelle)
+        if (cfg.get('bewerbung_email') or '').strip():
+            self._log('→ Prüfen und mit "📨 Bewerbung senden" '
+                      'unten im Tab "Stelle & Firma" abschicken.')
 
         if then_pdf and not warnungen:
             self._log('📄 Erstelle PDFs...')
@@ -1015,6 +1018,27 @@ class BewerbungsApp(tk.Tk):
         row = self._field_card(anrede_card, 'anlagen', 'Anlagen (Deckblatt)',
                           gen_k.DEFAULT_CONFIG.get('anlagen', ''),
                           row, width=60)
+
+        # ── Unterlagen und Versand ──
+        # Nach dem Generieren landet man auf diesem Tab, und hier steht die
+        # Bewerbungsadresse. Also gehoeren die beiden Schritte auch hierhin,
+        # statt im E-Mail-Tab gesucht werden zu muessen.
+        aktion_card = self._make_card(scroll_frame, padx=16, pady=(4, 12))
+        aktion_inner = tk.Frame(aktion_card, bg=WHITE)
+        aktion_inner.pack()
+        ttk.Button(aktion_inner, text='📄  PDFs erstellen',
+                   style='Navy.TButton',
+                   command=self._gen_both).pack(side='left', padx=6)
+        ttk.Button(aktion_inner, text='📨  Bewerbung senden',
+                   style='Accent.TButton',
+                   command=self._send_application_email).pack(side='left',
+                                                              padx=6)
+        tk.Label(aktion_card,
+                 text=('Gesendet wird die fertige Mappe: Deckblatt, '
+                       'Anschreiben, Lebenslauf. Vor dem Absenden fragt das '
+                       'Programm noch einmal nach.'),
+                 bg=WHITE, fg=FG_LIGHT, font=(FONT, 9),
+                 wraplength=620, justify='left').pack(pady=(6, 0))
 
     # ── TAB 2: ANSCHREIBEN-TEXT ──────────────────────────────────────────────
     def _build_anschreiben_tab(self, parent):
