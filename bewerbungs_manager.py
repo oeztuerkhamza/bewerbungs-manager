@@ -24,7 +24,7 @@ import threading
 import time
 import tkinter as tk
 from datetime import date, timedelta
-from tkinter import filedialog, messagebox, ttk
+from tkinter import filedialog, messagebox, simpledialog, ttk
 
 try:
     from openpyxl import Workbook, load_workbook
@@ -3171,6 +3171,189 @@ class BewerbungsApp(tk.Tk):
                    command=self._delete_profile).pack(side='left', padx=4)
 
         self._refresh_profiles()
+
+        # ── Eigene Zusatzkenntnisse ──
+        kenntnis_card = self._make_card(
+            c, '🧠  Eigene Zusatzkenntnisse', padx=16, pady=(4, 12))
+        tk.Label(kenntnis_card,
+                 text=('Was hier bestätigt ist, steht in jedem Lebenslauf. '
+                       'Abgelehntes wird nicht mehr abgefragt. '
+                       'Löschen setzt einen Eintrag zurück – er wird dann '
+                       'beim nächsten passenden Inserat erneut gefragt.'),
+                 bg=WHITE, fg=FG_LIGHT, font=(FONT, 9),
+                 wraplength=760, justify='left').pack(anchor='w', pady=(0, 8))
+
+        k_frame = tk.Frame(kenntnis_card, bg=WHITE)
+        k_frame.pack(fill='both', expand=True)
+
+        spalten = ('status', 'begriff', 'kategorie', 'beleg')
+        self._kn_tree = ttk.Treeview(k_frame, columns=spalten,
+                                     show='headings', selectmode='browse',
+                                     height=8)
+        for feld, kopf, breite in (('status', 'Status', 100),
+                                   ('begriff', 'Stichwort', 180),
+                                   ('kategorie', 'Kategorie', 200),
+                                   ('beleg', 'Wo eingesetzt', 320)):
+            self._kn_tree.heading(feld, text=kopf, anchor='w')
+            self._kn_tree.column(feld, width=breite, minwidth=60, anchor='w')
+        self._kn_tree.tag_configure('ja', foreground='#1b7a3d')
+        self._kn_tree.tag_configure('nein', foreground='#9a3412')
+
+        k_vsb = ttk.Scrollbar(k_frame, orient='vertical',
+                              command=self._kn_tree.yview)
+        self._kn_tree.configure(yscrollcommand=k_vsb.set)
+        self._kn_tree.pack(side='left', fill='both', expand=True)
+        k_vsb.pack(side='right', fill='y')
+
+        k_btn = tk.Frame(kenntnis_card, bg=WHITE)
+        k_btn.pack(fill='x', pady=(10, 0))
+        ttk.Button(k_btn, text='➕  Hinzufügen', style='Gold.TButton',
+                   command=self._kenntnis_neu).pack(side='left', padx=4)
+        ttk.Button(k_btn, text='🔄  Status umschalten', style='Accent.TButton',
+                   command=self._kenntnis_umschalten).pack(side='left', padx=4)
+        ttk.Button(k_btn, text='🗑  Zurücksetzen', style='Ghost.TButton',
+                   command=self._kenntnis_loeschen).pack(side='left', padx=4)
+
+        self._kenntnisse_laden()
+
+    # ── EIGENE ZUSATZKENNTNISSE ──────────────────────────────────────────────
+    @staticmethod
+    def _kenntnisse_speicher():
+        import stellen_abgleich as sa
+        return sa
+
+    def _kenntnisse_laden(self):
+        """Tabelle aus eigene_kenntnisse.json neu aufbauen."""
+        try:
+            sa = self._kenntnisse_speicher()
+        except ImportError:
+            return
+        daten = sa.lade_eigene()
+        self._kn_zeilen = []
+        for begriff, e in sorted(daten.get('bestaetigt', {}).items()):
+            kat = e.get('kategorie') or {}
+            self._kn_zeilen.append(
+                ('bestätigt', begriff,
+                 ', '.join(f'{v}' for v in kat.values() if v) or '–',
+                 e.get('beleg', ''), 'ja'))
+        for begriff in sorted(daten.get('abgelehnt', {})):
+            self._kn_zeilen.append(('abgelehnt', begriff, '–', '', 'nein'))
+
+        self._kn_tree.delete(*self._kn_tree.get_children())
+        for status, begriff, kat, beleg, tag in self._kn_zeilen:
+            self._kn_tree.insert('', 'end',
+                                 values=(status, begriff, kat, beleg),
+                                 tags=(tag,))
+
+    def _kenntnis_auswahl(self):
+        auswahl = self._kn_tree.selection()
+        if not auswahl:
+            messagebox.showinfo('Keine Auswahl',
+                                'Bitte zuerst einen Eintrag auswählen.')
+            return None
+        index = self._kn_tree.index(auswahl[0])
+        if not 0 <= index < len(self._kn_zeilen):
+            return None
+        return self._kn_zeilen[index]
+
+    def _kenntnis_neu(self):
+        """Kenntnis von Hand aufnehmen - ohne Beleg geht nichts."""
+        sa = self._kenntnisse_speicher()
+        begriff = simpledialog.askstring(
+            'Stichwort', 'Welche Kenntnis soll in den Lebenslauf?\n'
+            '(so, wie sie dort stehen soll)', parent=self)
+        if not begriff or not begriff.strip():
+            return
+        beleg = simpledialog.askstring(
+            'Beleg', f'Wo hast du mit "{begriff.strip()}" gearbeitet?\n'
+            'Ohne Angabe wird nichts aufgenommen.', parent=self)
+        if not beleg or not beleg.strip():
+            messagebox.showinfo(
+                'Nicht aufgenommen',
+                'Ohne Angabe, wo die Kenntnis eingesetzt wurde, wird sie '
+                'nicht aufgenommen.\n\nWas sich im Gespräch nicht belegen '
+                'lässt, gehört nicht in den Lebenslauf.')
+            return
+
+        kategorien = [l.replace('&amp;', '&')
+                      for l, _ in gen_l.INHALT['de']['fullstack']['skills']]
+        kat = simpledialog.askstring(
+            'Kategorie',
+            'In welche Kategorie?\n\n' + '\n'.join(kategorien),
+            initialvalue=kategorien[0], parent=self)
+        if not kat or kat.strip() not in kategorien:
+            messagebox.showinfo('Abgebrochen',
+                                'Keine gültige Kategorie gewählt.')
+            return
+
+        from datetime import date
+        daten = sa.lade_eigene()
+        daten.setdefault('bestaetigt', {})[begriff.strip()] = {
+            'label': begriff.strip(), 'label_en': begriff.strip(),
+            'kategorie': {'fullstack': kat.strip()},
+            'beleg': beleg.strip(), 'seit': date.today().isoformat(),
+        }
+        daten.get('abgelehnt', {}).pop(begriff.strip(), None)
+        sa.speichere_eigene(daten)
+        self._kenntnisse_laden()
+        self._status(f'Kenntnis aufgenommen: {begriff.strip()}')
+
+    def _kenntnis_umschalten(self):
+        """Bestätigt <-> abgelehnt. Fuer das Umschalten auf bestätigt
+        braucht es wie ueberall einen Beleg."""
+        zeile = self._kenntnis_auswahl()
+        if not zeile:
+            return
+        status, begriff = zeile[0], zeile[1]
+        sa = self._kenntnisse_speicher()
+        daten = sa.lade_eigene()
+        from datetime import date
+
+        if status == 'bestätigt':
+            daten['bestaetigt'].pop(begriff, None)
+            daten.setdefault('abgelehnt', {})[begriff] = {
+                'seit': date.today().isoformat()}
+        else:
+            beleg = simpledialog.askstring(
+                'Beleg', f'Wo hast du mit "{begriff}" gearbeitet?',
+                parent=self)
+            if not beleg or not beleg.strip():
+                return
+            kategorien = [l.replace('&amp;', '&')
+                          for l, _ in gen_l.INHALT['de']['fullstack']['skills']]
+            kat = simpledialog.askstring(
+                'Kategorie', 'In welche Kategorie?\n\n' + '\n'.join(kategorien),
+                initialvalue=kategorien[0], parent=self)
+            if not kat or kat.strip() not in kategorien:
+                return
+            daten.get('abgelehnt', {}).pop(begriff, None)
+            daten.setdefault('bestaetigt', {})[begriff] = {
+                'label': begriff, 'label_en': begriff,
+                'kategorie': {'fullstack': kat.strip()},
+                'beleg': beleg.strip(), 'seit': date.today().isoformat(),
+            }
+        sa.speichere_eigene(daten)
+        self._kenntnisse_laden()
+
+    def _kenntnis_loeschen(self):
+        """Eintrag ganz entfernen: gilt wieder als unbeantwortet."""
+        zeile = self._kenntnis_auswahl()
+        if not zeile:
+            return
+        begriff = zeile[1]
+        if not messagebox.askokcancel(
+                'Zurücksetzen',
+                f'"{begriff}" aus der Liste entfernen?\n\n'
+                'Der Eintrag verschwindet aus dem Lebenslauf und wird beim '
+                'nächsten passenden Inserat erneut gefragt.'):
+            return
+        sa = self._kenntnisse_speicher()
+        daten = sa.lade_eigene()
+        daten.get('bestaetigt', {}).pop(begriff, None)
+        daten.get('abgelehnt', {}).pop(begriff, None)
+        sa.speichere_eigene(daten)
+        self._kenntnisse_laden()
+        self._status(f'Zurückgesetzt: {begriff}')
 
     # ── UI HELPERS ───────────────────────────────────────────────────────────
     def _section(self, parent, title, row):
