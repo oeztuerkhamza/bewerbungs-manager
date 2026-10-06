@@ -180,7 +180,7 @@ def _draw_page(canvas, doc):
 DEFAULT_CONFIG = {
     'stelle': 'Fullstack Entwickler',
     'datum': '15.03.2026',
-    'anlagen': 'Anschreiben, Lebenslauf, Arbeitszeugnis,  Zeugnisse, Zertifikate',
+    'anlagen': 'Anschreiben, Lebenslauf',
 }
 
 

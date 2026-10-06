@@ -95,6 +95,11 @@ STELLEN_JSON = os.path.join(SCRIPT_DIR, 'stellen.json')
 API_KEY_FILE  = os.path.join(SCRIPT_DIR, '.claude_api_key')
 MAIL_PDF_DIR = os.path.join(SCRIPT_DIR, 'mail_pdfs')
 ZEUGNIS_DIR = os.path.join(SCRIPT_DIR, 'Zeugnis')
+# Die Mappe besteht aus Deckblatt, Anschreiben und Lebenslauf - mehr
+# nicht. Zeugnisse blaehen den Anhang auf und werden ohnehin erst im
+# weiteren Verlauf verlangt. Verlangt eine Anzeige sie ausdruecklich,
+# genuegt hier True; _resolve_zeugnis_files bleibt dafuer erhalten.
+ZEUGNISSE_ANHAENGEN = False
 # Zeugnis-Anhänge werden NICHT mehr über exakte (fehleranfällige) Dateinamen,
 # sondern per Schlüsselwort im Zeugnis-Ordner aufgelöst. Reihenfolge =
 # Anhang-Reihenfolge im finalen Bewerbungs-PDF.
@@ -956,7 +961,7 @@ class BewerbungsApp(tk.Tk):
         # Die Anlagenliste erscheint nur noch auf dem Deckblatt, nicht mehr
         # unter dem Anschreiben.
         row = self._field_card(anrede_card, 'anlagen', 'Anlagen (Deckblatt)',
-                          'Anschreiben, Lebenslauf, Arbeitszeugnis,  Zeugnisse, Zertifikate',
+                          gen_k.DEFAULT_CONFIG.get('anlagen', ''),
                           row, width=60)
 
     # ── TAB 2: ANSCHREIBEN-TEXT ──────────────────────────────────────────────
@@ -3242,14 +3247,14 @@ class BewerbungsApp(tk.Tk):
         gen_a.generate(anschreiben, cfg)
         gen_l.generate(lebenslauf, cfg)
 
-        # Generierte Dokumente sind Pflicht; Zeugnisse werden so weit
-        # angehängt, wie sie im Zeugnis-Ordner vorhanden sind.
         required = [kapak, anschreiben, lebenslauf]
         missing = [p for p in required if not os.path.isfile(p)]
         if missing:
             raise FileNotFoundError('Fehlende Datei(en):\n' + '\n'.join(missing))
 
-        parts = required + self._resolve_zeugnis_files()
+        parts = list(required)
+        if ZEUGNISSE_ANHAENGEN:
+            parts += self._resolve_zeugnis_files()
 
         writer = PdfWriter()
         a4_width = 595.276
