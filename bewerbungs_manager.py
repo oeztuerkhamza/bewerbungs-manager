@@ -90,6 +90,8 @@ IMAP_SETTINGS_FILE = os.path.join(SCRIPT_DIR, '.imap_settings.json')
 SMTP_SETTINGS_FILE = os.path.join(SCRIPT_DIR, '.smtp_settings.json')
 MAIL_HOST = 'mail.bikehausfreiburg.com'
 INITIATIV_SENT_FILE = os.path.join(SCRIPT_DIR, '.initiativ_sent.json')
+# Bewertete Trefferliste aus jobsuche.py (py jobsuche.py 7 --bewerten)
+STELLEN_JSON = os.path.join(SCRIPT_DIR, 'stellen.json')
 API_KEY_FILE  = os.path.join(SCRIPT_DIR, '.claude_api_key')
 MAIL_PDF_DIR = os.path.join(SCRIPT_DIR, 'mail_pdfs')
 ZEUGNIS_DIR = os.path.join(SCRIPT_DIR, 'Zeugnis')
@@ -351,6 +353,7 @@ class BewerbungsApp(tk.Tk):
         nb = ttk.Notebook(self)
         nb.pack(fill='both', expand=True, padx=16, pady=(12, 0))
 
+        self._tab_stellen   = self._make_tab(nb, '🔎  Stellenliste')
         self._tab_ki        = self._make_tab(nb, '🤖  KI-Assistent')
         self._tab_stelle    = self._make_tab(nb, '📋  Stelle & Firma')
         self._tab_anschr    = self._make_tab(nb, '✍  Anschreiben')
@@ -359,6 +362,7 @@ class BewerbungsApp(tk.Tk):
         self._tab_uebersicht = self._make_tab(nb, '📊  Übersicht')
         self._tab_profile   = self._make_tab(nb, '👤  Profile')
 
+        self._build_stellen_tab(self._tab_stellen)
         self._build_ki_tab(self._tab_ki)
         self._build_stelle_tab(self._tab_stelle)
         self._build_anschreiben_tab(self._tab_anschr)
@@ -415,6 +419,214 @@ class BewerbungsApp(tk.Tk):
         return outer, card
 
     # ── TAB 0: KI-ASSISTENT ─────────────────────────────────────────────
+    # ── STELLENLISTE ─────────────────────────────────────────────────────
+    def _build_stellen_tab(self, parent):
+        """Bewertete Anzeigen aus jobsuche.py, Auswahl geht an den KI-Tab."""
+        container = tk.Frame(parent, bg=BG)
+        container.pack(fill='both', expand=True)
+
+        toolbar = tk.Frame(container, bg=BG)
+        toolbar.pack(fill='x', padx=16, pady=(12, 4))
+        tk.Label(toolbar, text='🔎  Passende Stellen', bg=BG, fg=NAVY,
+                 font=(FONT, 13, 'bold')).pack(side='left')
+        ttk.Button(toolbar, text='🔄  Liste neu laden', style='Accent.TButton',
+                   command=self._stellen_laden).pack(side='right', padx=4)
+        ttk.Button(toolbar, text='➡  In den KI-Assistenten',
+                   style='Gold.TButton',
+                   command=self._stellen_uebernehmen).pack(side='right', padx=4)
+
+        # ── Filter ──
+        leiste = tk.Frame(container, bg=BG)
+        leiste.pack(fill='x', padx=16, pady=(0, 6))
+
+        tk.Label(leiste, text='ab Passung', bg=BG, fg=FG_LIGHT,
+                 font=(FONT, 9)).pack(side='left')
+        self._st_passung_var = tk.StringVar(value='70')
+        passung_box = ttk.Combobox(leiste, textvariable=self._st_passung_var,
+                                   width=5, state='readonly',
+                                   values=['0', '50', '60', '70', '80', '90'])
+        passung_box.pack(side='left', padx=(4, 12))
+        passung_box.bind('<<ComboboxSelected>>',
+                         lambda e: self._stellen_zeichnen())
+
+        tk.Label(leiste, text='Bereich', bg=BG, fg=FG_LIGHT,
+                 font=(FONT, 9)).pack(side='left')
+        self._st_bereich_var = tk.StringVar(value='alle')
+        self._st_bereich_box = ttk.Combobox(
+            leiste, textvariable=self._st_bereich_var, width=14,
+            state='readonly', values=['alle'])
+        self._st_bereich_box.pack(side='left', padx=(4, 12))
+        self._st_bereich_box.bind('<<ComboboxSelected>>',
+                                  lambda e: self._stellen_zeichnen())
+
+        tk.Label(leiste, text='max. km', bg=BG, fg=FG_LIGHT,
+                 font=(FONT, 9)).pack(side='left')
+        self._st_km_var = tk.StringVar(value='')
+        km_entry = ttk.Entry(leiste, textvariable=self._st_km_var, width=7)
+        km_entry.pack(side='left', padx=(4, 12))
+        km_entry.bind('<KeyRelease>', lambda e: self._stellen_zeichnen())
+
+        tk.Label(leiste, text='Suche', bg=BG, fg=FG_LIGHT,
+                 font=(FONT, 9)).pack(side='left')
+        self._st_suche_var = tk.StringVar(value='')
+        such_entry = ttk.Entry(leiste, textvariable=self._st_suche_var,
+                               width=26)
+        such_entry.pack(side='left', padx=(4, 12))
+        such_entry.bind('<KeyRelease>', lambda e: self._stellen_zeichnen())
+
+        self._st_stats_var = tk.StringVar(value='')
+        tk.Label(leiste, textvariable=self._st_stats_var, bg=BG, fg=FG_LIGHT,
+                 font=(FONT, 9)).pack(side='right')
+
+        # ── Tabelle ──
+        tree_frame = tk.Frame(container, bg=BG)
+        tree_frame.pack(fill='both', expand=True, padx=16, pady=(4, 4))
+
+        cols = ('passung', 'titel', 'firma', 'ort', 'km', 'bereich')
+        self._st_tree = ttk.Treeview(tree_frame, columns=cols,
+                                     show='headings', selectmode='browse')
+        for feld, kopf, breite, anker, dehnt in (
+                ('passung', 'Passung',  80,  'center', False),
+                ('titel',   'Stelle',   340, 'w',      True),
+                ('firma',   'Firma',    220, 'w',      True),
+                ('ort',     'Ort',      150, 'w',      False),
+                ('km',      'km',       60,  'center', False),
+                ('bereich', 'Bereich',  110, 'w',      False)):
+            self._st_tree.heading(feld, text=kopf, anchor=anker)
+            self._st_tree.column(feld, width=breite, minwidth=50,
+                                 anchor=anker, stretch=dehnt)
+
+        # Gruen ab zwei Dritteln, rot unter der Haelfte - wie in der
+        # HTML-Seite, damit beide Ansichten dasselbe sagen.
+        self._st_tree.tag_configure('gut', foreground='#1b7a3d')
+        self._st_tree.tag_configure('mittel', foreground=FG)
+        self._st_tree.tag_configure('schwach', foreground='#9a3412')
+
+        vsb = ttk.Scrollbar(tree_frame, orient='vertical',
+                            command=self._st_tree.yview)
+        self._st_tree.configure(yscrollcommand=vsb.set)
+        self._st_tree.pack(side='left', fill='both', expand=True)
+        vsb.pack(side='right', fill='y')
+        self._st_tree.bind('<Double-1>',
+                           lambda e: self._stellen_uebernehmen())
+
+        self._st_hinweis = tk.Label(
+            container, bg=BG, fg=FG_LIGHT, font=(FONT, 9), justify='left',
+            text=('Liste erzeugen oder auffrischen:  py jobsuche.py 7 '
+                  '--bewerten      ·      Doppelklick übernimmt die Anzeige '
+                  'in den KI-Assistenten'))
+        self._st_hinweis.pack(fill='x', padx=16, pady=(0, 10))
+
+        self._st_alle = []
+        self._st_sichtbar = []
+        self._stellen_laden()
+
+    def _stellen_laden(self):
+        """stellen.json einlesen; fehlt sie, bleibt die Tabelle leer."""
+        daten = []
+        if os.path.isfile(STELLEN_JSON):
+            try:
+                with open(STELLEN_JSON, 'r', encoding='utf-8') as f:
+                    daten = json.load(f)
+            except (OSError, ValueError) as fehler:
+                self._status(f'stellen.json nicht lesbar: {fehler}')
+                daten = []
+        # Bereits beworbene Firmen gehoeren nicht in die Auswahl.
+        self._st_alle = [z for z in daten if not z.get('beworben')]
+
+        bereiche = sorted({z.get('bereich') for z in self._st_alle
+                           if z.get('bereich')})
+        self._st_bereich_box['values'] = ['alle'] + bereiche
+        if self._st_bereich_var.get() not in ('alle',) + tuple(bereiche):
+            self._st_bereich_var.set('alle')
+        self._stellen_zeichnen()
+
+    def _stellen_zeichnen(self):
+        """Filter anwenden und die Tabelle neu fuellen."""
+        try:
+            mindest = int(self._st_passung_var.get() or 0)
+        except ValueError:
+            mindest = 0
+        try:
+            max_km = int(self._st_km_var.get().strip() or 0)
+        except ValueError:
+            max_km = 0
+        bereich = self._st_bereich_var.get()
+        suche = self._st_suche_var.get().strip().lower()
+
+        treffer = []
+        for z in self._st_alle:
+            passung = z.get('passung')
+            if mindest and (passung is None or passung < mindest):
+                continue
+            if bereich != 'alle' and z.get('bereich') != bereich:
+                continue
+            if max_km and (z.get('km') is None or z['km'] > max_km):
+                continue
+            if suche and suche not in ' '.join(
+                    str(z.get(k) or '') for k in
+                    ('titel', 'firma', 'ort', 'beruf')).lower():
+                continue
+            treffer.append(z)
+
+        # Beste Passung zuerst; bei Gleichstand die breitere Grundlage.
+        treffer.sort(key=lambda z: (-(z['passung'] if z.get('passung')
+                                      is not None else -1),
+                                    -(z.get('gefordert') or 0)))
+        self._st_sichtbar = treffer
+
+        self._st_tree.delete(*self._st_tree.get_children())
+        for z in treffer:
+            passung = z.get('passung')
+            if passung is None:
+                text, tag = '–', 'mittel'
+            else:
+                text = f'{passung}%'
+                tag = ('gut' if passung >= 67
+                       else 'schwach' if passung < 50 else 'mittel')
+            self._st_tree.insert(
+                '', 'end', values=(
+                    text, z.get('titel', ''), z.get('firma', '') or '–',
+                    ' '.join(x for x in (z.get('plz'), z.get('ort')) if x),
+                    '' if z.get('km') is None else z['km'],
+                    z.get('bereich', '')),
+                tags=(tag,))
+
+        bewertet = sum(1 for z in self._st_alle if z.get('passung') is not None)
+        self._st_stats_var.set(
+            f'{len(treffer)} angezeigt · {len(self._st_alle)} offen · '
+            f'{bewertet} bewertet')
+
+    def _stellen_uebernehmen(self):
+        """Ausgewaehlte Anzeige in den KI-Assistenten legen.
+
+        Uebergeben wird die URL - den Text holt der KI-Tab selbst, damit es
+        nur einen Weg gibt, auf dem ein Anzeigentext ins Programm kommt.
+        """
+        auswahl = self._st_tree.selection()
+        if not auswahl:
+            messagebox.showinfo('Keine Auswahl',
+                                'Bitte zuerst eine Stelle in der Liste '
+                                'auswählen.')
+            return
+        index = self._st_tree.index(auswahl[0])
+        if not 0 <= index < len(self._st_sichtbar):
+            return
+        stelle = self._st_sichtbar[index]
+
+        self._job_url_var.set(stelle.get('url', ''))
+        self._job_text_widget.delete('1.0', 'end')
+        self._nb.select(self._tab_ki)
+        self._status('Anzeige übernommen: ' + (stelle.get('titel') or ''))
+        self._log('')
+        self._log(f"Aus der Stellenliste: {stelle.get('titel')} "
+                  f"({stelle.get('firma') or '–'})")
+        passung = stelle.get('passung')
+        if passung is not None:
+            self._log(f"Passung {passung}% bei {stelle.get('gefordert', 0)} "
+                      f"erkannten Anforderungen.")
+        self._log('Jetzt "Stellenanzeige analysieren" starten.')
+
     def _build_ki_tab(self, parent):
         scroll_frame = self._make_scrollable(parent)
 
