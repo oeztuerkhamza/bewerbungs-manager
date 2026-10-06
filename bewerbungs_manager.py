@@ -729,6 +729,10 @@ class BewerbungsApp(tk.Tk):
                    text='🤖 + 📄  Generieren & PDFs erstellen',
                    style='Navy.TButton',
                    command=self._ki_generate_and_pdf).pack(side='left', padx=6)
+        ttk.Button(btn_inner,
+                   text='🤖 + 📄 + 📨  Generieren, PDFs & senden',
+                   style='Accent.TButton',
+                   command=self._ki_generate_pdf_send).pack(side='left', padx=6)
 
         # ── Log Card ──
         log_outer, log_card = self._make_card_grid(scroll_frame, '📊  LOG', padx=16, pady=(4, 12))
@@ -786,7 +790,7 @@ class BewerbungsApp(tk.Tk):
         self._status('✓  API Key gespeichert.')
 
     # ── KI GENERATION ───────────────────────────────────────────────────
-    def _ki_generate(self, then_pdf=False):
+    def _ki_generate(self, then_pdf=False, then_send=False):
         api_key = self._api_key_var.get().strip()
         if not api_key:
             messagebox.showwarning('API Key fehlt',
@@ -844,7 +848,8 @@ class BewerbungsApp(tk.Tk):
                     self._log(f'Abgleich uebersprungen: {fehler}')
 
                 # 5) Populate GUI
-                self.after(0, lambda: self._apply_ki_result(cfg, then_pdf))
+                self.after(0, lambda: self._apply_ki_result(
+                    cfg, then_pdf, then_send))
 
             except Exception as exc:
                 self._log(f'✗ Fehler: {exc}')
@@ -855,7 +860,39 @@ class BewerbungsApp(tk.Tk):
     def _ki_generate_and_pdf(self):
         self._ki_generate(then_pdf=True)
 
-    def _apply_ki_result(self, cfg, then_pdf=False):
+    def _ki_generate_pdf_send(self):
+        """Der ganze Weg in einem Klick - der Versand fragt noch einmal nach."""
+        self._ki_generate(then_pdf=True, then_send=True)
+
+    def _empfaenger_nachtragen(self, cfg):
+        """Fehlt die Bewerbungsadresse, aus dem Anzeigentext holen.
+
+        Die KI uebersieht die Adresse gelegentlich oder greift die
+        Datenschutzadresse ab. Die lokale Suche in bewerbung_pipeline
+        sortiert nach Brauchbarkeit und ist dafuer die verlaesslichere
+        zweite Instanz.
+        """
+        vorhanden = (cfg.get('bewerbung_email') or '').strip()
+        if vorhanden and '@' in vorhanden and 'example.com' not in vorhanden:
+            return cfg
+        text = self._job_text_widget.get('1.0', 'end-1c').strip()
+        if not text:
+            return cfg
+        try:
+            from bewerbung_pipeline import finde_empfaenger
+        except ImportError:
+            return cfg
+        adresse = finde_empfaenger(text)
+        if adresse:
+            cfg['bewerbung_email'] = adresse
+            self._log(f'✓ Bewerbungsadresse aus der Anzeige: {adresse}')
+        else:
+            self._log('⚠ Keine Bewerbungsadresse in der Anzeige – '
+                      'Bewerbung läuft über die Anzeige oder die Firmenseite.')
+        return cfg
+
+    def _apply_ki_result(self, cfg, then_pdf=False, then_send=False):
+        cfg = self._empfaenger_nachtragen(cfg)
         self._stash_extra_cfg(cfg)
         self._set_config(cfg)
         self._log('✓ Alle Felder ausgefüllt.')
@@ -910,6 +947,21 @@ class BewerbungsApp(tk.Tk):
         elif then_pdf and warnungen:
             self._log('⚠ PDFs NICHT erstellt – bitte erst Warnungen beheben, '
                       'dann manuell "Beide erstellen" klicken.')
+
+        if then_send:
+            if warnungen:
+                self._log('⚠ Nicht gesendet – erst die Warnungen oben klären.')
+                return
+            if not (cfg.get('bewerbung_email') or '').strip():
+                self._log('⚠ Nicht gesendet – in der Anzeige steht keine '
+                          'Bewerbungsadresse.')
+                messagebox.showinfo(
+                    'Keine Adresse',
+                    'Die Anzeige nennt keine Bewerbungsadresse.\n\n'
+                    'Die Unterlagen sind fertig; die Bewerbung läuft über '
+                    'die Anzeige oder die Firmenseite.')
+                return
+            self._send_application_email()
 
     # ── TAB 1: STELLE & FIRMA ────────────────────────────────────────────────
     def _build_stelle_tab(self, parent):
@@ -1538,6 +1590,21 @@ class BewerbungsApp(tk.Tk):
             messagebox.showerror(
                 'Fehlende Datei(en)',
                 'Folgende Dateien wurden nicht gefunden:\n\n' + '\n'.join(missing))
+            return
+
+        # Die Adresse kommt inzwischen automatisch aus der Anzeige. Ein
+        # falscher Treffer wuerde sonst unbemerkt bei der falschen Firma
+        # landen - deshalb vor dem Absenden einmal schwarz auf weiss, was
+        # an wen geht. Eine gesendete Bewerbung laesst sich nicht zurueckholen.
+        if not messagebox.askokcancel(
+                'Bewerbung senden?',
+                f'An:      {recipient}\n'
+                f'Von:     {sender}\n'
+                f'Betreff: {subject}\n\n'
+                f'Anhang:  {os.path.basename(bewerbung_pdf)} '
+                f'(Deckblatt, Anschreiben, Lebenslauf)\n\n'
+                'Jetzt senden?'):
+            self._status('Versand abgebrochen.')
             return
 
         self._status('Bewerbungs-E-Mail wird gesendet...')

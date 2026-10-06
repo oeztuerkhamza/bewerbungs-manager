@@ -487,6 +487,13 @@ WICHTIG – Lebenslauf-Anpassung (Feld "kurzprofil"):
   fett, hebt sich nichts mehr ab – im Zweifel weniger auszeichnen.
 - "stelle" = exakte Bezeichnung aus der Anzeige; "betreff" dazu passend
   (NICHT automatisch "C# / .NET / Angular").
+- "bewerbung_email": die Adresse, an die die Bewerbung laut Anzeige geht.
+  Steht keine da, LEER lassen – niemals eine Adresse raten oder aus der
+  Firmenwebsite ableiten. Datenschutz-, Impressums- und No-Reply-Adressen
+  sind keine Bewerbungsadressen.
+- "anlagen": immer "Anschreiben, Lebenslauf". Die Mappe besteht aus
+  Deckblatt, Anschreiben und Lebenslauf; Zeugnisse werden nicht
+  mitgeschickt.
 - NUR wahrheitsgemäße Inhalte aus dem Profil; KEINE Fakten/Zahlen erfinden.
 
 GRENZEN (immer gültig):
@@ -586,6 +593,7 @@ RÜCKGABE – EXAKT dieses JSON-Schema (keine Markdown-Codeblöcke, nur roher JS
   "kurzprofil": "Auf die Stelle zugeschnittenes CV-Kurzprofil, genau 3 Sätze / max. 70 Wörter, mit höchstens 3 <b>Bold</b>-Tags. Wiederholt NICHTS aus Berufserfahrung oder Projekten; Satz 2 enthält genau eine Zahl als Beleg.",
   "betreff": "Bewerbung als ... – ...",
   "firma": "Firmenname GmbH",
+  "bewerbung_email": "Adresse aus der Anzeige, an die die Bewerbung geht; LEER lassen, wenn keine dasteht",
   "ansprechpartner": "Frau/Herrn Nachname",
   "firma_strasse": "Straße Nr",
   "firma_plz_ort": "PLZ Ort",
@@ -596,7 +604,7 @@ RÜCKGABE – EXAKT dieses JSON-Schema (keine Markdown-Codeblöcke, nur roher JS
   "absatz_3": "...",
   "absatz_4": "...",
   "absatz_5": "...",
-  "anlagen": "Anschreiben, Lebenslauf, Arbeitszeugnis, Zeugnisse, Zertifikate",
+  "anlagen": "Anschreiben, Lebenslauf",
   "email_betreff": "Bewerbung als ...",
   "email_text": "Sehr geehrte Damen und Herren,\n\n...\n\nMit freundlichen Grüßen\nHamza Öztürk\n+49 155 66859378\noeztuerk.hamza@web.de",
   "warnungen": ["Firma-Adresse nicht gefunden – bitte manuell ergänzen.", "..."]
