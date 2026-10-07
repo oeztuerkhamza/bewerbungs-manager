@@ -434,8 +434,25 @@ class BewerbungsApp(tk.Tk):
         toolbar.pack(fill='x', padx=16, pady=(12, 4))
         tk.Label(toolbar, text='🔎  Passende Stellen', bg=BG, fg=NAVY,
                  font=(FONT, 13, 'bold')).pack(side='left')
-        ttk.Button(toolbar, text='🔄  Liste neu laden', style='Accent.TButton',
+        ttk.Button(toolbar, text='📂  Aus Datei laden', style='Ghost.TButton',
                    command=self._stellen_laden).pack(side='right', padx=4)
+        self._st_such_btn = ttk.Button(
+            toolbar, text='🔄  Neu suchen', style='Accent.TButton',
+            command=self._stellen_suchen)
+        self._st_such_btn.pack(side='right', padx=4)
+        self._st_bewerten_var = tk.BooleanVar(value=True)
+        tk.Checkbutton(toolbar, text='bewerten', variable=self._st_bewerten_var,
+                       bg=BG, fg=FG_LIGHT, activebackground=BG,
+                       font=(FONT, 9)).pack(side='right', padx=(4, 8))
+        # Die Jobsuche der BA kennt nur 1/7/14/28 Tage. Andere Werte werden
+        # abgedeckt, indem der naechstgroessere abgefragt und danach selbst
+        # auf das Datum gefiltert wird - "3 Tage" ist damit moeglich.
+        self._st_tage_var = tk.StringVar(value='3')
+        ttk.Combobox(toolbar, textvariable=self._st_tage_var, width=4,
+                     state='readonly',
+                     values=['1', '3', '7', '14', '28']).pack(side='right')
+        tk.Label(toolbar, text='letzte Tage', bg=BG, fg=FG_LIGHT,
+                 font=(FONT, 9)).pack(side='right', padx=(4, 4))
         ttk.Button(toolbar, text='➡  In den KI-Assistenten',
                    style='Gold.TButton',
                    command=self._stellen_uebernehmen).pack(side='right', padx=4)
@@ -517,14 +534,63 @@ class BewerbungsApp(tk.Tk):
 
         self._st_hinweis = tk.Label(
             container, bg=BG, fg=FG_LIGHT, font=(FONT, 9), justify='left',
-            text=('Liste erzeugen oder auffrischen:  py jobsuche.py 7 '
-                  '--bewerten      ·      Doppelklick übernimmt die Anzeige '
-                  'in den KI-Assistenten'))
+            text=('Liste erzeugen oder auffrischen: Knopf „Neu suchen" oben '
+                  'rechts      ·      Doppelklick übernimmt die Anzeige in '
+                  'den KI-Assistenten'))
         self._st_hinweis.pack(fill='x', padx=16, pady=(0, 10))
 
         self._st_alle = []
         self._st_sichtbar = []
         self._stellen_laden()
+
+    def _stellen_suchen(self):
+        """Neue Suche starten - laeuft im Hintergrund, damit nichts einfriert."""
+        try:
+            import jobsuche
+        except ImportError as fehler:
+            messagebox.showerror('jobsuche.py fehlt', str(fehler))
+            return
+        try:
+            tage = int(self._st_tage_var.get())
+        except ValueError:
+            tage = 3
+        bewerten = bool(self._st_bewerten_var.get())
+
+        if bewerten and not messagebox.askokcancel(
+                'Neu suchen',
+                f'Anzeigen der letzten {tage} Tage suchen und gegen dein '
+                'Profil bewerten?\n\n'
+                'Das Bewerten lädt jede Anzeige einzeln und dauert beim '
+                'ersten Mal einige Minuten. Bereits geladene Anzeigen sind '
+                'gespeichert, spätere Läufe gehen schneller.'):
+            return
+
+        self._st_such_btn.configure(state='disabled')
+        self._st_hinweis.configure(text='Suche läuft …')
+
+        def melden(zeile):
+            self.after(0, lambda: (self._st_hinweis.configure(text=str(zeile)),
+                                   self._status(str(zeile))))
+
+        def _worker():
+            try:
+                jobsuche.aktualisiere(tage, bewerten, log=melden)
+            except Exception as fehler:
+                self.after(0, lambda: messagebox.showerror(
+                    'Suche fehlgeschlagen', str(fehler)))
+            finally:
+                self.after(0, self._stellen_suche_fertig)
+
+        threading.Thread(target=_worker, daemon=True).start()
+
+    def _stellen_suche_fertig(self):
+        self._st_such_btn.configure(state='normal')
+        self._stellen_laden()
+        self._st_hinweis.configure(
+            text=('Liste erzeugen oder auffrischen: Knopf „Neu suchen" oben '
+                  'rechts      ·      Doppelklick übernimmt die Anzeige in '
+                  'den KI-Assistenten'))
+        self._status('Stellenliste aktualisiert.')
 
     def _stellen_laden(self):
         """stellen.json einlesen; fehlt sie, bleibt die Tabelle leer."""

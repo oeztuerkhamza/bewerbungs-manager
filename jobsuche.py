@@ -24,7 +24,7 @@ import time
 import urllib.error
 import urllib.parse
 import urllib.request
-from datetime import datetime
+from datetime import date, datetime, timedelta
 
 BASE_DIR = os.path.dirname(os.path.abspath(__file__))
 OUTPUT = os.path.join(BASE_DIR, 'junior_stellen.html')
@@ -44,6 +44,32 @@ PAUSE = 0.5          # Sekunden zwischen zwei Anfragen, um höflich zu bleiben
 # Geprüft: 1 → 115, 7 → 461, 14 → 835, 28 → 1358 Treffer; 2, 3, 5, 21, 30
 # und 100 liefern unverändert 3015, also die ungefilterte Gesamtmenge.
 ERLAUBTE_TAGE = (1, 7, 14, 28)
+
+
+def api_tage(seit):
+    """Welcher erlaubte Wert deckt 'seit' Tage ab?
+
+    Immer der naechstgroessere - lieber zu viele Anzeigen holen und selbst
+    filtern als welche verpassen. Ueber 28 Tagen gibt es keine Begrenzung
+    mehr, dann wird ohne Zeitfilter abgefragt.
+    """
+    if not seit:
+        return None
+    for erlaubt in ERLAUBTE_TAGE:
+        if seit <= erlaubt:
+            return erlaubt
+    return None
+
+
+def ist_aktuell(zeile, seit):
+    """Liegt das Veroeffentlichungsdatum innerhalb von 'seit' Tagen?"""
+    if not seit:
+        return True
+    datum = (zeile.get('veroeffentlicht') or '').strip()
+    if not datum:
+        return True        # ohne Datum nicht aussortieren
+    grenze = (date.today() - timedelta(days=seit - 1)).isoformat()
+    return datum >= grenze        # ISO-Datum, Textvergleich reicht
 
 # Wohnort als Bezugspunkt für die Entfernungsspalte
 HEIMAT = ('Freiburg im Breisgau', 47.9990, 7.8421)
@@ -142,7 +168,8 @@ def sammle(veroeffentlicht_seit=None):
         neu_fuer_begriff = 0
         for page in range(1, max_seiten + 1):
             try:
-                ergebnis = hole_seite(was, page, veroeffentlicht_seit)
+                ergebnis = hole_seite(was, page,
+                                      api_tage(veroeffentlicht_seit))
             except (urllib.error.URLError, urllib.error.HTTPError,
                     TimeoutError, ValueError) as fehler:
                 print('    ! %s Seite %d: %s' % (was, page, fehler))
@@ -234,7 +261,7 @@ def normalisiere_firma(name):
     return ' '.join(n.split())
 
 
-def aufbereiten(rohdaten, beworbene):
+def aufbereiten(rohdaten, beworbene, seit=None):
     """Rohtreffer in flache Datensätze für die HTML-Seite überführen."""
     zeilen = []
     for e in rohdaten:
@@ -271,6 +298,11 @@ def aufbereiten(rohdaten, beworbene):
             'bereich': e.get('_bereich') or '',
         })
 
+    # Die BA kennt nur 1/7/14/28 Tage. Abgefragt wurde der naechstgroessere
+    # Wert, auf die gewuenschte Zahl wird hier selbst gefiltert.
+    if seit:
+        zeilen = [z for z in zeilen if ist_aktuell(z, seit)]
+
     # Explizite Einstiegsstellen zuerst, danach die neuesten Anzeigen.
     zeilen.sort(key=lambda z: (not z['einstieg'], z['veroeffentlicht'] or ''),
                 reverse=False)
@@ -305,7 +337,7 @@ def _cache_speichern(cache):
         pass        # Cache ist Beschleunigung, kein Muss
 
 
-def bewerte(zeilen, nur_unbeworbene=True, hoechstens=0):
+def bewerte(zeilen, nur_unbeworbene=True, hoechstens=0, log=print):
     """Holt den Anzeigentext und vergleicht ihn mit dem eigenen Profil.
 
     Gibt die Anzahl bewerteter Anzeigen zurueck. Texte werden zwischen zwei
@@ -315,7 +347,7 @@ def bewerte(zeilen, nur_unbeworbene=True, hoechstens=0):
         import stellen_abgleich
         import ki_assistent
     except ImportError as fehler:
-        print('Bewertung nicht moeglich: %s' % fehler)
+        log('Bewertung nicht moeglich: %s' % fehler)
         return 0
 
     offen = [z for z in zeilen if not (nur_unbeworbene and z['beworben'])]
@@ -327,8 +359,8 @@ def bewerte(zeilen, nur_unbeworbene=True, hoechstens=0):
         behalten = set(id(z) for z in frisch[:hoechstens])
         offen = [z for z in offen
                  if z['url'] in cache_vorab or id(z) in behalten]
-        print('  %d von %d noch nicht geladen – diesmal %d; erneut aufrufen '
-              'holt die naechsten.' % (len(frisch), len(zeilen), hoechstens))
+        log('  %d von %d noch nicht geladen – diesmal %d; erneut aufrufen '
+            'holt die naechsten.' % (len(frisch), len(zeilen), hoechstens))
 
     cache = _cache_laden()
     geholt = 0
@@ -343,7 +375,7 @@ def bewerte(zeilen, nur_unbeworbene=True, hoechstens=0):
             geholt += 1
             time.sleep(PAUSE)
             if geholt % 25 == 0:
-                print('  %d von %d geladen ...' % (nr, len(offen)))
+                log('  %d von %d geladen ...' % (nr, len(offen)))
                 _cache_speichern(cache)
         if not text:
             continue
@@ -364,8 +396,8 @@ def bewerte(zeilen, nur_unbeworbene=True, hoechstens=0):
 
     _cache_speichern(cache)
     bewertet = sum(1 for z in zeilen if z.get('passung') is not None)
-    print('%d Anzeigen bewertet (%d neu geladen, Rest aus dem Zwischenspeicher).'
-          % (bewertet, geholt))
+    log('%d Anzeigen bewertet (%d neu geladen, Rest aus dem Zwischenspeicher).'
+        % (bewertet, geholt))
     return bewertet
 
 
@@ -636,6 +668,49 @@ zeichne();
 
 
 # ─── MAIN ────────────────────────────────────────────────────────────────────
+def aktualisiere(seit=None, bewerten=False, max_neu=None, log=print):
+    """Suchen, bewerten, Dateien schreiben. Gibt die Trefferliste zurueck.
+
+    'log' nimmt jede Fortschrittszeile entgegen - im Terminal print, in der
+    Oberflaeche das Protokollfeld.
+    """
+    abgefragt = api_tage(seit)
+    if seit and abgefragt != seit:
+        log('Die Jobsuche kennt nur %s Tage – es werden %d abgefragt und '
+            'danach auf %d Tage gefiltert.'
+            % ('/'.join(str(t) for t in ERLAUBTE_TAGE),
+               abgefragt or 0, seit))
+
+    log('Suche Stellenanzeigen (%s) ...'
+        % ('letzte %d Tage' % seit if seit else 'alle'))
+    roh = sammle(seit)
+    if not roh:
+        log('Keine Daten erhalten. Laeuft die Internetverbindung, und '
+            'antwortet arbeitsagentur.de?')
+        return []
+
+    beworbene = lade_beworbene_firmen()
+    if beworbene:
+        log('%d Firmen aus Bewerbungen.csv zum Abgleich geladen.'
+            % len(beworbene))
+
+    zeilen = aufbereiten(roh, beworbene, seit)
+    log('%d Anzeigen nach Filter (von %d Rohtreffern).'
+        % (len(zeilen), len(roh)))
+
+    if bewerten:
+        log('Bewerte Anzeigen gegen das eigene Profil ...')
+        bewerte(zeilen, hoechstens=(STANDARD_GRENZE if max_neu is None
+                                    else max_neu), log=log)
+
+    io.open(OUTPUT, 'w', encoding='utf-8', newline='\n').write(
+        baue_html(zeilen, seit))
+    with io.open(OUTPUT_JSON, 'w', encoding='utf-8') as f:
+        json.dump(zeilen, f, ensure_ascii=False, indent=1)
+    log('Liste geschrieben: %s' % OUTPUT_JSON)
+    return zeilen
+
+
 def main():
     args = [a for a in sys.argv[1:] if not a.startswith('--')]
     bewerten = '--bewerten' in sys.argv
@@ -643,6 +718,7 @@ def main():
     for a in sys.argv[1:]:
         if a.startswith('--max='):
             grenze = int(a.split('=', 1)[1] or 0)      # --max=0 = ohne Grenze
+
     seit = None
     if args:
         try:
@@ -651,38 +727,9 @@ def main():
             print('Nutzung: py jobsuche.py [Tage] [--bewerten] [--max=N]')
             return 2
 
-    if seit and seit not in ERLAUBTE_TAGE:
-        passend = min(ERLAUBTE_TAGE, key=lambda t: abs(t - seit))
-        print('Die Jobsuche kennt nur %s Tage; %d wird still ignoriert. '
-              'Nutze stattdessen %d.'
-              % ('/'.join(str(t) for t in ERLAUBTE_TAGE), seit, passend))
-        seit = passend
-
-    print('Suche Stellenanzeigen (%s) ...'
-          % ('letzte %d Tage' % seit if seit else 'alle'))
-    roh = sammle(seit)
-    if not roh:
-        print('Keine Daten erhalten. Laeuft die Internetverbindung, und '
-              'antwortet arbeitsagentur.de?')
+    zeilen = aktualisiere(seit, bewerten, grenze)
+    if not zeilen:
         return 1
-
-    beworbene = lade_beworbene_firmen()
-    if beworbene:
-        print('%d Firmen aus Bewerbungen.csv zum Abgleich geladen.'
-              % len(beworbene))
-
-    zeilen = aufbereiten(roh, beworbene)
-    if bewerten:
-        print('')
-        print('Bewerte Anzeigen gegen das eigene Profil ...')
-        bewerte(zeilen, hoechstens=grenze)
-    io.open(OUTPUT, 'w', encoding='utf-8', newline='\n').write(
-        baue_html(zeilen, seit))
-    with io.open(OUTPUT_JSON, 'w', encoding='utf-8') as f:
-        json.dump(zeilen, f, ensure_ascii=False, indent=1)
-
-    print('\n%d Anzeigen nach Filter (von %d Rohtreffern).'
-          % (len(zeilen), len(roh)))
     if not bewerten:
         print('Tipp: py jobsuche.py --bewerten vergleicht jede Anzeige mit '
               'deinem Profil und sortiert danach.')
