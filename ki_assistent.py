@@ -338,8 +338,15 @@ def _parse_claude_json(text):
 # Codeaenderung: Umgebungsvariable CLAUDE_MODELL setzen.
 MODELL = os.environ.get('CLAUDE_MODELL', 'claude-opus-5-5')
 
+# Obergrenze fuer die ANTWORT, nicht fuer die Anzeige. Bezahlt werden nur
+# die tatsaechlich erzeugten Token, ein hohes Limit kostet also nichts -
+# ein zu niedriges dagegen die ganze Antwort.
+STANDARD_MAX_TOKENS = 16000
 
-def _request_claude(api_key, system_prompt, user_msg, max_tokens=8192):
+
+def _request_claude(api_key, system_prompt, user_msg, max_tokens=None,
+                    _nachgefasst=False):
+    max_tokens = max_tokens or STANDARD_MAX_TOKENS
     body = json.dumps({
         "model": MODELL,
         "max_tokens": max_tokens,
@@ -402,9 +409,18 @@ def _request_claude(api_key, system_prompt, user_msg, max_tokens=8192):
             text += block.get('text', '')
 
     if data.get('stop_reason') == 'max_tokens':
+        # Einmal mit doppeltem Budget nachfassen. Die Laenge der Antwort
+        # haengt von der Anzeige ab und laesst sich vorher nicht abschaetzen.
+        if not _nachgefasst:
+            return _request_claude(api_key, system_prompt, user_msg,
+                                   max_tokens * 2, True)
+        verbrauch = data.get('usage') or {}
         raise RuntimeError(
-            'Claude-Antwort wurde abgeschnitten (max_tokens erreicht). '
-            'Bitte den Stellentext kürzen und erneut versuchen.')
+            'Claude-Antwort wurde abgeschnitten: das Limit von %d '
+            'Ausgabe-Token war auch beim zweiten Versuch zu klein '
+            '(erzeugt: %s Token). Es liegt an der LÄNGE DER ANTWORT, nicht '
+            'an der Anzeige – STANDARD_MAX_TOKENS in ki_assistent.py '
+            'erhöhen.' % (max_tokens, verbrauch.get('output_tokens', '?')))
 
     return text.strip()
 
@@ -487,6 +503,10 @@ WICHTIG – Lebenslauf-Anpassung (Feld "kurzprofil"):
   fett, hebt sich nichts mehr ab – im Zweifel weniger auszeichnen.
 - "stelle" = exakte Bezeichnung aus der Anzeige; "betreff" dazu passend
   (NICHT automatisch "C# / .NET / Angular").
+- "warnungen": je EIN kurzer Satz, höchstens 6 Einträge. Nur, was
+  wirklich von Hand nachgetragen werden muss. Keine Wiederholung
+  dessen, was schon unter "fehlende_begriffe" steht, und keine
+  Ratschläge zur Bewerbungsstrategie.
 - "fehlende_begriffe": die Technologien und Werkzeuge, die die Anzeige
   ausdrücklich verlangt und die im Profil NICHT belegt sind – als Liste
   einzelner Begriffe, nicht als Satz. Jeder Begriff so, wie er in einem
@@ -649,7 +669,7 @@ def call_claude(api_key, job_text, extra_instructions=""):
         user_msg += f"\n\nZUSÄTZLICHE HINWEISE DES BEWERBERS:\n{extra_instructions}"
 
     # 1) First try
-    text = _request_claude(api_key, SYSTEM_PROMPT, user_msg, max_tokens=8192)
+    text = _request_claude(api_key, SYSTEM_PROMPT, user_msg)
     try:
         cfg = _parse_claude_json(text)
     except json.JSONDecodeError:
@@ -660,7 +680,7 @@ def call_claude(api_key, job_text, extra_instructions=""):
               'Antworte jetzt ausschließlich mit einem vollständigen, '
               'valide parsebaren JSON-Objekt gemäß Schema. Kein Fließtext.'
         )
-        text_retry = _request_claude(api_key, SYSTEM_PROMPT, retry_msg, max_tokens=8192)
+        text_retry = _request_claude(api_key, SYSTEM_PROMPT, retry_msg)
         try:
             cfg = _parse_claude_json(text_retry)
         except json.JSONDecodeError as e:
