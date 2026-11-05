@@ -502,8 +502,8 @@ WICHTIG – Positionierung:
   oft papiergebundene Abläufe aufnehmen, als System bauen UND anschließend
   betreiben. Das gehört in den ersten Absatz, nicht die Technologieliste.
 - Nenne mindestens ein konkretes Ergebnis mit Zahl aus dem Profil (z.B. über
-  2.000 papierlos erzeugte Belege, Deployment-Zeit um 40 % reduziert,
-  ERP-Migration über die gesamte Prozesskette). KEINE Geldbeträge – Umsatz-
+  2.000 papierlos erzeugte Belege, ERP-Migration über die gesamte
+  Prozesskette). KEINE Geldbeträge – Umsatz-
   und Preisangaben gehören ausschließlich in den Lebenslauf. Ohne eine solche
   Zahl ist die E-Mail unbrauchbar.
 - IT-Betreuung und Systemadministration dürfen als Ergänzung vorkommen, aber

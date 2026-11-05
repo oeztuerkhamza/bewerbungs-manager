@@ -335,8 +335,7 @@ DEFAULT_CONFIG = {
         'Fachlich über die gesamte Prozesskette gearbeitet: <b>Stammdaten, '
         'Artikel, Einkauf, Verkauf und Leergut-/Pfandabwicklung</b>',
         'Betrieb selbst aufgebaut und automatisiert: Docker-Stack, CI/CD mit '
-        'Zero-Downtime-Deployment, eigener Mailserver – Deployment-Zeit um '
-        '40 % reduziert',
+        'Zero-Downtime-Deployment, eigener Mailserver',
     ],
     'absatz_3': (
         'Was ich mitbringe, endet nicht beim Rollout: Ich nehme bestehende '

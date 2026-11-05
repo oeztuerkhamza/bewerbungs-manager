@@ -478,8 +478,8 @@ ERFAHRUNG_FULLSTACK = [
             'Anforderungsanalyse bis zum Rollout beim Kunden.',
 
             'Datenbankmodelle neu aufgebaut und optimiert (<b>EF Core</b>, '
-            'SQL Server); CI/CD mit GitHub Actions und Azure DevOps — '
-            'Deployment-Zeit um <b>40 %</b> reduziert.',
+            'SQL Server); CI/CD-Pipelines mit GitHub Actions und Azure '
+            'DevOps aufgebaut.',
 
             'Frontend-Module mit <b>Angular</b>, NgRx und Reactive Forms; '
             'Unit- und Integrationstests mit xUnit und Moq fest in der '
@@ -575,8 +575,7 @@ ERFAHRUNG_IT_SUPPORT = [
             'aufgenommen, nachgestellt und behoben.',
 
             'Mitbetreuung der <b>Azure</b>-Umgebungen für Dev, Staging und '
-            'Produktion; CI/CD mit GitHub Actions und Azure DevOps — '
-            'Deployment-Zeit um <b>40 %</b> reduziert.',
+            'Produktion; CI/CD-Pipelines mit GitHub Actions und Azure DevOps.',
 
             'Wartung und Fehleranalyse im laufenden ERP-Betrieb über die '
             'gesamte Prozesskette; Datenbankmodelle und Abfragen optimiert '
@@ -866,8 +865,8 @@ ERFAHRUNG_FULLSTACK_EN = [
             'from requirements analysis to rollout at the customer.',
 
             'Rebuilt and optimised the database models (<b>EF Core</b>, '
-            'SQL Server); CI/CD with GitHub Actions and Azure DevOps — '
-            'deployment time reduced by <b>40%</b>.',
+            'SQL Server); built CI/CD pipelines with GitHub Actions and '
+            'Azure DevOps.',
 
             'Frontend modules with <b>Angular</b>, NgRx and reactive forms; '
             'unit and integration tests with xUnit and Moq wired into the '
@@ -962,8 +961,7 @@ ERFAHRUNG_IT_SUPPORT_EN = [
             'departments, reproduced and fixed them.',
 
             'Co-maintained the <b>Azure</b> environments for dev, staging and '
-            'production; CI/CD with GitHub Actions and Azure DevOps — '
-            'deployment time reduced by <b>40%</b>.',
+            'production; CI/CD pipelines with GitHub Actions and Azure DevOps.',
 
             'Maintenance and fault analysis in live ERP operation across the '
             'whole process chain; optimised data models and queries '

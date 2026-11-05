@@ -58,9 +58,9 @@ Dicom GmbH, Freiburg im Breisgau | 02/2024 – 02/2026
   Leergut-/Pfandabwicklung; von der Anforderungsanalyse bis zum Rollout.
 • Full-Stack & Architektur: Feature-Entwicklung in C#/.NET (Backend) und
   Angular (Frontend); Migration monolithischer Desktop-Apps auf Clean Architecture.
-• CI/CD & Code-Qualität: GitHub Actions-Pipelines aufgebaut – Deployment-Zeit
-  40% schneller; Code-Qualität durch systematisches Refactoring und ein
-  verbindliches Quality Gate abgesichert.
+• CI/CD & Code-Qualität: GitHub Actions-Pipelines aufgebaut; Code-Qualität
+  durch systematisches Refactoring und ein verbindliches Quality Gate
+  abgesichert.
 • KI & API: RESTful APIs designed; KI-Tools und Prompt Engineering zur
   Code-Generierung und Fehleranalyse eingesetzt.
 
@@ -480,8 +480,8 @@ WICHTIG – Lebenslauf-Anpassung (Feld "kurzprofil"):
      Konzeption bis zum Betrieb), plus GENAU EINE Zahl als Beleg. Zahlen,
      die zur Verfügung stehen: über 2.000 Belege und 405 Mietverträge
      (2026), 342.000 Impressionen und 13.000 organische Klicks in 6
-     Monaten, 40 Controller und 46 Domain-Entities, Deployment-Zeit um
-     40 % reduziert, Testabdeckung über 60 %, 15+ Angular-Komponenten.
+     Monaten, 40 Controller und 46 Domain-Entities, Testabdeckung über
+     60 %, 15+ Angular-Komponenten.
      Nimm die Zahl, die zur Anzeige passt – KEINE zweite dazu, und KEINE
      erfundene.
   3) Qualifikation und Technik in EINEM Satz: "Als <b>Fachinformatiker für
@@ -602,8 +602,8 @@ WICHTIG – Bewerbungs-E-Mail:
   Erwähne die Stelle, verweise auf die Anhänge (Lebenslauf & Anschreiben),
   und schließe mit freundlichen Grüßen.
 - Die E-Mail MUSS mindestens ein konkretes Ergebnis mit Zahl aus dem Profil
-  nennen (z.B. papierlose Abwicklung von über 2.000 Belegen, Deployment-Zeit
-  um 40 % reduziert, ERP-Migration über die gesamte Prozesskette). KEINE
+  nennen (z.B. papierlose Abwicklung von über 2.000 Belegen, ERP-Migration
+  über die gesamte Prozesskette). KEINE
   Geldbeträge. Eine E-Mail, die nur "ich bewerbe mich und freue mich auf Ihre
   Antwort" sagt, ist unbrauchbar.
 - Stelle einen Bezug zur Firma her: was sie tut und wo dabei
