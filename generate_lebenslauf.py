@@ -358,7 +358,7 @@ def _draw_page(canvas, doc):
 DEFAULT_KURZPROFIL = (
     'Ich digitalisiere <b>kaufmännische Geschäftsprozesse</b> – vom Papierbeleg '
     'über Datenmodell und API bis zu dem Server, auf dem das Ganze läuft. '
-    'Bei Bike Haus Freiburg verantworte ich die Warenwirtschafts- und '
+    'Bei Bike Haus Freiburg verantwortete ich die Warenwirtschafts- und '
     'Vermietungsplattform von der Konzeption bis zum Betrieb; sie bildet den '
     'gesamten Belegfluss ab – <b>Vermietung, An- und Verkauf laufen '
     'papierlos</b>. Als '
@@ -393,7 +393,7 @@ SPRACHE_EN = 'en'
 KURZPROFIL_IT_SUPPORT = (
     'Ich halte die IT eines Betriebs am Laufen – von der Anwenderfrage am '
     'Arbeitsplatz über Server und Mail bis zur Dokumentation. Bei Bike Haus '
-    'Freiburg verantworte ich die <b>komplette Inhouse-IT</b> – vom '
+    'Freiburg verantwortete ich die <b>komplette Inhouse-IT</b> – vom '
     'Linux-Server bis zum Arbeitsplatz – und habe das Tagesgeschäft auf '
     'digitale Belege umgestellt – <b>Vermietung, An- und Verkauf laufen '
     'papierlos</b>. Weil ich die '
@@ -442,7 +442,7 @@ _P_DJVEYS = _projekt_kopf(
 ERFAHRUNG_FULLSTACK = [
     {
         'title':  'Bike Haus Freiburg – Full-Stack-Entwickler (Inhouse-Software)',
-        'period': '03/2026 – heute',
+        'period': '03/2026 – 10/2026',
         'sub':    _LNK_BIKEHAUS,
         'bullets': [
             'Warenwirtschafts- und Vermietungsplattform von der Konzeption '
@@ -545,7 +545,7 @@ ERFAHRUNG_IT_SUPPORT = [
     {
         'title':  'Bike Haus Freiburg – Inhouse-IT: Systembetrieb, '
                   'Anwenderbetreuung &amp; Entwicklung',
-        'period': '03/2026 – heute',
+        'period': '03/2026 – 10/2026',
         'sub':    _LNK_BIKEHAUS,
         'bullets': [
             'Betrieb der kompletten Firmen-IT: <b>Linux-Server</b> (VPS) mit '
@@ -788,7 +788,7 @@ BILDUNGSWEG = [
 PROFILE_FULLSTACK_EN = (
     'I digitalise <b>commercial business processes</b> – from the paper '
     'document through data model and API to the server it all runs on. At '
-    'Bike Haus Freiburg I am responsible for the inventory and rental '
+    'Bike Haus Freiburg I was responsible for the inventory and rental '
     'platform from concept to operation; it carries the entire document '
     'flow – <b>rentals, purchases and sales run paperless</b>. As a '
     'qualified '
@@ -800,7 +800,7 @@ PROFILE_FULLSTACK_EN = (
 PROFILE_IT_SUPPORT_EN = (
     "I keep a company's IT running – from the question at the user's desk "
     'through servers and mail to proper documentation. At Bike Haus Freiburg '
-    'I am responsible for the <b>entire in-house IT</b> – from the Linux '
+    'I was responsible for the <b>entire in-house IT</b> – from the Linux '
     'server to the desk – and moved daily business onto digital documents '
     '– <b>rentals, purchases and sales run paperless</b>. Because I built '
     'the software in use '
@@ -832,7 +832,7 @@ _P_DJVEYS_EN = _projekt_kopf(
 ERFAHRUNG_FULLSTACK_EN = [
     {
         'title':  'Bike Haus Freiburg – Full-Stack Developer (In-House Software)',
-        'period': '03/2026 – present',
+        'period': '03/2026 – 10/2026',
         'sub':    _LNK_BIKEHAUS,
         'bullets': [
             'Owned an in-house inventory and rental platform from concept to '
@@ -850,7 +850,7 @@ ERFAHRUNG_FULLSTACK_EN = [
             'and Kleinanzeigen on the Claude API with multilingual reply '
             'drafts, own Kleinanzeigen scraper.',
 
-            'Run the whole operation myself: multi-container <b>Docker</b> stack '
+            'Ran the whole operation myself: multi-container <b>Docker</b> stack '
             'on an own VPS, GitHub Actions CI/CD with zero-downtime '
             'deployment, Nginx with TLS and HSTS/CSP, own mail server with '
             'DKIM/SPF/DMARC.',
@@ -934,10 +934,10 @@ ERFAHRUNG_IT_SUPPORT_EN = [
     {
         'title':  'Bike Haus Freiburg – In-House IT: Systems Operation, '
                   'User Support &amp; Development',
-        'period': '03/2026 – present',
+        'period': '03/2026 – 10/2026',
         'sub':    _LNK_BIKEHAUS,
         'bullets': [
-            "Operating the company's entire IT: <b>Linux servers</b> (VPS) "
+            "Operated the company's entire IT: <b>Linux servers</b> (VPS) "
             'with a multi-container Docker stack, Nginx as reverse proxy (TLS, '
             'HSTS/CSP), automated backups and monitoring.',
 
@@ -953,7 +953,7 @@ ERFAHRUNG_IT_SUPPORT_EN = [
             'sales</b> run fully digital.',
 
             'Automation and development: <b>GitHub Actions</b> CI/CD with '
-            'zero-downtime deployment, Python scripts; built and maintain the '
+            'zero-downtime deployment, Python scripts; built and maintained the '
             'platform in use myself (.NET 9, Angular 17).',
         ],
     },

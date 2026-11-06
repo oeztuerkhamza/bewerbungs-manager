@@ -33,7 +33,7 @@ Codequalität, saubere Architektur und stabilen Produktivbetrieb.
 Bei der Dicom GmbH habe ich am Enterprise-ERP-System
 DI-ONE eine monolithische Desktop-Anwendung schrittweise auf Clean Architecture
 migriert und CI/CD-Pipelines mit GitHub Actions und Azure Pipelines aufgebaut.
-Aktuell verantworte ich bei Bike Haus Freiburg eine produktiv genutzte
+Bis 10/2026 verantwortete ich bei Bike Haus Freiburg eine produktiv genutzte
 Warenwirtschafts- und Vermietungsplattform (.NET 9 / Angular 17, SQLite),
 die den gesamten Belegfluss digital abbildet und auf einem selbst betriebenen
 Docker-Stack mit Zero-Downtime-Deployment läuft. Mit TypeScript und React
@@ -41,7 +41,7 @@ arbeite ich ebenfalls regelmäßig.
 
 BERUFSERFAHRUNG:
 Full-Stack-Entwickler (Inhouse-Software)
-Bike Haus Freiburg | 03/2026 – heute
+Bike Haus Freiburg | 03/2026 – 10/2026
 • Eigene Warenwirtschafts- und Vermietungsplattform (.NET 9, Angular 17, SSR),
   produktiv im Einsatz.
 • Vermietung, An- und Verkauf laufen papierlos: Online-Buchung, PDF-Belege
@@ -476,7 +476,8 @@ WICHTIG – Lebenslauf-Anpassung (Feld "kurzprofil"):
      zu dem Server, auf dem das Ganze läuft." Die Fachlichkeit und das Ende
      der Kette kommen aus der Anzeige. NICHT mit "Codequalität" oder
      "saubere Architektur" eröffnen – das schreibt jeder Bewerber.
-  2) Aktuelle Verantwortung bei Bike Haus Freiburg als BOGEN (z.B. von der
+  2) Letzte Station bei Bike Haus Freiburg (bis 10/2026, Vergangenheitsform)
+     als BOGEN (z.B. von der
      Konzeption bis zum Betrieb), plus GENAU EIN konkretes Ergebnis als
      Beleg – OHNE Zahl. Ergebnisse, die zur Verfügung stehen: Vermietung,
      An- und Verkauf laufen papierlos; ERP-Migration über die gesamte
