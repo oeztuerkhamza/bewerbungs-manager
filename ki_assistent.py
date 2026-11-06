@@ -94,7 +94,7 @@ AUSBILDUNG:
   verkürzte duale Ausbildung – Walther-Rathenau-Gewerbeschule Freiburg,
   Ausbildungsbetrieb Dicom GmbH
 • 02/2023 – 12/2023: Deutsch-Sprachausbildung bis C1, Deutschkolleg Stuttgart
-• 05/2022 – 03/2023: Data Analytics & Visualization (260 Std.), Clarusway IT School
+• 05/2022 – 03/2023: Data Analytics & Visualization, Clarusway IT School
 • 10/2019 – 08/2022: Wirtschaftsingenieurwesen, TU Istanbul (İTÜ) – ohne Abschluss
 • 08/2015 – 07/2019: Militärwissenschaften – ohne Abschluss,
   Türkische Luftwaffenakademie Istanbul

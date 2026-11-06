@@ -775,7 +775,7 @@ BILDUNGSWEG = [
     },
     {
         'period': '05/2022 – 03/2023',
-        'title':  'Zertifikat: Data Analytics &amp; Visualization (260 Std.)',
+        'title':  'Zertifikat: Data Analytics &amp; Visualization',
         'inst':   'Clarusway IT School',
     },
 ]
@@ -1063,7 +1063,7 @@ BILDUNGSWEG_EN = [
     },
     {
         'period': '05/2022 – 03/2023',
-        'title':  'Certificate: Data Analytics &amp; Visualization (260 hours)',
+        'title':  'Certificate: Data Analytics &amp; Visualization',
         'inst':   'Clarusway IT School',
     },
 ]
