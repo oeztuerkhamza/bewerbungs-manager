@@ -78,7 +78,8 @@ PROJEKTE:
    strukturierte Daten, cookiefreies Analytics.
 
 2) Kulturplattform Freiburg e.V. (kulturplattformfreiburg.org) – ehrenamtliche Arbeit
-   Vereinswebsite mit Admin-Panel, Newsletter, DE/TR-Zweisprachigkeit.
+   Bestehende WordPress-Vereinswebsite mit React und C#/.NET neu entwickelt:
+   Admin-Panel, Newsletter, DE/TR-Zweisprachigkeit.
    .NET 10 Clean Architecture, React 19, Docker Compose.
 
 3) DI-ONE – Enterprise Getränke-ERP (Dicom GmbH)

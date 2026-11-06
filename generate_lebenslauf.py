@@ -507,8 +507,9 @@ PROJEKTE_FULLSTACK = [
     {
         'head': _P_KULTUR,
         'bullets': [
-            '<b>.NET 10</b>, React 19, Docker Compose — Admin-Panel, '
-            'Newsletter-System, Bildverarbeitung, DE/TR-Zweisprachigkeit.',
+            'Bestehende <b>WordPress</b>-Website abgelöst und mit <b>.NET 10</b> '
+            '(C#) und React 19 neu entwickelt — Admin-Panel, Newsletter-System, '
+            'Bildverarbeitung, DE/TR-Zweisprachigkeit.',
         ],
     },
     {
@@ -604,8 +605,9 @@ PROJEKTE_IT_SUPPORT = [
     {
         'head': _P_KULTUR,
         'bullets': [
-            '<b>.NET 10</b>, React 19 und Docker Compose — Aufbau und Betrieb '
-            'inklusive Admin-Panel und Newsletter-System; ehrenamtlich betreut.',
+            '<b>WordPress</b>-Website durch Eigenentwicklung abgelöst: '
+            '<b>.NET 10</b> (C#), React 19 und Docker Compose — Aufbau und '
+            'Betrieb inklusive Admin-Panel und Newsletter-System.',
         ],
     },
     {
@@ -895,8 +897,9 @@ PROJEKTE_FULLSTACK_EN = [
     {
         'head': _P_KULTUR_EN,
         'bullets': [
-            '<b>.NET 10</b>, React 19, Docker Compose — admin panel, '
-            'newsletter system, image processing, DE/TR bilingual content.',
+            'Replaced the existing <b>WordPress</b> site with a new build on '
+            '<b>.NET 10</b> (C#) and React 19 — admin panel, newsletter '
+            'system, image processing, DE/TR bilingual content.',
         ],
     },
     {
@@ -991,8 +994,9 @@ PROJEKTE_IT_SUPPORT_EN = [
     {
         'head': _P_KULTUR_EN,
         'bullets': [
-            '<b>.NET 10</b>, React 19 and Docker Compose — built and operated '
-            'including admin panel and newsletter system; maintained '
+            'Replaced the <b>WordPress</b> site with an own build: <b>.NET 10</b> '
+            '(C#), React 19 and Docker Compose — built and operated including '
+            'admin panel and newsletter system; maintained '
             'voluntarily.',
         ],
     },
