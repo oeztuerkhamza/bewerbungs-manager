@@ -328,7 +328,7 @@ DEFAULT_CONFIG = {
     'highlights': [
         'Eigene Warenwirtschafts- und Vermietungsplattform konzipiert, '
         'entwickelt und im Tagesgeschäft betrieben – <b>Vermietung, An- und '
-        'Verkauf laufen papierlos</b>, über 2.000 Belege digital erzeugt',
+        'Verkauf laufen papierlos</b>, alle Belege digital erzeugt',
         'Im Team ein ERP für den Getränke-Großhandel von WinForms auf '
         '<b>C#/.NET</b> und <b>Angular</b> migriert – Clean Architecture, '
         'produktiv im Einsatz',

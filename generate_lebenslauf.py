@@ -352,14 +352,16 @@ def _draw_page(canvas, doc):
 
 # ─── DEFAULT CONFIG ──────────────────────────────────────────────────────────
 # Das Kurzprofil soll nicht wiederholen, was zwei Zentimeter tiefer in der
-# Berufserfahrung steht. Es nennt deshalb den Verantwortungsbogen und eine
-# Zahl als Beleg - die Technik steht ohnehin in den IT-Kenntnissen.
+# Berufserfahrung steht. Es nennt deshalb den Verantwortungsbogen und ein
+# Ergebnis als Beleg (keine Kennzahlen) - die Technik steht ohnehin in den
+# IT-Kenntnissen.
 DEFAULT_KURZPROFIL = (
     'Ich digitalisiere <b>kaufmännische Geschäftsprozesse</b> – vom Papierbeleg '
     'über Datenmodell und API bis zu dem Server, auf dem das Ganze läuft. '
     'Bei Bike Haus Freiburg verantworte ich die Warenwirtschafts- und '
     'Vermietungsplattform von der Konzeption bis zum Betrieb; sie bildet den '
-    'gesamten Belegfluss ab, <b>über 2.000 Belege in 2026</b>. Als '
+    'gesamten Belegfluss ab – <b>Vermietung, An- und Verkauf laufen '
+    'papierlos</b>. Als '
     '<b>Fachinformatiker für Anwendungsentwicklung (IHK)</b> arbeite ich mit '
     '.NET, Angular und Docker, daneben mit TypeScript und React.'
 )
@@ -393,7 +395,8 @@ KURZPROFIL_IT_SUPPORT = (
     'Arbeitsplatz über Server und Mail bis zur Dokumentation. Bei Bike Haus '
     'Freiburg verantworte ich die <b>komplette Inhouse-IT</b> – vom '
     'Linux-Server bis zum Arbeitsplatz – und habe das Tagesgeschäft auf '
-    'digitale Belege umgestellt: <b>über 2.000 in 2026</b>. Weil ich die '
+    'digitale Belege umgestellt – <b>Vermietung, An- und Verkauf laufen '
+    'papierlos</b>. Weil ich die '
     'eingesetzte Software als <b>Fachinformatiker für Anwendungsentwicklung '
     '(IHK)</b> selbst gebaut habe, verfolge ich eine Störung bis zur Ursache '
     '– Konfiguration, Daten oder Anwendung.'
@@ -447,18 +450,17 @@ ERFAHRUNG_FULLSTACK = [
             'Admin-SPA und SSR-Homepage — der Betrieb arbeitet täglich damit.',
 
             'Beleglauf papierlos: Online-Buchung, PDF-Belege mit QR-Code, '
-            'digitale Unterschrift, Kaution — <b>über 2.000 Belege</b> und '
-            '405 Mietverträge in 2026.',
+            'digitale Unterschrift, Kaution — <b>Vermietung, An- und '
+            'Verkauf</b> laufen komplett digital.',
 
-            'SEO-Ausbau der SSR-Homepage (12 Sprachen mit hreflang, '
-            'Prerendering, IndexNow): <b>342.000 Impressionen und 13.000 '
-            'organische Klicks in 6 Monaten</b>.',
+            '<b>SEO-Ausbau</b> der SSR-Homepage: mehrsprachig mit hreflang, '
+            'Prerendering und IndexNow.',
 
             '<b>KI-Features im Produktivbetrieb</b>: Assistenten für Gmail, '
             'WhatsApp und Kleinanzeigen auf OpenAI API mit mehrsprachigen '
             'Antwortentwürfen, Kleinanzeigen-Scraper mit Playwright.',
 
-            'Den gesamten Betrieb selbst in der Hand: 6-Container-<b>Docker</b>'
+            'Den gesamten Betrieb selbst in der Hand: Multi-Container-<b>Docker</b>'
             '-Stack auf eigenem VPS, GitHub Actions CI/CD mit '
             'Zero-Downtime-Deployment, Nginx mit TLS und HSTS/CSP, eigener '
             'Mailserver mit DKIM/SPF/DMARC.',
@@ -483,7 +485,7 @@ ERFAHRUNG_FULLSTACK = [
 
             'Frontend-Module mit <b>Angular</b>, NgRx und Reactive Forms; '
             'Unit- und Integrationstests mit xUnit und Moq fest in der '
-            'Pipeline, Testabdeckung auf über <b>60 %</b> gesteigert.',
+            'Pipeline verankert.',
         ],
     },
 ]
@@ -514,7 +516,7 @@ PROJEKTE_FULLSTACK = [
         'bullets': [
             '<b>Next.js 16</b>/React 19 mit Payload CMS 3, TypeScript und '
             'Tailwind 4 — redaktionell pflegbare Inhalte, Anfragestrecke mit '
-            'Zod-Validierung; 9-sprachig mit Landing-Pages je Region.',
+            'Zod-Validierung; mehrsprachig mit Landing-Pages je Region.',
         ],
     },
 ]
@@ -546,7 +548,7 @@ ERFAHRUNG_IT_SUPPORT = [
         'sub':    _LNK_BIKEHAUS,
         'bullets': [
             'Betrieb der kompletten Firmen-IT: <b>Linux-Server</b> (VPS) mit '
-            '6-Container-Docker-Stack, Nginx als Reverse Proxy (TLS, '
+            'Multi-Container-Docker-Stack, Nginx als Reverse Proxy (TLS, '
             'HSTS/CSP), automatisierte Backups und Monitoring.',
 
             'Eigener <b>Mailserver</b> (Mailcow) inklusive DNS-Einrichtung mit '
@@ -557,8 +559,8 @@ ERFAHRUNG_IT_SUPPORT = [
             'Umsetzung von Änderungswünschen.',
 
             'Papierlose Abläufe eingeführt (Online-Buchung, PDF-Belege mit '
-            'QR-Code, digitale Unterschrift): <b>über 2.000 Belege</b> digital '
-            'erzeugt (2026).',
+            'QR-Code, digitale Unterschrift): <b>Vermietung, An- und '
+            'Verkauf</b> laufen komplett digital.',
 
             'Automatisierung und Entwicklung: <b>GitHub Actions</b> CI/CD mit '
             'Zero-Downtime-Deployment, Python-Skripte; die genutzte Plattform '
@@ -582,7 +584,7 @@ ERFAHRUNG_IT_SUPPORT = [
             '(<b>SQL Server</b>, EF Core).',
 
             'Qualitätssicherung im Team: Unit- und Integrationstests mit xUnit '
-            'und Moq, Testabdeckung auf über <b>60 %</b> gesteigert.',
+            'und Moq als fester Teil der Pipeline.',
         ],
     },
 ]
@@ -610,7 +612,7 @@ PROJEKTE_IT_SUPPORT = [
         'head': _P_DJVEYS,
         'bullets': [
             '<b>Next.js 16</b> mit Payload CMS 3: redaktionell pflegbare '
-            'Inhalte, 9-sprachig — Betrieb und Updates laufend betreut.',
+            'Inhalte, mehrsprachig — Betrieb und Updates laufend betreut.',
         ],
     },
 ]
@@ -786,7 +788,8 @@ PROFILE_FULLSTACK_EN = (
     'document through data model and API to the server it all runs on. At '
     'Bike Haus Freiburg I am responsible for the inventory and rental '
     'platform from concept to operation; it carries the entire document '
-    'flow, <b>more than 2,000 documents in 2026</b>. As a qualified '
+    'flow – <b>rentals, purchases and sales run paperless</b>. As a '
+    'qualified '
     '<b>IT Specialist in Application Development (IHK)</b> I work with .NET, '
     'Angular and Docker, alongside TypeScript and React.'
 )
@@ -796,8 +799,9 @@ PROFILE_IT_SUPPORT_EN = (
     "I keep a company's IT running – from the question at the user's desk "
     'through servers and mail to proper documentation. At Bike Haus Freiburg '
     'I am responsible for the <b>entire in-house IT</b> – from the Linux '
-    'server to the desk – and moved daily business onto digital documents: '
-    '<b>more than 2,000 in 2026</b>. Because I built the software in use '
+    'server to the desk – and moved daily business onto digital documents '
+    '– <b>rentals, purchases and sales run paperless</b>. Because I built '
+    'the software in use '
     'myself as an <b>IT Specialist in Application Development (IHK)</b>, I '
     'trace a fault to where it originates – configuration, data or '
     'application.'
@@ -834,18 +838,17 @@ ERFAHRUNG_FULLSTACK_EN = [
             'website — the business runs on it every day.',
 
             'Paperless document flow: online booking, PDF documents with QR '
-            'code, digital signature, deposit — <b>more than 2,000 '
-            'documents</b> and 405 rental contracts in 2026.',
+            'code, digital signature, deposit — <b>rentals, purchases and '
+            'sales</b> run fully digital.',
 
-            'SEO work on the SSR website (12 languages with hreflang, '
-            'prerendering, IndexNow): <b>342,000 impressions and 13,000 '
-            'organic clicks within 6 months</b>.',
+            '<b>SEO work</b> on the SSR website: multilingual with '
+            'hreflang, prerendering and IndexNow.',
 
             '<b>AI features in production</b>: assistants for Gmail, WhatsApp '
             'and Kleinanzeigen on the OpenAI API with multilingual reply '
             'drafts, Kleinanzeigen scraper with Playwright.',
 
-            'Run the whole operation myself: 6-container <b>Docker</b> stack '
+            'Run the whole operation myself: multi-container <b>Docker</b> stack '
             'on an own VPS, GitHub Actions CI/CD with zero-downtime '
             'deployment, Nginx with TLS and HSTS/CSP, own mail server with '
             'DKIM/SPF/DMARC.',
@@ -870,7 +873,7 @@ ERFAHRUNG_FULLSTACK_EN = [
 
             'Frontend modules with <b>Angular</b>, NgRx and reactive forms; '
             'unit and integration tests with xUnit and Moq wired into the '
-            'pipeline, test coverage raised above <b>60%</b>.',
+            'pipeline.',
         ],
     },
 ]
@@ -901,7 +904,7 @@ PROJEKTE_FULLSTACK_EN = [
         'bullets': [
             '<b>Next.js 16</b>/React 19 with Payload CMS 3, TypeScript and '
             'Tailwind 4 — editorially maintainable content, enquiry flow with '
-            'Zod validation; 9 languages with landing pages per region.',
+            'Zod validation; multilingual with landing pages per region.',
         ],
     },
 ]
@@ -932,7 +935,7 @@ ERFAHRUNG_IT_SUPPORT_EN = [
         'sub':    _LNK_BIKEHAUS,
         'bullets': [
             "Operating the company's entire IT: <b>Linux servers</b> (VPS) "
-            'with a 6-container Docker stack, Nginx as reverse proxy (TLS, '
+            'with a multi-container Docker stack, Nginx as reverse proxy (TLS, '
             'HSTS/CSP), automated backups and monitoring.',
 
             'Own <b>mail server</b> (Mailcow) including DNS setup with DKIM, '
@@ -943,8 +946,8 @@ ERFAHRUNG_IT_SUPPORT_EN = [
             'implementing change requests.',
 
             'Introduced paperless workflows (online booking, PDF documents '
-            'with QR code, digital signature): <b>more than 2,000 '
-            'documents</b> generated digitally (2026).',
+            'with QR code, digital signature): <b>rentals, purchases and '
+            'sales</b> run fully digital.',
 
             'Automation and development: <b>GitHub Actions</b> CI/CD with '
             'zero-downtime deployment, Python scripts; built and maintain the '
@@ -968,7 +971,7 @@ ERFAHRUNG_IT_SUPPORT_EN = [
             '(<b>SQL Server</b>, EF Core).',
 
             'Quality assurance within the team: unit and integration tests '
-            'with xUnit and Moq, test coverage raised above <b>60%</b>.',
+            'with xUnit and Moq as a fixed part of the pipeline.',
         ],
     },
 ]
@@ -997,7 +1000,7 @@ PROJEKTE_IT_SUPPORT_EN = [
         'head': _P_DJVEYS_EN,
         'bullets': [
             '<b>Next.js 16</b> with Payload CMS 3: editorially maintainable '
-            'content, 9 languages — operation and updates maintained '
+            'content, multilingual — operation and updates maintained '
             'continuously.',
         ],
     },

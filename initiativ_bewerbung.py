@@ -471,8 +471,8 @@ DEFAULT_TEXT = (
     'Für einen Fahrradhändler in Freiburg habe ich eine eigene '
     'Warenwirtschafts- und Vermietungsplattform entwickelt und betreibe sie '
     'dort im Tagesgeschäft: Vermietung, Ankauf und Verkauf laufen vollständig '
-    'digital. 2026 wurden darüber über 2.000 Belege erzeugt – Mietverträge '
-    'mit QR-Code und digitaler Unterschrift, Kautionsabwicklung und '
+    'digital – Mietverträge mit QR-Code und digitaler Unterschrift, '
+    'Kautionsabwicklung und '
     'automatischer Mailversand inklusive. Zuvor habe ich im Team ein '
     'ERP-System für den Getränke-Großhandel von einer Desktop-Anwendung in '
     'eine Web-Architektur überführt, über die gesamte Prozesskette von '
@@ -501,11 +501,10 @@ WICHTIG – Positionierung:
 - Kern des Bewerbers ist die DIGITALISIERUNG VON GESCHÄFTSPROZESSEN: bestehende,
   oft papiergebundene Abläufe aufnehmen, als System bauen UND anschließend
   betreiben. Das gehört in den ersten Absatz, nicht die Technologieliste.
-- Nenne mindestens ein konkretes Ergebnis mit Zahl aus dem Profil (z.B. über
-  2.000 papierlos erzeugte Belege, ERP-Migration über die gesamte
-  Prozesskette). KEINE Geldbeträge – Umsatz-
-  und Preisangaben gehören ausschließlich in den Lebenslauf. Ohne eine solche
-  Zahl ist die E-Mail unbrauchbar.
+- Nenne mindestens ein konkretes Ergebnis aus dem Profil, OHNE Zahl (z.B.
+  Vermietung, An- und Verkauf laufen papierlos; ERP-Migration über die
+  gesamte Prozesskette). KEINE Kennzahlen, Mengen- oder Prozentangaben und
+  KEINE Geldbeträge. Ohne ein solches Ergebnis ist die E-Mail unbrauchbar.
 - IT-Betreuung und Systemadministration dürfen als Ergänzung vorkommen, aber
   NICHT als Hauptangebot. Schreibe nicht, der Bewerber sei "für jede
   computergestützte Tätigkeit offen", und biete keine "allgemeine Büro- und

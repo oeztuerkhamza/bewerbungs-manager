@@ -42,13 +42,12 @@ arbeite ich ebenfalls regelmäßig.
 BERUFSERFAHRUNG:
 Full-Stack-Entwickler (Inhouse-Software)
 Bike Haus Freiburg | 03/2026 – heute
-• Eigene Warenwirtschafts- und Vermietungsplattform (.NET 9, Angular 17, SSR):
-  40 Controller, 46 Domain-Entities, 130+ EF-Core-Migrationen, produktiv im Einsatz.
-• Vermietung und Warenwirtschaft papierlos: 405 Mietverträge, 696 Ankäufe,
-  990 Verkäufe – über 2.000 Belege digital erzeugt (2026).
-• SEO der SSR-Homepage (12 Sprachen mit hreflang, Prerendering, IndexNow):
-  342.000 Impressionen und 13.000 Klicks in 6 Monaten (CTR 3,8 %, Ø-Position 9).
-• DevOps: 6-Container-Docker-Stack auf eigenem VPS, GitHub Actions CI/CD mit
+• Eigene Warenwirtschafts- und Vermietungsplattform (.NET 9, Angular 17, SSR),
+  produktiv im Einsatz.
+• Vermietung, An- und Verkauf laufen papierlos: Online-Buchung, PDF-Belege
+  mit QR-Code, digitale Unterschrift.
+• SEO der SSR-Homepage: mehrsprachig mit hreflang, Prerendering, IndexNow.
+• DevOps: Multi-Container-Docker-Stack auf eigenem VPS, GitHub Actions CI/CD mit
   Zero-Downtime-Deployment, Nginx, Mailcow-Mailserver (DKIM/SPF/DMARC).
 
 Fachinformatiker für Anwendungsentwicklung (verkürzte duale Ausbildung, IHK)
@@ -75,7 +74,7 @@ PROJEKTE:
    Next.js 16, React 19, Payload CMS 3 (SQLite, Migrationen), TypeScript,
    Tailwind 4, Zod, Nodemailer. Redaktionell pflegbare Inhalte,
    Anfragestrecke mit Validierung und Mailversand.
-   9-sprachig mit hreflang, Landing-Pages je Region und Leistung,
+   Mehrsprachig mit hreflang, Landing-Pages je Region und Leistung,
    strukturierte Daten, cookiefreies Analytics.
 
 2) Kulturplattform Freiburg e.V. (kulturplattformfreiburg.org) – ehrenamtliche Arbeit
@@ -83,7 +82,7 @@ PROJEKTE:
    .NET 10 Clean Architecture, React 19, Docker Compose.
 
 3) DI-ONE – Enterprise Getränke-ERP (Dicom GmbH)
-   .NET 10, Clean Architecture, 40+ API-Controller, OpenAI Assistants v2.
+   .NET 10, Clean Architecture, REST-API, OpenAI Assistants v2.
    Angular 19, NgRx. CI/CD: Azure Pipelines.
 
 4) DI-FLUX – Zeiterfassungssystem (IHK-Abschlussprojekt)
@@ -477,13 +476,12 @@ WICHTIG – Lebenslauf-Anpassung (Feld "kurzprofil"):
      der Kette kommen aus der Anzeige. NICHT mit "Codequalität" oder
      "saubere Architektur" eröffnen – das schreibt jeder Bewerber.
   2) Aktuelle Verantwortung bei Bike Haus Freiburg als BOGEN (z.B. von der
-     Konzeption bis zum Betrieb), plus GENAU EINE Zahl als Beleg. Zahlen,
-     die zur Verfügung stehen: über 2.000 Belege und 405 Mietverträge
-     (2026), 342.000 Impressionen und 13.000 organische Klicks in 6
-     Monaten, 40 Controller und 46 Domain-Entities, Testabdeckung über
-     60 %, 15+ Angular-Komponenten.
-     Nimm die Zahl, die zur Anzeige passt – KEINE zweite dazu, und KEINE
-     erfundene.
+     Konzeption bis zum Betrieb), plus GENAU EIN konkretes Ergebnis als
+     Beleg – OHNE Zahl. Ergebnisse, die zur Verfügung stehen: Vermietung,
+     An- und Verkauf laufen papierlos; ERP-Migration über die gesamte
+     Prozesskette; Plattform im täglichen Produktivbetrieb.
+     Nimm das Ergebnis, das zur Anzeige passt – KEIN zweites dazu, und KEIN
+     erfundenes.
   3) Qualifikation und Technik in EINEM Satz: "Als <b>Fachinformatiker für
      Anwendungsentwicklung (IHK)</b> arbeite ich mit X, Y und Z." X, Y und Z
      sind Technologien, die BEIDES sind: in der Anzeige gefordert UND im
@@ -530,7 +528,8 @@ GRENZEN (immer gültig):
   Plattform – erfinde aber keine Java-Erfahrung.
 
 STIL (immer gültig):
-- Belege Aussagen mit konkreten Zahlen aus dem Profil statt mit Adjektiven.
+- Belege Aussagen mit konkreten Ergebnissen aus dem Profil statt mit
+  Adjektiven: was gebaut, abgelöst oder papierlos gemacht wurde.
   Verzichte auf Floskeln wie "teamfähig", "lernbereit", "hoch motiviert"
   oder "genau die Kombination, die Ihr Team weiterbringt".
 - Bei der Digitalisierung immer beides betonen: Aufbau (Datenmodell, API,
@@ -572,25 +571,22 @@ WICHTIG – Anschreiben-Anpassung:
   seine Systeme, seine Aufgaben) – keine weitere Selbstbeschreibung.
 
 ABSOLUT VERBOTEN – Zahlen und Versionen (gilt überall, auch im Lebenslauf):
-- Zahlen, Zeiträume und Versionsnummern aus den FAKTEN werden WÖRTLICH
-  übernommen. Niemals aufrunden, hochrechnen, schätzen oder "verbessern".
-- Ein Zeitraum darf NIE in eine Rate umgedeutet werden. "13.000 Klicks in
-  6 Monaten" ist NICHT "13.000 Klicks im Monat" und erst recht nicht "20.000".
+- KEINE Kennzahlen oder Mengenangaben: keine Anzahl von Belegen, Verträgen,
+  Klicks, Impressionen, Controllern, Containern oder Sprachen, keine
+  Prozentwerte. Zahlen stehen nur in Zeiträumen, Versionsnummern und
+  Abschlüssen (z.B. C1).
+- Zeiträume und Versionsnummern aus den FAKTEN werden WÖRTLICH übernommen.
 - Keine Technologie und keine Version nennen, die nicht wörtlich in den FAKTEN
   steht. Im Zweifel die Version ganz weglassen statt eine höhere zu raten.
-- Diese Angaben sind im Vorstellungsgespräch überprüfbar. Eine erfundene Zahl
-  kostet die Stelle.
+- Diese Angaben sind im Vorstellungsgespräch überprüfbar. Eine erfundene
+  Angabe kostet die Stelle.
 
 VERBOTEN im Anschreiben – gilt auch für highlights und die Bewerbungs-E-Mail:
 - KEINE Umsatz-, Geld- oder Preisangaben. Kein "€", kein "EUR", kein
-  "Mietumsatz". Diese Zahlen gehören ausschließlich in den Lebenslauf.
-- KEINE Technik-Inventare in Klammern. Also nicht "(DKIM/SPF/DMARC)", nicht
-  "(40 Controller, 46 Domain-Entities, 130+ EF-Core-Migrationen)", nicht
-  "(2.100 → 30)". Ein Anschreiben ist kein Lebenslauf.
-- HÖCHSTENS EINE Zahl pro Stichpunkt und pro Satz. Zahlenstapel wie
-  "342.000 Impressionen, 13.000 Klicks in 6 Monaten" auf einen einzigen Wert
-  kürzen oder ganz weglassen.
-- Eine Zahl, die bereits in den highlights steht, darf in absatz_3 bis
+  "Mietumsatz".
+- KEINE Technik-Inventare in Klammern. Also nicht "(DKIM/SPF/DMARC)" und
+  keine Aufzählung von Bausteinen. Ein Anschreiben ist kein Lebenslauf.
+- Ein Ergebnis, das bereits in den highlights steht, darf in absatz_3 bis
   absatz_5 NICHT erneut auftauchen.
 - Keine Aneinanderreihung von Teilsätzen mit Semikolon und Gedankenstrich –
   ganze, ruhige Sätze schreiben.
@@ -601,8 +597,8 @@ WICHTIG – Bewerbungs-E-Mail:
 - email_text: Der E-Mail-Text. Kurz (5-8 Sätze), höflich, professionell.
   Erwähne die Stelle, verweise auf die Anhänge (Lebenslauf & Anschreiben),
   und schließe mit freundlichen Grüßen.
-- Die E-Mail MUSS mindestens ein konkretes Ergebnis mit Zahl aus dem Profil
-  nennen (z.B. papierlose Abwicklung von über 2.000 Belegen, ERP-Migration
+- Die E-Mail MUSS mindestens ein konkretes Ergebnis aus dem Profil nennen,
+  OHNE Zahl (z.B. papierlose Vermietung und An-/Verkauf, ERP-Migration
   über die gesamte Prozesskette). KEINE
   Geldbeträge. Eine E-Mail, die nur "ich bewerbe mich und freue mich auf Ihre
   Antwort" sagt, ist unbrauchbar.
@@ -617,7 +613,7 @@ WICHTIG – Bewerbungs-E-Mail:
 RÜCKGABE – EXAKT dieses JSON-Schema (keine Markdown-Codeblöcke, nur roher JSON):
 {
   "stelle": "...",
-  "kurzprofil": "Auf die Stelle zugeschnittenes CV-Kurzprofil, genau 3 Sätze / max. 70 Wörter, mit höchstens 3 <b>Bold</b>-Tags. Wiederholt NICHTS aus Berufserfahrung oder Projekten; Satz 2 enthält genau eine Zahl als Beleg.",
+  "kurzprofil": "Auf die Stelle zugeschnittenes CV-Kurzprofil, genau 3 Sätze / max. 70 Wörter, mit höchstens 3 <b>Bold</b>-Tags. Wiederholt NICHTS aus Berufserfahrung oder Projekten; Satz 2 enthält genau ein konkretes Ergebnis als Beleg, ohne Zahl.",
   "betreff": "Bewerbung als ... – ...",
   "firma": "Firmenname GmbH",
   "bewerbung_email": "Adresse aus der Anzeige, an die die Bewerbung geht; LEER lassen, wenn keine dasteht",
