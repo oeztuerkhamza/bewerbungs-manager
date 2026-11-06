@@ -457,7 +457,7 @@ ERFAHRUNG_FULLSTACK = [
             'Prerendering und IndexNow.',
 
             '<b>KI-Features im Produktivbetrieb</b>: Assistenten für Gmail, '
-            'WhatsApp und Kleinanzeigen auf OpenAI API mit mehrsprachigen '
+            'WhatsApp und Kleinanzeigen auf der Claude API mit mehrsprachigen '
             'Antwortentwürfen, eigener Kleinanzeigen-Scraper.',
 
             'Den gesamten Betrieb selbst in der Hand: Multi-Container-<b>Docker</b>'
@@ -535,7 +535,7 @@ SKILLS_FULLSTACK = [
      'Docker, GitHub Actions, Azure DevOps, Azure Cloud, '
      'Git, CI/CD, Python'),
     ('KI &amp; Analytics',
-     'OpenAI API, Claude, Prompt Engineering'),
+     'Claude API, Prompt Engineering'),
 ]
 
 
@@ -635,7 +635,7 @@ SKILLS_IT_SUPPORT = [
      'SQL Server, SQLite, PostgreSQL – Abfragen, Migrationen, Backups'),
     ('Entwicklung',
      'C#, .NET Core, ASP.NET Core, EF Core, Angular (17–19), TypeScript, '
-     'React 19, OpenAI API'),
+     'React 19, Claude API'),
 ]
 
 
@@ -845,7 +845,7 @@ ERFAHRUNG_FULLSTACK_EN = [
             'hreflang, prerendering and IndexNow.',
 
             '<b>AI features in production</b>: assistants for Gmail, WhatsApp '
-            'and Kleinanzeigen on the OpenAI API with multilingual reply '
+            'and Kleinanzeigen on the Claude API with multilingual reply '
             'drafts, own Kleinanzeigen scraper.',
 
             'Run the whole operation myself: multi-container <b>Docker</b> stack '
@@ -922,7 +922,7 @@ SKILLS_FULLSTACK_EN = [
     ('DevOps &amp; tools',
      'Docker, GitHub Actions, Azure DevOps, Azure Cloud, Git, CI/CD, Python'),
     ('AI &amp; analytics',
-     'OpenAI API, Claude, prompt engineering'),
+     'Claude API, prompt engineering'),
 ]
 
 
@@ -1024,7 +1024,7 @@ SKILLS_IT_SUPPORT_EN = [
      'SQL Server, SQLite, PostgreSQL – queries, migrations, backups'),
     ('Development',
      'C#, .NET Core, ASP.NET Core, EF Core, Angular (17–19), TypeScript, '
-     'React 19, OpenAI API'),
+     'React 19, Claude API'),
 ]
 
 

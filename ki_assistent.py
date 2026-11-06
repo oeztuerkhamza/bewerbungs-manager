@@ -67,7 +67,7 @@ IT-KENNTNISSE:
 Backend: C#, .NET Core, ASP.NET Core, Clean Architecture, EF Core, RESTful APIs, SQLite, SQL Server
 Frontend: Angular (17–19), TypeScript, React 19, Tailwind CSS, NgRx, Infragistics
 DevOps & Tools: Docker, GitHub Actions, Azure Pipelines, Git, CI/CD, Netcup VPS
-KI & Analytics: OpenAI API, Prompt Engineering, Python, SQL, Tableau, Web-Scraping
+KI & Analytics: Claude API, Prompt Engineering, Python, SQL, Tableau, Web-Scraping
 
 PROJEKTE:
 1) DJ Veys (dj-veys.de) – freiberuflich, Live
