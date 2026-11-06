@@ -765,7 +765,8 @@ def variante_aus_cfg(cfg):
 # steht, warnt der Build – so geht nichts Unfertiges an einen Arbeitgeber raus.
 TODO = '‹?›'
 
-# Chronologisch absteigend. 'inst' und 'detail' sind optional.
+# Chronologisch absteigend. 'inst' und 'detail' sind optional; 'detail' ist
+# ein Text oder eine Liste von Texten (dann ein Punkt je Eintrag).
 BILDUNGSWEG = [
     {
         'period': '02/2024 – 02/2026',
@@ -1350,7 +1351,10 @@ def baue_spalten(sty, cfg=None):
         meta = e['period']
         if e.get('inst'):
             meta += SEP + e['inst']
-        detail = [e['detail']] if e.get('detail') else []
+        # 'detail' ist ein Punkt (Text) oder mehrere (Liste).
+        detail = e.get('detail') or []
+        if isinstance(detail, str):
+            detail = [detail]
         main.append(eintrag(b(e['title']), meta, detail,
                             titel_stil='edu_title', bullet_stil='edu_bullet'))
         if idx < len(bildungsweg) - 1:
