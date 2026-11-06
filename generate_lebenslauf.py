@@ -458,7 +458,7 @@ ERFAHRUNG_FULLSTACK = [
 
             '<b>KI-Features im Produktivbetrieb</b>: Assistenten für Gmail, '
             'WhatsApp und Kleinanzeigen auf OpenAI API mit mehrsprachigen '
-            'Antwortentwürfen, Kleinanzeigen-Scraper mit Playwright.',
+            'Antwortentwürfen, eigener Kleinanzeigen-Scraper.',
 
             'Den gesamten Betrieb selbst in der Hand: Multi-Container-<b>Docker</b>'
             '-Stack auf eigenem VPS, GitHub Actions CI/CD mit '
@@ -630,7 +630,7 @@ SKILLS_IT_SUPPORT = [
      'Anwendereinweisung, Störungsanalyse'),
     ('Automatisierung',
      'Python, Bash, Git, GitHub Actions, Azure DevOps, CI/CD, '
-     'Playwright (Web-Scraping)'),
+     'Web-Scraping'),
     ('Datenbanken',
      'SQL Server, SQLite, PostgreSQL – Abfragen, Migrationen, Backups'),
     ('Entwicklung',
@@ -846,7 +846,7 @@ ERFAHRUNG_FULLSTACK_EN = [
 
             '<b>AI features in production</b>: assistants for Gmail, WhatsApp '
             'and Kleinanzeigen on the OpenAI API with multilingual reply '
-            'drafts, Kleinanzeigen scraper with Playwright.',
+            'drafts, own Kleinanzeigen scraper.',
 
             'Run the whole operation myself: multi-container <b>Docker</b> stack '
             'on an own VPS, GitHub Actions CI/CD with zero-downtime '
@@ -1019,7 +1019,7 @@ SKILLS_IT_SUPPORT_EN = [
      'administration, user onboarding, incident analysis'),
     ('Automation',
      'Python, Bash, Git, GitHub Actions, Azure DevOps, CI/CD, '
-     'Playwright (web scraping)'),
+     'web scraping'),
     ('Databases',
      'SQL Server, SQLite, PostgreSQL – queries, migrations, backups'),
     ('Development',
