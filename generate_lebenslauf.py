@@ -1090,6 +1090,7 @@ TEXTE = {
         'h_sprachen':   'SPRACHEN',
         'h_kontakt':    'KONTAKT',
         'h_person':     'PERSÖNLICH',
+        'h_person_lang': 'PERSÖNLICHE DATEN',
         'person': [
             'Geb. 18.02.1996, Groß-Gerau',
             'Führerschein Klasse B',
@@ -1116,6 +1117,7 @@ TEXTE = {
         'h_sprachen':   'LANGUAGES',
         'h_kontakt':    'CONTACT',
         'h_person':     'PERSONAL',
+        'h_person_lang': 'PERSONAL DETAILS',
         'person': [
             'Born 18 Feb 1996, Groß-Gerau',
             'Driving licence category B',
@@ -1248,8 +1250,12 @@ def warne_offene_punkte():
 
 
 # ─── BUILD STORY ─────────────────────────────────────────────────────────────
-def baue_spalten(sty, cfg=None):
-    """Liefert (Seitenspalte, Hauptspalte) als zwei Flowable-Listen."""
+def _aufbereitet(cfg):
+    """Was beide Layouts brauchen: Titel, Kurzprofil und Kenntnisse.
+
+    Gibt (cfg, sprache, inhalt, texte, stelle_titel, kurzprofil, skills)
+    zurueck.
+    """
     cfg = {**DEFAULT_CONFIG, **(cfg or {})}
     variante = variante_aus_cfg(cfg)
     sprache = sprache_aus_cfg(cfg)
@@ -1273,19 +1279,6 @@ def baue_spalten(sty, cfg=None):
         # Deutscher KI-Text im englischen Lebenslauf waere ein Sprachmix.
         kurzprofil = inhalt['kurzprofil']
 
-    # ══ SEITENSPALTE ════════════════════════════════════════════════════
-    # Das Foto zeichnet _draw_page randabfallend; der Fluss beginnt darunter.
-    hell = '#9FC3EC'
-    rail = rail_block(texte['h_kontakt'], sty, [
-        'Bissierstr. 16, 79114 Freiburg',
-        lnk('https://wa.me/4915566859378', '+49 155 66859378', hell),
-        lnk('mailto:oeztuerk.hamza@web.de', 'oeztuerk.hamza@web.de', hell),
-        lnk('https://linkedin.com/in/hamzaoeztuerk',
-            'linkedin.com/in/hamzaoeztuerk', hell),
-        lnk('https://github.com/oeztuerkhamza', 'github.com/oeztuerkhamza',
-            hell),
-    ])
-    rail += rail_block(texte['h_person'], sty, texte['person'])
     # Liegt der Text der Anzeige vor, wandern die dort geforderten
     # Kenntnisse nach vorne. Es kommt nichts dazu - nur die Reihenfolge
     # aendert sich, damit der Leser seine eigenen Stichworte zuerst sieht.
@@ -1299,6 +1292,26 @@ def baue_spalten(sty, cfg=None):
     # ganzer Satz Platz hat, als in eine Aufzaehlung.
     if cfg.get('vergleiche'):
         skills = mit_vergleichen(skills, cfg.get('stellentext'))
+    return cfg, sprache, inhalt, texte, stelle_titel, kurzprofil, skills
+
+
+def baue_spalten(sty, cfg=None):
+    """Liefert (Seitenspalte, Hauptspalte) als zwei Flowable-Listen."""
+    cfg, sprache, inhalt, texte, stelle_titel, kurzprofil, skills =         _aufbereitet(cfg)
+
+    # ══ SEITENSPALTE ════════════════════════════════════════════════════
+    # Das Foto zeichnet _draw_page randabfallend; der Fluss beginnt darunter.
+    hell = '#9FC3EC'
+    rail = rail_block(texte['h_kontakt'], sty, [
+        'Bissierstr. 16, 79114 Freiburg',
+        lnk('https://wa.me/4915566859378', '+49 155 66859378', hell),
+        lnk('mailto:oeztuerk.hamza@web.de', 'oeztuerk.hamza@web.de', hell),
+        lnk('https://linkedin.com/in/hamzaoeztuerk',
+            'linkedin.com/in/hamzaoeztuerk', hell),
+        lnk('https://github.com/oeztuerkhamza', 'github.com/oeztuerkhamza',
+            hell),
+    ])
+    rail += rail_block(texte['h_person'], sty, texte['person'])
     rail += rail_paare(texte['h_skills'], sty, skills)
     rail += rail_paare(texte['h_sprachen'], sty, texte['sprachen'], gap=0)
 
@@ -1372,7 +1385,134 @@ def baue_spalten(sty, cfg=None):
     return rail, main
 
 
-# ─── SEITENANPASSUNG ─────────────────────────────────────────────────────────
+# ─── ATS-LAYOUT ──────────────────────────────────────────────────────────────
+# Fuer Bewerbungsportale, die den Lebenslauf maschinell auslesen: eine Spalte,
+# Name und Kontakt zuerst, Abschnittstitel als normaler Text (keine Sperrung),
+# kein Foto, keine Farbflaeche, keine Tabellen. Derselbe Inhalt wie im
+# zweispaltigen Layout – nur die Form ist eine andere. Darf zwei Seiten haben.
+LAYOUT_ATS = 'ats'
+ATS_RAND_X = 2.0 * cm
+ATS_RAND_Y = 1.7 * cm
+ATS_TEXT   = HexColor('#111111')
+ATS_META   = HexColor('#444444')
+
+
+def ist_ats(cfg):
+    return ((cfg or {}).get('layout') or '').strip().lower() == LAYOUT_ATS
+
+
+def make_styles_ats():
+    def ps(name, font='CV-R', size=10, color=ATS_TEXT, leading=None, **kw):
+        return ParagraphStyle(
+            name, fontName=font, fontSize=size, textColor=color,
+            leading=leading or round(size * 1.35, 1), alignment=TA_LEFT, **kw)
+    return {
+        'name':        ps('a_name', 'CV-B', 20, NAVY, leading=24),
+        'titel':       ps('a_titel', size=11.5, leading=15, spaceAfter=4),
+        'kontakt':     ps('a_kontakt', size=9.5, leading=13),
+        'section':     ps('a_section', 'CV-B', 11, NAVY, leading=14),
+        'text':        ps('a_text'),
+        'entry_title': ps('a_entry_title', 'CV-B', 10.5, leading=14),
+        'entry_meta':  ps('a_entry_meta', size=9.5, color=ATS_META,
+                          leading=13, spaceAfter=2),
+        'bullet':      ps('a_bullet', leftIndent=11, bulletIndent=0,
+                          bulletFontName='CV-R', bulletFontSize=10,
+                          spaceAfter=1),
+    }
+
+
+def _firma_und_rolle(titel):
+    """'Firma – Rolle' -> (Firma, Rolle); ohne Trenner ('', Titel)."""
+    firma, trenner, rolle = titel.partition(' – ')
+    return (firma, rolle) if trenner else ('', titel)
+
+
+def baue_ats(sty, cfg=None):
+    """Einspaltiger Lebenslauf als eine Flowable-Liste."""
+    cfg, sprache, inhalt, texte, stelle_titel, kurzprofil, skills = \
+        _aufbereitet(cfg)
+    tel, mail = (('Telefon', 'E-Mail') if sprache == SPRACHE_DE
+                 else ('Phone', 'Email'))
+
+    # Kontakt als Klartext mit Bezeichnung - Parser suchen danach. Die
+    # Adressen stehen ausgeschrieben da und sind zusaetzlich anklickbar.
+    story = [
+        Paragraph('Hamza Öztürk', sty['name']),
+        Paragraph(esc(stelle_titel), sty['titel']),
+        Paragraph(
+            'Bissierstr. 16, 79114 Freiburg | %s: %s | %s: %s' % (
+                tel, lnk('tel:+4915566859378', '+49 155 66859378'),
+                mail, lnk('mailto:oeztuerk.hamza@web.de',
+                          'oeztuerk.hamza@web.de')),
+            sty['kontakt']),
+        Paragraph(
+            'LinkedIn: %s | GitHub: %s' % (
+                lnk('https://linkedin.com/in/hamzaoeztuerk',
+                    'linkedin.com/in/hamzaoeztuerk'),
+                lnk('https://github.com/oeztuerkhamza',
+                    'github.com/oeztuerkhamza')),
+            sty['kontakt']),
+    ]
+
+    def abschnitt(titel, bloecke):
+        # Jeder Block bleibt auf einer Seite; der Titel haengt am ersten,
+        # damit er nie allein am Seitenende steht.
+        kopf = [Spacer(1, 11), Paragraph(titel, sty['section']),
+                HRule(NAVY, 0.6, space_before=2, space_after=5)]
+        return ([KeepTogether(kopf + bloecke[0])]
+                + [KeepTogether(bl) for bl in bloecke[1:]])
+
+    def eintrag(titel, meta, bullets):
+        teile = [Paragraph(b(titel), sty['entry_title'])]
+        if meta:
+            teile.append(Paragraph(meta, sty['entry_meta']))
+        teile += [bul(t, sty['bullet']) for t in bullets]
+        teile.append(Spacer(1, 7))
+        return teile
+
+    story += abschnitt(texte['h_profil'],
+                       [[Paragraph(esc_rich(kurzprofil), sty['text'])]])
+
+    story += abschnitt(texte['h_skills'], [
+        [Paragraph(b(label + ':') + ' ' + wert, sty['text'])]
+        for label, wert in skills])
+
+    # Rolle als Titel, Firma und Zeitraum in der Zeile darunter.
+    jobs = []
+    for job in inhalt['erfahrung']:
+        firma, rolle = _firma_und_rolle(job['title'])
+        meta = SEP.join(t for t in (firma, job['period'], job.get('sub')) if t)
+        jobs.append(eintrag(rolle, meta, job['bullets']))
+    story += abschnitt(texte['h_erfahrung'], jobs)
+
+    story += abschnitt(texte['h_projekte'], [
+        eintrag(p['head'][0], p['head'][1], p['bullets'])
+        for p in inhalt['projekte']])
+
+    schule = []
+    for e in texte['bildungsweg']:
+        detail = e.get('detail') or []
+        if isinstance(detail, str):
+            detail = [detail]
+        meta = SEP.join(t for t in (e.get('inst'), e['period']) if t)
+        schule.append(eintrag(e['title'], meta, detail))
+    story += abschnitt(texte['h_ausbildung'], schule)
+
+    story += abschnitt(texte['h_sprachen'], [
+        [Paragraph(b(name + ':') + ' ' + stufe, sty['text'])]
+        for name, stufe in texte['sprachen']])
+
+    story += abschnitt(texte['h_person_lang'],
+                       [[Paragraph(z, sty['text'])] for z in texte['person']])
+
+    datum_txt = (cfg['datum'] if sprache == SPRACHE_DE
+                 else _datum_englisch(cfg['datum']))
+    story += [Spacer(1, 14),
+              Paragraph(f'Freiburg, {esc(datum_txt)}', sty['entry_meta'])]
+    return story
+
+
+# ─── SEITENANPASSUNG─────────────────────────────────────────────────────────
 # Der Inhalt passt knapp auf eine Seite. Wird aus der GUI ein längeres
 # Kurzprofil übergeben, wird der Zeilenabstand stufenweise nachgezogen,
 # statt eine zweite Seite mit nur der Unterschrift anzufangen.
@@ -1403,6 +1543,13 @@ def _baue_pdf(out, cfg, tighten, subject):
         title=TEXTE[sprache_aus_cfg(cfg)]['pdf_titel'], author='Hamza Öztürk',
         subject=subject, creator='Python / ReportLab',
     )
+    if ist_ats(cfg):
+        f_ats = Frame(ATS_RAND_X, ATS_RAND_Y, A4[0] - 2 * ATS_RAND_X,
+                      H - 2 * ATS_RAND_Y, id='ats', **rand)
+        doc.addPageTemplates([PageTemplate(id='ats', frames=[f_ats])])
+        doc.build(baue_ats(make_styles_ats(), cfg))
+        return doc.page
+
     doc.addPageTemplates([
         PageTemplate(id='cv', frames=[f_rail, f_main], onPage=_draw_page),
     ])
@@ -1417,6 +1564,8 @@ def _passt_auf_eine_seite(out, cfg, subject):
 
     Gibt (seiten, tighten) des zuletzt geschriebenen PDFs zurück.
     """
+    if ist_ats(cfg):
+        return _baue_pdf(out, cfg, 0.0, subject), 0.0
     seiten = 0
     for tighten in _FIT_STUFEN:
         seiten = _baue_pdf(out, cfg, tighten, subject)
@@ -1432,15 +1581,19 @@ def main():
     #   py generate_lebenslauf.py it-support
     #   py generate_lebenslauf.py en "IT Support Specialist"
     #   py generate_lebenslauf.py en it-support
+    #   py generate_lebenslauf.py ats it-support     (einspaltig, fuer Portale)
     # Ohne Argument wird der Standard-Lebenslauf (Fullstack, deutsch) gebaut.
     woerter = [w for w in sys.argv[1:] if w.strip()]
     sprache = SPRACHE_DE
+    layout = ''
     rest = []
     for w in woerter:
         if w.strip('-').lower() in ('en', 'english', 'englisch'):
             sprache = SPRACHE_EN
         elif w.strip('-').lower() in ('de', 'german', 'deutsch'):
             sprache = SPRACHE_DE
+        elif w.strip('-').lower() == LAYOUT_ATS:
+            layout = LAYOUT_ATS
         else:
             rest.append(w)
     argument = ' '.join(rest).strip()
@@ -1448,7 +1601,10 @@ def main():
     stelle = argument if argument and argument.lower() not in VARIANTEN \
         else INHALT[sprache][variante]['stelle']
     out = os.path.join(BASE_DIR, OUTPUT_DATEI[sprache][variante])
-    cfg = {'variante': variante, 'sprache': sprache, 'stelle': stelle}
+    if layout:
+        out = out[:-len('.pdf')] + '_ATS.pdf'
+    cfg = {'variante': variante, 'sprache': sprache, 'stelle': stelle,
+           'layout': layout}
 
     os.makedirs(os.path.dirname(out), exist_ok=True)
     register_fonts()
@@ -1458,7 +1614,7 @@ def main():
     if tighten:
         _cprint('  (Zeilenabstand um %.1f pt nachgezogen, damit es auf eine '
                 'Seite passt)' % tighten)
-    if seiten > 1:
+    if seiten > 1 and not layout:
         _cprint('  !! Passt trotz Nachziehen nicht auf eine Seite (%d Seiten).'
                 % seiten)
     print(f"PDF erfolgreich erstellt:\n  {out}")

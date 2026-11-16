@@ -1167,6 +1167,7 @@ class BewerbungsApp(tk.Tk):
         row = self._field_card(stelle_card, 'datum', 'Datum', today_de(), row)
         row = self._variante_card(stelle_card, row)
         row = self._sprache_card(stelle_card, row)
+        row = self._layout_card(stelle_card, row)
 
         # ── CV-Kurzprofil Card (von KI auf die Stelle zugeschnitten) ──
         kp_outer, kp_card = self._make_card_grid(scroll_frame, '🧩  CV-KURZPROFIL', padx=16, pady=4)
@@ -3488,6 +3489,25 @@ class BewerbungsApp(tk.Tk):
             row=row, column=1, sticky='w', padx=(0, 12), pady=4)
         return row + 1
 
+    def _layout_card(self, parent, row):
+        """Lebenslauf im ATS-Layout: einspaltig, ohne Foto.
+
+        Gilt fuer jede Variante und Sprache und fuer alle Wege, auf denen
+        ein Lebenslauf entsteht (einzeln, Gesamt-PDF, Initiativbewerbung).
+        """
+        tk.Label(parent, text='Lebenslauf-Layout', bg=WHITE, fg=FG,
+                 font=(FONT, 10)).grid(
+            row=row, column=0, sticky='e', padx=(0, 8), pady=4)
+        var = tk.StringVar(value='')
+        self.vars['layout'] = var
+        tk.Checkbutton(
+            parent, text='ATS-Version (einspaltig, ohne Foto)',
+            variable=var, onvalue=gen_l.LAYOUT_ATS, offvalue='',
+            bg=WHITE, fg=FG, font=(FONT, 10), activebackground=WHITE,
+            selectcolor=WHITE, cursor='hand2').grid(
+            row=row, column=1, sticky='w', padx=(0, 12), pady=4)
+        return row + 1
+
     def _textarea(self, parent, key, label, default, row, height=5):
         tk.Label(parent, text=label, bg=BG, fg=NAVY,
                  font=(FONT, 11, 'bold')).grid(
@@ -3541,6 +3561,10 @@ class BewerbungsApp(tk.Tk):
 
     def _set_config(self, cfg):
         for key, widget in self.vars.items():
+            # Das Layout waehlt der Mensch: weder KI noch ein altes Profil
+            # ohne diese Angabe setzen die Auswahl zurueck.
+            if key == 'layout' and key not in cfg:
+                continue
             val = cfg.get(key, '')
             # Fehlen Variante/Sprache (Standardwerte, altes Profil),
             # bleiben die Auswahlfelder auf 'automatisch' statt leer zu werden.
@@ -3574,19 +3598,22 @@ class BewerbungsApp(tk.Tk):
             stamm = 'bewerbung_it_support_herr_öztürk'
         else:
             stamm = 'bewerbung_software_entwickler_herr_öztürk'
+        # Die ATS-Fassung bekommt einen eigenen Namen, damit sie die
+        # Fassung mit Foto im selben Ordner nicht ueberschreibt.
+        ats = '_ats' if gen_l.ist_ats(cfg) else ''
         # Nur der Lebenslauf kann englisch sein – Anschreiben, Deckblatt und
         # Gesamt-PDF bleiben deutsch und behalten deshalb ihren Namen.
         if (doc_type == 'Lebenslauf'
                 and gen_l.sprache_aus_cfg(cfg) == gen_l.SPRACHE_EN):
-            name_en = ('application_it_support_mr_oeztuerk_cv.pdf' if support
-                       else 'application_software_developer_mr_oeztuerk_cv.pdf')
-            return os.path.join(folder, name_en)
+            name_en = ('application_it_support_mr_oeztuerk_cv' if support
+                       else 'application_software_developer_mr_oeztuerk_cv')
+            return os.path.join(folder, name_en + ats + '.pdf')
         if doc_type == 'Anschreiben':
             name = f'{stamm}_anschreiben.pdf'
         elif doc_type == 'Bewerbung':
             name = f'{stamm}.pdf'
         elif doc_type == 'Lebenslauf':
-            name = f'{stamm}_lebenslauf.pdf'
+            name = f'{stamm}_lebenslauf{ats}.pdf'
         elif doc_type == 'Kapak':
             name = f'{stamm}_deckblatt.pdf'
         else:
