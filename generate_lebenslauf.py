@@ -524,25 +524,22 @@ PROJEKTE_FULLSTACK = [
     {
         'head': _P_SEELEN,
         'bullets': [
-            '<b>Konzept, Design und Umsetzung</b>: drei Wege (Coaching, '
-            'Tiergespräch, Kurs), Terminanfrage per Klick; <b>Python</b>'
-            '-Backend mit Spam-Schutz, Betrieb auf eigenem VPS.',
+            '<b>Konzept, Design, Umsetzung</b>; <b>Python</b>-Backend für '
+            'Terminanfragen mit Spam-Schutz.',
         ],
     },
     {
         'head': _P_PRAXIS,
         'bullets': [
-            '<b>Astro</b> 7 und Tailwind 4, statisch ohne Datenbank; <b>zehn '
-            'Sprachen</b> inkl. Arabisch (RTL), schema.org-SEO, ohne '
-            'Cookie-Banner, Pflege per Decap CMS.',
+            '<b>Astro</b> 7 und Tailwind 4; <b>zehn Sprachen</b> inkl. '
+            'Arabisch (RTL), schema.org-SEO, Decap CMS.',
         ],
     },
     {
         'head': _P_KARAARSLAN,
         'bullets': [
-            'Bike-Haus-Plattform auf ein neues Geschäft übertragen '
-            '(<b>.NET 9</b>, Angular 17): Online-Showroom mit ca. 90 Rädern, '
-            'Verwaltung für Ankauf, Verkauf und Rechnungen.',
+            'Bike-Haus-Plattform übertragen (<b>.NET 9</b>, Angular 17), '
+            'ca. 90 Räder online.',
         ],
     },
 ]
@@ -627,33 +624,29 @@ PROJEKTE_IT_SUPPORT = [
     {
         'head': _P_KULTUR,
         'bullets': [
-            '<b>WordPress</b>-Website durch Eigenentwicklung abgelöst: '
-            '<b>.NET 10</b> (C#), React 19 und Docker Compose — Aufbau und '
-            'Betrieb inklusive Admin-Panel und Newsletter-System.',
+            '<b>WordPress</b> abgelöst: <b>.NET 10</b>, React 19, Docker '
+            'Compose; Betrieb inkl. Admin-Panel.',
         ],
     },
     {
         'head': _P_SEELEN,
         'bullets': [
-            'Betrieb auf eigenem <b>VPS</b> mit Nginx, Deploy-Skripten und '
-            'Datenbank-Backups; Terminanfragen laufen über ein '
-            '<b>Python</b>-Backend mit Spam-Schutz.',
+            'Eigener <b>VPS</b> mit Nginx und Backups; <b>Python</b>-Backend '
+            'für Terminanfragen.',
         ],
     },
     {
         'head': _P_PRAXIS,
         'bullets': [
-            'Statische <b>Astro</b>-Website ohne Datenbank, zehnsprachig; '
-            'Texte pflegt die Praxis selbst per Decap CMS im Browser, '
-            'datenschutzfreundlich ohne Cookie-Banner.',
+            'Statische <b>Astro</b>-Website, zehnsprachig; Pflege durch '
+            'die Praxis per Decap CMS, ohne Cookie-Banner.',
         ],
     },
     {
         'head': _P_KARAARSLAN,
         'bullets': [
             'Betrieb auf eigenem <b>Server</b> mit <b>Docker</b>, Nginx und '
-            'eigenem Mailserver; Verwaltung für Ankauf, Verkauf und '
-            'Rechnungen im Tagesgeschäft.',
+            'Mailserver.',
         ],
     },
 ]
@@ -952,18 +945,15 @@ PROJEKTE_FULLSTACK_EN = [
     {
         'head': _P_SEELEN_EN,
         'bullets': [
-            '<b>Concept, design and implementation</b>: three paths '
-            '(coaching, animal session, course), one-click appointment '
-            'request; <b>Python</b> backend with spam protection, operated '
-            'on an own VPS.',
+            '<b>Concept, design, implementation</b>; <b>Python</b> backend '
+            'for appointment requests with spam protection, own VPS.',
         ],
     },
     {
         'head': _P_PRAXIS_EN,
         'bullets': [
-            '<b>Astro</b> 7 and Tailwind 4, static without a database; '
-            '<b>ten languages</b> incl. Arabic (RTL), schema.org SEO, no '
-            'cookie banner, content editable via Decap CMS.',
+            '<b>Astro</b> 7 and Tailwind 4; <b>ten languages</b> incl. '
+            'Arabic (RTL), schema.org SEO, Decap CMS.',
         ],
     },
     {
@@ -1056,34 +1046,29 @@ PROJEKTE_IT_SUPPORT_EN = [
     {
         'head': _P_KULTUR_EN,
         'bullets': [
-            'Replaced the <b>WordPress</b> site with an own build: <b>.NET 10</b> '
-            '(C#), React 19 and Docker Compose — built and operated including '
-            'admin panel and newsletter system; maintained '
-            'voluntarily.',
+            '<b>WordPress</b> replaced: <b>.NET 10</b>, React 19, Docker '
+            'Compose; operated incl. admin panel.',
         ],
     },
     {
         'head': _P_SEELEN_EN,
         'bullets': [
-            'Operated on an own <b>VPS</b> with Nginx, deploy scripts and '
-            'database backups; appointment requests run through a '
-            '<b>Python</b> backend with spam protection.',
+            'Own <b>VPS</b> with Nginx and backups; <b>Python</b> backend '
+            'for appointment requests.',
         ],
     },
     {
         'head': _P_PRAXIS_EN,
         'bullets': [
-            'Static <b>Astro</b> site without a database, ten languages; the '
-            'practice edits content itself via Decap CMS in the browser, '
-            'privacy-friendly without a cookie banner.',
+            'Static <b>Astro</b> site, ten languages; content maintained '
+            'by the practice via Decap CMS, no cookie banner.',
         ],
     },
     {
         'head': _P_KARAARSLAN_EN,
         'bullets': [
             'Operated on an own <b>server</b> with <b>Docker</b>, Nginx and '
-            'own mail server; back office for purchases, sales and '
-            'invoices in daily business.',
+            'mail server.',
         ],
     },
 ]
