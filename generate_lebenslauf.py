@@ -410,32 +410,45 @@ _LNK_BIKEHAUS = (
 )
 
 
-def _projekt_kopf(name, zusatz, status, url, label, repo):
+def _projekt_kopf(name, zusatz, status, *links):
     """(Titelzeile, Metazeile) eines Projekts.
 
     In der schmalen Hauptspalte passt nicht alles in eine Zeile: Name und
     Kurzbeschreibung stehen oben, Status und Links in einer ruhigen
-    zweiten Zeile darunter.
+    zweiten Zeile darunter. links: (url, label)-Paare.
     """
     return (b(name) + zusatz,
-            status + SEP + lnk(url, label) + SEP + lnk(repo, 'GitHub'))
+            SEP.join([status] + [lnk(u, l) for u, l in links]))
 
 
-_P_BENLIRAD = _projekt_kopf(
-    'Benlirad', ' – Warenwirtschaft und Website für ein Fahrradgeschäft',
-    'freiberuflich · Live', 'https://benlirad.de', 'benlirad.de',
-    'https://github.com/oeztuerkhamza/benlirad')
-
-_P_KULTUR = _projekt_kopf(
-    'Kulturplattform Freiburg e.V.', '',
-    'ehrenamtliche Arbeit · Live', 'https://kulturplattformfreiburg.org',
-    'kulturplattformfreiburg.org',
-    'https://github.com/oeztuerkhamza/KulturPlatform')
+_GH = 'https://github.com/oeztuerkhamza/'
 
 _P_DJVEYS = _projekt_kopf(
     'DJ Veys', ' – Website für DJ, Live-Musiker &amp; Moderator',
-    'freiberuflich · Live', 'https://dj-veys.de', 'dj-veys.de',
-    'https://github.com/oeztuerkhamza/veysl-music')
+    'freiberuflich · Live', ('https://dj-veys.de', 'dj-veys.de'),
+    (_GH + 'veysl-music', 'GitHub'))
+
+_P_KULTUR = _projekt_kopf(
+    'Kulturplattform Freiburg e.V.', '',
+    'ehrenamtliche Arbeit · Live',
+    ('https://kulturplattformfreiburg.org', 'kulturplattformfreiburg.org'),
+    (_GH + 'KulturPlatform', 'GitHub'))
+
+_P_SEELEN = _projekt_kopf(
+    'Seelenfreunde-Coaching', ' – Website für Tierkommunikation &amp; Coaching',
+    'freiberuflich · Live',
+    ('https://seelenfreunde-coaching.de', 'seelenfreunde-coaching.de'))
+
+_P_PRAXIS = _projekt_kopf(
+    'Hausarztpraxis Gültekin', ' – zehnsprachige Praxis-Website',
+    'freiberuflich · Live',
+    ('https://www.praxis-gueltekin.de', 'praxis-gueltekin.de'))
+
+_P_KARAARSLAN = _projekt_kopf(
+    'Karaarslan Bike', ' – Online-Showroom und Verwaltung für ein Fahrradgeschäft',
+    'freiberuflich · Live',
+    ('https://karaarslan-bike.de', 'karaarslan-bike.de'),
+    ('https://breisgau-digital.de/de/projects/karaarslan-bike', 'Projektseite'))
 
 
 # ── Variante 1: Fullstack-Entwicklung (Standard) ────────────────────────────
@@ -493,15 +506,11 @@ ERFAHRUNG_FULLSTACK = [
 
 PROJEKTE_FULLSTACK = [
     {
-        'head': _P_BENLIRAD,
+        'head': _P_DJVEYS,
         'bullets': [
-            '<b>.NET 9</b>-API in Clean Architecture, Angular 17 Admin-SPA '
-            'und SSR-Website, die den Bestand live aus derselben Datenbank '
-            'zieht (EF Core, SQLite, JWT).',
-
-            'Viersprachig (DE/EN/FR/TR) mit hreflang; Betrieb mit Docker und '
-            'Nginx auf eigenem Server, Chrome-Erweiterung für die Pflege der '
-            'Inserate.',
+            '<b>Next.js 16</b>/React 19 mit Payload CMS 3, TypeScript und '
+            'Tailwind 4 — redaktionell pflegbare Inhalte, Anfragestrecke mit '
+            'Zod-Validierung; mehrsprachig mit Landing-Pages je Region.',
         ],
     },
     {
@@ -513,11 +522,27 @@ PROJEKTE_FULLSTACK = [
         ],
     },
     {
-        'head': _P_DJVEYS,
+        'head': _P_SEELEN,
         'bullets': [
-            '<b>Next.js 16</b>/React 19 mit Payload CMS 3, TypeScript und '
-            'Tailwind 4 — redaktionell pflegbare Inhalte, Anfragestrecke mit '
-            'Zod-Validierung; mehrsprachig mit Landing-Pages je Region.',
+            '<b>Konzept, Design und Umsetzung</b>: drei Wege (Coaching, '
+            'Tiergespräch, Kurs), Terminanfrage per Klick; <b>Python</b>'
+            '-Backend mit Spam-Schutz, Betrieb auf eigenem VPS.',
+        ],
+    },
+    {
+        'head': _P_PRAXIS,
+        'bullets': [
+            '<b>Astro</b> 7 und Tailwind 4, statisch ohne Datenbank; <b>zehn '
+            'Sprachen</b> inkl. Arabisch (RTL), schema.org-SEO, ohne '
+            'Cookie-Banner, Pflege per Decap CMS.',
+        ],
+    },
+    {
+        'head': _P_KARAARSLAN,
+        'bullets': [
+            'Bike-Haus-Plattform auf ein neues Geschäft übertragen '
+            '(<b>.NET 9</b>, Angular 17): Online-Showroom mit ca. 90 Rädern, '
+            'Verwaltung für Ankauf, Verkauf und Rechnungen.',
         ],
     },
 ]
@@ -593,13 +618,10 @@ ERFAHRUNG_IT_SUPPORT = [
 
 PROJEKTE_IT_SUPPORT = [
     {
-        'head': _P_BENLIRAD,
+        'head': _P_DJVEYS,
         'bullets': [
-            'Betrieb auf eigenem Server mit <b>Docker</b> und Nginx: '
-            'Deployment, TLS-Zertifikate, Backups und laufende Wartung.',
-
-            'Viersprachig (DE/EN/FR/TR); .NET 9-API und Angular 17 greifen auf '
-            'dieselbe Datenbank zu, Chrome-Erweiterung für die Inserate.',
+            '<b>Next.js 16</b> mit Payload CMS 3, mehrsprachig — Betrieb '
+            'und Updates laufend betreut.',
         ],
     },
     {
@@ -611,10 +633,27 @@ PROJEKTE_IT_SUPPORT = [
         ],
     },
     {
-        'head': _P_DJVEYS,
+        'head': _P_SEELEN,
         'bullets': [
-            '<b>Next.js 16</b> mit Payload CMS 3: redaktionell pflegbare '
-            'Inhalte, mehrsprachig — Betrieb und Updates laufend betreut.',
+            'Betrieb auf eigenem <b>VPS</b> mit Nginx, Deploy-Skripten und '
+            'Datenbank-Backups; Terminanfragen laufen über ein '
+            '<b>Python</b>-Backend mit Spam-Schutz.',
+        ],
+    },
+    {
+        'head': _P_PRAXIS,
+        'bullets': [
+            'Statische <b>Astro</b>-Website ohne Datenbank, zehnsprachig; '
+            'Texte pflegt die Praxis selbst per Decap CMS im Browser, '
+            'datenschutzfreundlich ohne Cookie-Banner.',
+        ],
+    },
+    {
+        'head': _P_KARAARSLAN,
+        'bullets': [
+            'Betrieb auf eigenem <b>Server</b> mit <b>Docker</b>, Nginx und '
+            'eigenem Mailserver; Verwaltung für Ankauf, Verkauf und '
+            'Rechnungen im Tagesgeschäft.',
         ],
     },
 ]
@@ -812,21 +851,32 @@ PROFILE_IT_SUPPORT_EN = (
 
 
 
-_P_BENLIRAD_EN = _projekt_kopf(
-    'Benlirad', ' – inventory management and website for a bicycle shop',
-    'freelance · live', 'https://benlirad.de', 'benlirad.de',
-    'https://github.com/oeztuerkhamza/benlirad')
+_P_DJVEYS_EN = _projekt_kopf(
+    'DJ Veys', ' – website for a DJ, live musician &amp; host',
+    'freelance · live', ('https://dj-veys.de', 'dj-veys.de'),
+    (_GH + 'veysl-music', 'GitHub'))
 
 _P_KULTUR_EN = _projekt_kopf(
     'Kulturplattform Freiburg e.V.', '',
-    'voluntary work · live', 'https://kulturplattformfreiburg.org',
-    'kulturplattformfreiburg.org',
-    'https://github.com/oeztuerkhamza/KulturPlatform')
+    'voluntary work · live',
+    ('https://kulturplattformfreiburg.org', 'kulturplattformfreiburg.org'),
+    (_GH + 'KulturPlatform', 'GitHub'))
 
-_P_DJVEYS_EN = _projekt_kopf(
-    'DJ Veys', ' – website for a DJ, live musician &amp; host',
-    'freelance · live', 'https://dj-veys.de', 'dj-veys.de',
-    'https://github.com/oeztuerkhamza/veysl-music')
+_P_SEELEN_EN = _projekt_kopf(
+    'Seelenfreunde-Coaching', ' – website for animal communication &amp; coaching',
+    'freelance · live',
+    ('https://seelenfreunde-coaching.de', 'seelenfreunde-coaching.de'))
+
+_P_PRAXIS_EN = _projekt_kopf(
+    'Hausarztpraxis Gültekin', ' – ten-language GP practice website',
+    'freelance · live',
+    ('https://www.praxis-gueltekin.de', 'praxis-gueltekin.de'))
+
+_P_KARAARSLAN_EN = _projekt_kopf(
+    'Karaarslan Bike', ' – online showroom and back office for a bicycle shop',
+    'freelance · live',
+    ('https://karaarslan-bike.de', 'karaarslan-bike.de'),
+    ('https://breisgau-digital.de/de/projects/karaarslan-bike', 'Case study'))
 
 
 # ── Englische Fassung: Variante 1 (Entwicklung) ─────────────────────────────
@@ -884,15 +934,11 @@ ERFAHRUNG_FULLSTACK_EN = [
 
 PROJEKTE_FULLSTACK_EN = [
     {
-        'head': _P_BENLIRAD_EN,
+        'head': _P_DJVEYS_EN,
         'bullets': [
-            '<b>.NET 9</b> API in Clean Architecture, Angular 17 admin SPA '
-            'and SSR website that pulls the live stock from the same database '
-            '(EF Core, SQLite, JWT).',
-
-            'Four languages (DE/EN/FR/TR) with hreflang; operated with Docker '
-            'and Nginx on an own server, Chrome extension for maintaining the '
-            'listings.',
+            '<b>Next.js 16</b>/React 19 with Payload CMS 3, TypeScript and '
+            'Tailwind 4 — editorially maintainable content, enquiry flow with '
+            'Zod validation; multilingual with landing pages per region.',
         ],
     },
     {
@@ -904,11 +950,28 @@ PROJEKTE_FULLSTACK_EN = [
         ],
     },
     {
-        'head': _P_DJVEYS_EN,
+        'head': _P_SEELEN_EN,
         'bullets': [
-            '<b>Next.js 16</b>/React 19 with Payload CMS 3, TypeScript and '
-            'Tailwind 4 — editorially maintainable content, enquiry flow with '
-            'Zod validation; multilingual with landing pages per region.',
+            '<b>Concept, design and implementation</b>: three paths '
+            '(coaching, animal session, course), one-click appointment '
+            'request; <b>Python</b> backend with spam protection, operated '
+            'on an own VPS.',
+        ],
+    },
+    {
+        'head': _P_PRAXIS_EN,
+        'bullets': [
+            '<b>Astro</b> 7 and Tailwind 4, static without a database; '
+            '<b>ten languages</b> incl. Arabic (RTL), schema.org SEO, no '
+            'cookie banner, content editable via Decap CMS.',
+        ],
+    },
+    {
+        'head': _P_KARAARSLAN_EN,
+        'bullets': [
+            'Moved the Bike Haus platform to a new business (<b>.NET 9</b>, '
+            'Angular 17): online showroom with about 90 bikes, back office '
+            'for purchases, sales and invoices.',
         ],
     },
 ]
@@ -983,13 +1046,11 @@ ERFAHRUNG_IT_SUPPORT_EN = [
 
 PROJEKTE_IT_SUPPORT_EN = [
     {
-        'head': _P_BENLIRAD_EN,
+        'head': _P_DJVEYS_EN,
         'bullets': [
-            'Operated on an own server with <b>Docker</b> and Nginx: '
-            'deployment, TLS certificates, backups and ongoing maintenance.',
-
-            'Four languages (DE/EN/FR/TR); .NET 9 API and Angular 17 share '
-            'one database, Chrome extension for maintaining the listings.',
+            '<b>Next.js 16</b> with Payload CMS 3: editorially maintainable '
+            'content, multilingual — operation and updates maintained '
+            'continuously.',
         ],
     },
     {
@@ -1002,11 +1063,27 @@ PROJEKTE_IT_SUPPORT_EN = [
         ],
     },
     {
-        'head': _P_DJVEYS_EN,
+        'head': _P_SEELEN_EN,
         'bullets': [
-            '<b>Next.js 16</b> with Payload CMS 3: editorially maintainable '
-            'content, multilingual — operation and updates maintained '
-            'continuously.',
+            'Operated on an own <b>VPS</b> with Nginx, deploy scripts and '
+            'database backups; appointment requests run through a '
+            '<b>Python</b> backend with spam protection.',
+        ],
+    },
+    {
+        'head': _P_PRAXIS_EN,
+        'bullets': [
+            'Static <b>Astro</b> site without a database, ten languages; the '
+            'practice edits content itself via Decap CMS in the browser, '
+            'privacy-friendly without a cookie banner.',
+        ],
+    },
+    {
+        'head': _P_KARAARSLAN_EN,
+        'bullets': [
+            'Operated on an own <b>server</b> with <b>Docker</b>, Nginx and '
+            'own mail server; back office for purchases, sales and '
+            'invoices in daily business.',
         ],
     },
 ]
